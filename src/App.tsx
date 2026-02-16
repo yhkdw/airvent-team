@@ -1,3 +1,4 @@
+import type { ChangeEvent } from "react";
 import { useEffect, useMemo, useState } from "react";
 
 type Mode = "home" | "public" | "ops" | "personal";
@@ -77,7 +78,7 @@ export default function App() {
             <select
               className="rounded border px-2 py-1"
               value={csvMode}
-              onChange={(e: any) => setCsvMode(e.target.value as CsvMode)}
+              onChange={(e: ChangeEvent<HTMLSelectElement>) => setCsvMode(e.target.value as CsvMode)}
             >
               <option value="CRLF">CRLF (Excel friendly)</option>
               <option value="LF">LF</option>
