@@ -27,8 +27,8 @@ const HERO_BG_LOCAL = "/hero-airvent-device.png";
 
 // 권장(안정적) 방식: 리포지토리 public 폴더에 파일을 두고 절대경로로 참조
 // 파일 위치: public/airvent-logo.png
-// 참조 경로: /airvent-logo-v2.png
-const LOGO_LOCAL = "/airvent-logo-v2.png";
+// 참조 경로: /airvent-logo-v3.png
+const LOGO_LOCAL = "/airvent-logo-v3.png";
 
 // Brand colors
 const BRAND = {
@@ -1318,10 +1318,6 @@ function HomePage({
                 <Container className="relative pt-12 md:pt-20 lg:pt-28">
                     <div className="relative z-10 mx-auto max-w-4xl text-center">
                         <div className="inline-flex items-center gap-2 rounded-full border border-indigo-100 bg-white px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-indigo-600 shadow-sm md:text-xs">
-                            <span className="flex h-2 w-2">
-                                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-indigo-400 opacity-75"></span>
-                                <span className="relative inline-flex h-2 w-2 rounded-full bg-indigo-500"></span>
-                            </span>
                             {t("hero.pill")}
                         </div>
                         <h1 className="mt-6 text-4xl font-black tracking-tight text-slate-900 md:text-6xl lg:text-7xl">
