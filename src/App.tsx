@@ -64,7 +64,7 @@ type CsvNewlineMode = "LF" | "CRLF";
 const COMMERCE = {
     creditSymbol: "AVC",
     creditUsdRate: 1.0, // 1 credit = $1 voucher
-    earlyBirdCents: 29900, // $299
+    earlyBirdCents: 34900, // $349
     standardCents: 39900, // $399
     set3Cents: 89900, // $899 (approx $300/unit)
     listPriceCents: 49900, // $499
