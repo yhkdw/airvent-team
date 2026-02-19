@@ -2085,7 +2085,7 @@ function PersonalDashboard({
 
     useEffect(() => {
         const interval = setInterval(() => {
-            setMinedTotal(prev => prev + miningRate / 10); // Update every 100ms
+            setMinedTotal((prev: number) => prev + miningRate / 10); // Update every 100ms
         }, 100);
         return () => clearInterval(interval);
     }, [miningRate]);
@@ -2189,7 +2189,7 @@ function PersonalDashboard({
                                     <select
                                         className="bg-black/40 text-[10px] font-bold text-white px-2 py-1 rounded-lg border border-white/10 outline-none hover:border-indigo-500/50 transition cursor-pointer appearance-none"
                                         value={subPlan}
-                                        onChange={(e) => setSubPlanState(e.target.value as SubPlanId)}
+                                        onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSubPlanState(e.target.value as SubPlanId)}
                                     >
                                         {SUB_PLANS.map(p => <option key={p.id} value={p.id} className="bg-slate-900">{lang === "ko" ? p.nameKo : p.nameEn}</option>)}
                                     </select>
