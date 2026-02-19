@@ -1237,9 +1237,7 @@ function TopNav({
                             onClick={() => setPage("home")}
                             className={`px-3 py-1.5 text-sm font-medium transition ${isHome
                                 ? "text-slate-900"
-                                : page === "home"
-                                    ? "text-white"
-                                    : "text-white/60 hover:text-white"
+                                : "text-white/60 hover:text-white"
                                 } ${isHome ? "" : "hidden md:block"}`}
                         >
                             {t("nav.homepage")}
@@ -1645,70 +1643,71 @@ function HomePage({
 
                     </div >
                 </Container >
-            </div >
-            );
+            </div>
+        </div>
+    );
 }
 
-            // -----------------------------
-            // Dashboard Components
-            // -----------------------------
+// -----------------------------
+// Dashboard Components
+// -----------------------------
 
-            function SimpleAreaChart({data, dataKey}: {data: ReadingPoint[]; dataKey: Metric }) {
+function SimpleAreaChart({ data, dataKey }: { data: ReadingPoint[]; dataKey: Metric }) {
     const w = 560;
-            const h = 260;
-            const pad = 18;
+    const h = 260;
+    const pad = 18;
 
     const values = data.map((d) => Number((d as any)[dataKey]));
-            const min = Math.min(...values);
-            const max = Math.max(...values);
-            const range = max - min || 1;
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    const range = max - min || 1;
 
     const points = data.map((d, i) => {
         const x = pad + (i / Math.max(1, data.length - 1)) * (w - pad * 2);
-            const y = pad + (1 - ((d as any)[dataKey] - min) / range) * (h - pad * 2);
-            return {x, y};
+        const y = pad + (1 - ((d as any)[dataKey] - min) / range) * (h - pad * 2);
+        return { x, y };
     });
 
-            const path = points
+    const path = points
         .map((p, i) => `${i === 0 ? "M" : "L"}${p.x.toFixed(2)} ${p.y.toFixed(2)}`)
-            .join(" ");
+        .join(" ");
 
-            const area = `${path} L${(w - pad).toFixed(2)} ${h.toFixed(2)} L${pad} ${h} Z`;
+    const area = `${path} L${(w - pad).toFixed(2)} ${h.toFixed(2)} L${pad} ${h} Z`;
 
-            // color from key
-            const color = metricColor(dataKey);
+    // color from key
+    const color = metricColor(dataKey);
 
-            return (
-            <svg viewBox={`0 0 ${w} ${h}`} className="h-full w-full">
-                <defs>
-                    <linearGradient id={`grad_${dataKey}`} x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor={color} stopOpacity={0.4} />
-                        <stop offset="100%" stopColor={color} stopOpacity={0} />
-                    </linearGradient>
-                </defs>
-                {/* Grid lines */}
-                {[0, 0.25, 0.5, 0.75, 1].map((t) => (
-                    <line
-                        key={t}
-                        x1={pad}
-                        y1={pad + t * (h - pad * 2)}
-                        x2={w - pad}
-                        y2={pad + t * (h - pad * 2)}
-                        stroke="rgba(255,255,255,0.1)"
-                        strokeDasharray="4 4"
-                    />
-                ))}
-                <path d={area} fill={`url(#grad_${dataKey})`} />
-                <path d={path} fill="none" stroke={color} strokeWidth={2} strokeLinecap="round" />
-            </svg>
-            );
+    return (
+        <svg viewBox={`0 0 ${w} ${h}`} className="h-full w-full">
+            <defs>
+                <linearGradient id={`grad_${dataKey}`} x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor={color} stopOpacity={0.4} />
+                    <stop offset="100%" stopColor={color} stopOpacity={0} />
+                </linearGradient>
+            </defs>
+            {/* Grid lines */}
+            {[0, 0.25, 0.5, 0.75, 1].map((t) => (
+                <line
+                    key={t}
+                    x1={pad}
+                    y1={pad + t * (h - pad * 2)}
+                    x2={w - pad}
+                    y2={pad + t * (h - pad * 2)}
+                    stroke="rgba(255,255,255,0.1)"
+                    strokeDasharray="4 4"
+                />
+            ))}
+            <path d={area} fill={`url(#grad_${dataKey})`} />
+            <path d={path} fill="none" stroke={color} strokeWidth={2} strokeLinecap="round" />
+        </svg>
+    );
 }
 
-            function PublicExplorerView({lang, t, mode, onChangeMode}: {lang: Lang; t: TFn; mode: DashboardMode; onChangeMode: (v: DashboardMode) => void }) {
+function PublicExplorerView({ lang, t, mode, onChangeMode }: { lang: Lang; t: TFn; mode: DashboardMode; onChangeMode: (v: DashboardMode) => void }) {
     const [selectedNode, setSelectedNode] = useState<Site | null>(null);
-            const [filter, setFilter] = useState<"all" | "online" | "degraded" | "offline">("all");
+    const [filter, setFilter] = useState<"all" | "online" | "degraded" | "offline">("all");
 
-            const nodes = mockSites;
+    const nodes = mockSites;
 
     // Mock filter logic
     const filtered = nodes.filter(n => {
@@ -1717,17 +1716,214 @@ function HomePage({
         return true;
     });
 
-            return (
-            <Container className="pb-20 pt-8">
-                <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-                    <div>
-                        <div className="flex items-center gap-2 text-sm font-bold text-emerald-400">
-                            <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                            {t("dash.public.kicker")}
-                        </div>
-                        <h2 className="mt-1 text-3xl font-bold text-white">{t("dash.public.title")}</h2>
-                        <p className="text-white/60">{t("dash.public.subtitle")}</p>
+    return (
+        <Container className="pb-20 pt-8">
+            <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+                <div>
+                    <div className="flex items-center gap-2 text-sm font-bold text-emerald-400">
+                        <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                        {t("dash.public.kicker")}
                     </div>
+                    <h2 className="mt-1 text-3xl font-bold text-white">{t("dash.public.title")}</h2>
+                    <p className="text-white/60">{t("dash.public.subtitle")}</p>
+                </div>
+                <div className="flex bg-white/5 p-1 rounded-xl border border-white/10">
+                    {(["public", "ops", "personal"] as const).map(m => (
+                        <button
+                            key={m}
+                            onClick={() => onChangeMode(m)}
+                            className={`px-4 py-2 text-sm font-medium rounded-lg transition ${mode === m ? "bg-white/10 text-white shadow-sm" : "text-white/40 hover:text-white"
+                                }`}
+                        >
+                            {t(`dash.mode.${m}` as any)}
+                        </button>
+                    ))}
+                </div>
+            </div>
+
+            {/* Stats row */}
+            <div className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-4">
+                <Stat label={t("dash.public.stat.nodes")} value="1,240" sub="+12 today" />
+                <Stat label={t("dash.public.stat.online")} value="98.2%" sub="Active" />
+                <Stat label={t("dash.public.stat.cities")} value="42" sub="Global" />
+                <Stat label={t("dash.public.stat.uptime")} value="99.9%" sub="Network avg" />
+            </div>
+
+            <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
+                {/* Map (Mock) */}
+                <div className="lg:col-span-2 min-h-[400px] rounded-3xl border border-white/10 bg-zinc-900 relative overflow-hidden group">
+                    <div className="absolute inset-0 z-0 opacity-40"
+                        style={{
+                            backgroundImage: "radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.15) 0%, transparent 50%)"
+                        }}
+                    />
+                    <div className="absolute inset-x-0 top-0 p-6 flex justify-between items-start z-10">
+                        <h3 className="text-lg font-bold text-white">{t("dash.public.map")}</h3>
+                        <div className="text-xs text-white/40">{t("dash.public.map.right")}</div>
+                    </div>
+
+                    {/* Mock Map Dots */}
+                    <div className="absolute inset-0 mt-16 p-4">
+                        {mockSites.map((s, i) => (
+                            <div
+                                key={s.id}
+                                className="absolute h-3 w-3 rounded-full bg-indigo-500 hover:scale-150 transition cursor-pointer box-content border-2 border-zinc-900 shadow-[0_0_10px_rgba(99,102,241,0.6)]"
+                                style={{
+                                    top: `${20 + (Math.abs(s.lat * 123) % 60)}%`,
+                                    left: `${10 + (Math.abs(s.lng * 456) % 80)}%`,
+                                    transitionDelay: `${i * 50}ms`
+                                }}
+                                title={s.name}
+                                onClick={() => setSelectedNode(s)}
+                            />
+                        ))}
+                    </div>
+                </div>
+
+                {/* List */}
+                <div className="rounded-3xl border border-white/10 bg-white/5 flex flex-col h-[500px]">
+                    <div className="p-5 border-b border-white/10">
+                        <h3 className="text-sm font-bold text-white">{t("dash.public.list")}</h3>
+                        <div className="mt-3">
+                            <Input placeholder={t("dash.public.search")} className="text-xs" />
+                        </div>
+                        <div className="mt-3 flex gap-2 overflow-x-auto pb-2 no-scrollbar">
+                            {(["all", "online", "degraded", "offline"] as const).map(f => (
+                                <button
+                                    key={f}
+                                    onClick={() => setFilter(f)}
+                                    className={`whitespace-nowrap px-2.5 py-1 rounded-full text-[10px] uppercase font-bold border transition ${filter === f ? "bg-white text-black border-white" : "bg-transparent text-white/40 border-white/10 hover:border-white/30"
+                                        }`}
+                                >
+                                    {t(`dash.public.filter.${f}` as any)}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                    <div className="flex-1 overflow-y-auto p-2 space-y-1">
+                        {mockSites.map(s => (
+                            <div key={s.id}
+                                onClick={() => setSelectedNode(s)}
+                                className={`p-3 rounded-xl border border-transparent transition cursor-pointer ${selectedNode?.id === s.id ? "bg-indigo-500/20 border-indigo-500/50" : "hover:bg-white/5"
+                                    }`}
+                            >
+                                <div className="flex items-center justify-between">
+                                    <div className="text-xs font-bold text-white">{s.name}</div>
+                                    <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 shadow-[0_0_5px_currentColor]"></div>
+                                </div>
+                                <div className="flex justify-between mt-1 text-[10px] text-white/40">
+                                    <span>{s.city}, {s.country}</span>
+                                    <span className="font-mono">{s.id}</span>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+
+            {selectedNode && (
+                <div className="mt-6 rounded-2xl border border-emerald-500/30 bg-emerald-900/10 p-4 animate-fadeIn">
+                    <div className="flex items-center gap-3">
+                        <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                        <div className="text-sm font-bold text-emerald-300">{t("dash.public.selected")}: {selectedNode.name}</div>
+                    </div>
+                </div>
+            )}
+
+        </Container>
+    );
+}
+
+function OperationsDashboard({
+    lang,
+    t,
+    mode,
+    onChangeMode,
+    opsRange,
+    setOpsRangeState,
+    csvNewlineMode,
+    setCsvNewlineModeState,
+    creditCents,
+}: {
+    lang: Lang;
+    t: TFn;
+    mode: DashboardMode;
+    onChangeMode: (m: DashboardMode) => void;
+    opsRange: OpsRange;
+    setOpsRangeState: (r: OpsRange) => void;
+    csvNewlineMode: CsvNewlineMode;
+    setCsvNewlineModeState: (m: CsvNewlineMode) => void;
+    creditCents: number;
+}) {
+    // Generate mock data on fly
+    const series = useMemo(() => generateSeries(12345, opsRange === "24h" ? 48 : 42), [opsRange]); // 30m intervals
+    const alerts: Alert[] = [
+        {
+            id: "AL-101",
+            severity: "high",
+            siteId: "S-SEO-001",
+            deviceId: "AV-0000000001",
+            metric: "co2",
+            value: 1250,
+            threshold: 1000,
+            ts: Date.now() - 15 * 60_000,
+            note: "Meeting Room overcrowded",
+        },
+        {
+            id: "AL-102",
+            severity: "med",
+            siteId: "S-BUS-001",
+            deviceId: "AV-0000000202",
+            metric: "pm25",
+            value: 42,
+            threshold: 35,
+            ts: Date.now() - 45 * 60_000,
+        },
+    ];
+
+    const onExport = () => {
+        const csv = csvFromSeries(series, newlineFromMode(csvNewlineMode));
+        downloadText(`airvent_ops_${opsRange}_${Date.now()}.csv`, csv);
+    };
+
+    const [copied, setCopied] = useState(false);
+    const onCopyBadge = async () => {
+        const code = `<iframe src="${window.location.origin}/#/badge?site=S-SEO-001&lang=${lang}" width="300" height="200" style="border:none;"></iframe>`;
+        if (await copyToClipboard(code)) {
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        }
+    };
+
+    return (
+        <Container className="pb-20 pt-8">
+            {/* Header */}
+            <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+                <div>
+                    <div className="flex items-center gap-2 text-sm font-bold text-indigo-400">
+                        <span className="h-2 w-2 rounded-full bg-indigo-400"></span>
+                        {t("dash.kicker")}
+                    </div>
+                    <div className="flex items-center gap-4">
+                        <h2 className="mt-1 text-3xl font-bold text-white">{t("dash.title")}</h2>
+                        {/* Range Toggle */}
+                        <div className="flex bg-white/10 rounded-lg p-0.5 mt-1">
+                            {(["24h", "7d"] as const).map(r => (
+                                <button
+                                    key={r}
+                                    onClick={() => setOpsRangeState(r)}
+                                    className={`px-3 py-1 text-xs font-bold rounded-md transition ${opsRange === r ? "bg-indigo-500 text-white shadow" : "text-white/60 hover:text-white"
+                                        }`}
+                                >
+                                    {t(`dash.range.${r}` as any)}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                    <p className="text-white/60">{t("dash.subtitle")}</p>
+                </div>
+
+                <div className="flex flex-col items-end gap-3">
                     <div className="flex bg-white/5 p-1 rounded-xl border border-white/10">
                         {(["public", "ops", "personal"] as const).map(m => (
                             <button
@@ -1740,314 +1936,117 @@ function HomePage({
                             </button>
                         ))}
                     </div>
-                </div>
 
-                {/* Stats row */}
-                <div className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-4">
-                    <Stat label={t("dash.public.stat.nodes")} value="1,240" sub="+12 today" />
-                    <Stat label={t("dash.public.stat.online")} value="98.2%" sub="Active" />
-                    <Stat label={t("dash.public.stat.cities")} value="42" sub="Global" />
-                    <Stat label={t("dash.public.stat.uptime")} value="99.9%" sub="Network avg" />
-                </div>
-
-                <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
-                    {/* Map (Mock) */}
-                    <div className="lg:col-span-2 min-h-[400px] rounded-3xl border border-white/10 bg-zinc-900 relative overflow-hidden group">
-                        <div className="absolute inset-0 z-0 opacity-40"
-                            style={{
-                                backgroundImage: "radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.15) 0%, transparent 50%)"
-                            }}
-                        />
-                        <div className="absolute inset-x-0 top-0 p-6 flex justify-between items-start z-10">
-                            <h3 className="text-lg font-bold text-white">{t("dash.public.map")}</h3>
-                            <div className="text-xs text-white/40">{t("dash.public.map.right")}</div>
+                    <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 bg-white/5 text-xs text-white/60">
+                            <span>CSV Newline:</span>
+                            <button className={csvNewlineMode === "LF" ? "text-white font-bold" : "hover:text-white"} onClick={() => setCsvNewlineModeState("LF")}>LF</button>
+                            <span className="opacity-20">|</span>
+                            <button className={csvNewlineMode === "CRLF" ? "text-white font-bold" : "hover:text-white"} onClick={() => setCsvNewlineModeState("CRLF")}>CRLF</button>
                         </div>
-
-                        {/* Mock Map Dots */}
-                        <div className="absolute inset-0 mt-16 p-4">
-                            {mockSites.map((s, i) => (
-                                <div
-                                    key={s.id}
-                                    className="absolute h-3 w-3 rounded-full bg-indigo-500 hover:scale-150 transition cursor-pointer box-content border-2 border-zinc-900 shadow-[0_0_10px_rgba(99,102,241,0.6)]"
-                                    style={{
-                                        top: `${20 + (Math.abs(s.lat * 123) % 60)}%`,
-                                        left: `${10 + (Math.abs(s.lng * 456) % 80)}%`,
-                                        transitionDelay: `${i * 50}ms`
-                                    }}
-                                    title={s.name}
-                                    onClick={() => setSelectedNode(s)}
-                                />
-                            ))}
-                        </div>
+                        <Button onClick={onExport} size="sm" variant="secondary" className="gap-2">
+                            <span>{t("dash.export")}</span>
+                        </Button>
                     </div>
+                </div>
+            </div>
 
-                    {/* List */}
-                    <div className="rounded-3xl border border-white/10 bg-white/5 flex flex-col h-[500px]">
-                        <div className="p-5 border-b border-white/10">
-                            <h3 className="text-sm font-bold text-white">{t("dash.public.list")}</h3>
-                            <div className="mt-3">
-                                <Input placeholder={t("dash.public.search")} className="text-xs" />
-                            </div>
-                            <div className="mt-3 flex gap-2 overflow-x-auto pb-2 no-scrollbar">
-                                {(["all", "online", "degraded", "offline"] as const).map(f => (
-                                    <button
-                                        key={f}
-                                        onClick={() => setFilter(f)}
-                                        className={`whitespace-nowrap px-2.5 py-1 rounded-full text-[10px] uppercase font-bold border transition ${filter === f ? "bg-white text-black border-white" : "bg-transparent text-white/40 border-white/10 hover:border-white/30"
-                                            }`}
-                                    >
-                                        {t(`dash.public.filter.${f}` as any)}
-                                    </button>
-                                ))}
-                            </div>
+            {/* KPI Cards */}
+            <div className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-4">
+                <Stat label={t("dash.stat.score")} value="87" sub="S-SEO-001 (Avg)" />
+                <Stat label={t("dash.stat.tot")} value={`${timeOverThreshold(series, 'co2')}%`} sub={`CO2 > 1000 (${opsRange})`} />
+                <Stat label={t("dash.stat.alerts")} value={alerts.length} sub="Active" />
+                <Stat label={t("dash.stat.credit")} value={formatUsd(creditCents)} sub={t("rewards.creditNote")} />
+            </div>
+
+            {/* Main Charts */}
+            <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
+                <div className="lg:col-span-2 space-y-6">
+                    <DarkCard title={`${t("dash.trend")} (PM2.5)`} className="h-64">
+                        <SimpleAreaChart data={series} dataKey="pm25" />
+                    </DarkCard>
+                    <DarkCard title={`${t("dash.trend")} (CO2)`} className="h-64">
+                        <SimpleAreaChart data={series} dataKey="co2" />
+                    </DarkCard>
+                </div>
+
+                <div className="space-y-6">
+                    {/* Alerts Feed */}
+                    <div className="rounded-3xl border border-white/10 bg-white/5 p-5 min-h-[300px]">
+                        <div className="flex items-center justify-between mb-4">
+                            <h3 className="text-sm font-bold uppercase tracking-wider text-rose-400">{t("dash.alerts")}</h3>
+                            <span className="text-xs font-mono text-white/40">{alerts.length}</span>
                         </div>
-                        <div className="flex-1 overflow-y-auto p-2 space-y-1">
-                            {mockSites.map(s => (
-                                <div key={s.id}
-                                    onClick={() => setSelectedNode(s)}
-                                    className={`p-3 rounded-xl border border-transparent transition cursor-pointer ${selectedNode?.id === s.id ? "bg-indigo-500/20 border-indigo-500/50" : "hover:bg-white/5"
-                                        }`}
-                                >
-                                    <div className="flex items-center justify-between">
-                                        <div className="text-xs font-bold text-white">{s.name}</div>
-                                        <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 shadow-[0_0_5px_currentColor]"></div>
+                        <div className="space-y-3">
+                            {alerts.length === 0 ? (
+                                <div className="text-center text-sm text-white/30 py-8">{t("dash.alerts.none")}</div>
+                            ) : (
+                                alerts.map(a => (
+                                    <div key={a.id} className="relative rounded-xl border border-rose-500/20 bg-rose-500/10 p-3">
+                                        <div className="flex justify-between items-start">
+                                            <div className="text-xs font-bold text-rose-300">
+                                                {a.metric.toUpperCase()} &gt; {a.threshold}
+                                            </div>
+                                            <div className="text-[10px] text-rose-300/60 font-mono">
+                                                {new Date(a.ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                            </div>
+                                        </div>
+                                        <div className="mt-1 text-xs text-white/80">{a.note || `${a.value} recorded at ${a.deviceId}`}</div>
+                                        <div className="mt-2 text-[10px] uppercase font-bold tracking-wide text-rose-400">{a.severity} Priority</div>
                                     </div>
-                                    <div className="flex justify-between mt-1 text-[10px] text-white/40">
-                                        <span>{s.city}, {s.country}</span>
-                                        <span className="font-mono">{s.id}</span>
-                                    </div>
-                                </div>
-                            ))}
+                                ))
+                            )}
                         </div>
                     </div>
-                </div>
 
-                {selectedNode && (
-                    <div className="mt-6 rounded-2xl border border-emerald-500/30 bg-emerald-900/10 p-4 animate-fadeIn">
-                        <div className="flex items-center gap-3">
-                            <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-                            <div className="text-sm font-bold text-emerald-300">{t("dash.public.selected")}: {selectedNode.name}</div>
-                        </div>
-                    </div>
-                )}
-
-            </Container>
-            );
-}
-
-            function OperationsDashboard({
-                lang,
-                t,
-                mode,
-                onChangeMode,
-                opsRange,
-                setOpsRangeState,
-                csvNewlineMode,
-                setCsvNewlineModeState,
-                creditCents,
-}: {
-                lang: Lang;
-            t: TFn;
-            mode: DashboardMode;
-    onChangeMode: (m: DashboardMode) => void;
-            opsRange: OpsRange;
-    setOpsRangeState: (r: OpsRange) => void;
-            csvNewlineMode: CsvNewlineMode;
-    setCsvNewlineModeState: (m: CsvNewlineMode) => void;
-            creditCents: number;
-}) {
-    // Generate mock data on fly
-    const series = useMemo(() => generateSeries(12345, opsRange === "24h" ? 48 : 42), [opsRange]); // 30m intervals
-            const alerts: Alert[] = [
-            {
-                id: "AL-101",
-            severity: "high",
-            siteId: "S-SEO-001",
-            deviceId: "AV-0000000001",
-            metric: "co2",
-            value: 1250,
-            threshold: 1000,
-            ts: Date.now() - 15 * 60_000,
-            note: "Meeting Room overcrowded",
-        },
-            {
-                id: "AL-102",
-            severity: "med",
-            siteId: "S-BUS-001",
-            deviceId: "AV-0000000202",
-            metric: "pm25",
-            value: 42,
-            threshold: 35,
-            ts: Date.now() - 45 * 60_000,
-        },
-            ];
-
-    const onExport = () => {
-        const csv = csvFromSeries(series, newlineFromMode(csvNewlineMode));
-            downloadText(`airvent_ops_${opsRange}_${Date.now()}.csv`, csv);
-    };
-
-            const [copied, setCopied] = useState(false);
-    const onCopyBadge = async () => {
-        const code = `<iframe src="${window.location.origin}/#/badge?site=S-SEO-001&lang=${lang}" width="300" height="200" style="border:none;"></iframe>`;
-            if (await copyToClipboard(code)) {
-                setCopied(true);
-            setTimeout(() => setCopied(false), 2000);
-        }
-    };
-
-            return (
-            <Container className="pb-20 pt-8">
-                {/* Header */}
-                <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-                    <div>
-                        <div className="flex items-center gap-2 text-sm font-bold text-indigo-400">
-                            <span className="h-2 w-2 rounded-full bg-indigo-400"></span>
-                            {t("dash.kicker")}
-                        </div>
-                        <div className="flex items-center gap-4">
-                            <h2 className="mt-1 text-3xl font-bold text-white">{t("dash.title")}</h2>
-                            {/* Range Toggle */}
-                            <div className="flex bg-white/10 rounded-lg p-0.5 mt-1">
-                                {(["24h", "7d"] as const).map(r => (
-                                    <button
-                                        key={r}
-                                        onClick={() => setOpsRangeState(r)}
-                                        className={`px-3 py-1 text-xs font-bold rounded-md transition ${opsRange === r ? "bg-indigo-500 text-white shadow" : "text-white/60 hover:text-white"
-                                            }`}
-                                    >
-                                        {t(`dash.range.${r}` as any)}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-                        <p className="text-white/60">{t("dash.subtitle")}</p>
-                    </div>
-
-                    <div className="flex flex-col items-end gap-3">
-                        <div className="flex bg-white/5 p-1 rounded-xl border border-white/10">
-                            {(["public", "ops", "personal"] as const).map(m => (
-                                <button
-                                    key={m}
-                                    onClick={() => onChangeMode(m)}
-                                    className={`px-4 py-2 text-sm font-medium rounded-lg transition ${mode === m ? "bg-white/10 text-white shadow-sm" : "text-white/40 hover:text-white"
-                                        }`}
-                                >
-                                    {t(`dash.mode.${m}` as any)}
-                                </button>
-                            ))}
-                        </div>
-
-                        <div className="flex items-center gap-2">
-                            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 bg-white/5 text-xs text-white/60">
-                                <span>CSV Newline:</span>
-                                <button className={csvNewlineMode === "LF" ? "text-white font-bold" : "hover:text-white"} onClick={() => setCsvNewlineModeState("LF")}>LF</button>
-                                <span className="opacity-20">|</span>
-                                <button className={csvNewlineMode === "CRLF" ? "text-white font-bold" : "hover:text-white"} onClick={() => setCsvNewlineModeState("CRLF")}>CRLF</button>
-                            </div>
-                            <Button onClick={onExport} size="sm" variant="secondary" className="gap-2">
-                                <span>{t("dash.export")}</span>
+                    {/* Badge Embed Helper */}
+                    <DarkCard title={t("dash.badge")} className="border-indigo-500/30">
+                        <p className="text-xs text-white/60 leading-relaxed mb-4">{t("dash.badge.desc")}</p>
+                        <div className="flex gap-2">
+                            <Button size="sm" variant="secondary" className="flex-1" onClick={onCopyBadge}>
+                                {copied ? t("dash.badge.copied") : t("dash.badge.copy")}
+                            </Button>
+                            <Button size="sm" variant="secondary" onClick={() => window.open(`#/badge?site=S-SEO-001&lang=${lang}`, "_blank")}>
+                                {t("dash.badge.preview")}
                             </Button>
                         </div>
-                    </div>
+                    </DarkCard>
                 </div>
+            </div>
 
-                {/* KPI Cards */}
-                <div className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-4">
-                    <Stat label={t("dash.stat.score")} value="87" sub="S-SEO-001 (Avg)" />
-                    <Stat label={t("dash.stat.tot")} value={`${timeOverThreshold(series, 'co2')}%`} sub={`CO2 > 1000 (${opsRange})`} />
-                    <Stat label={t("dash.stat.alerts")} value={alerts.length} sub="Active" />
-                    <Stat label={t("dash.stat.credit")} value={formatUsd(creditCents)} sub={t("rewards.creditNote")} />
-                </div>
-
-                {/* Main Charts */}
-                <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
-                    <div className="lg:col-span-2 space-y-6">
-                        <DarkCard title={`${t("dash.trend")} (PM2.5)`} className="h-64">
-                            <SimpleAreaChart data={series} dataKey="pm25" />
-                        </DarkCard>
-                        <DarkCard title={`${t("dash.trend")} (CO2)`} className="h-64">
-                            <SimpleAreaChart data={series} dataKey="co2" />
-                        </DarkCard>
-                    </div>
-
-                    <div className="space-y-6">
-                        {/* Alerts Feed */}
-                        <div className="rounded-3xl border border-white/10 bg-white/5 p-5 min-h-[300px]">
-                            <div className="flex items-center justify-between mb-4">
-                                <h3 className="text-sm font-bold uppercase tracking-wider text-rose-400">{t("dash.alerts")}</h3>
-                                <span className="text-xs font-mono text-white/40">{alerts.length}</span>
-                            </div>
-                            <div className="space-y-3">
-                                {alerts.length === 0 ? (
-                                    <div className="text-center text-sm text-white/30 py-8">{t("dash.alerts.none")}</div>
-                                ) : (
-                                    alerts.map(a => (
-                                        <div key={a.id} className="relative rounded-xl border border-rose-500/20 bg-rose-500/10 p-3">
-                                            <div className="flex justify-between items-start">
-                                                <div className="text-xs font-bold text-rose-300">
-                                                    {a.metric.toUpperCase()} &gt; {a.threshold}
-                                                </div>
-                                                <div className="text-[10px] text-rose-300/60 font-mono">
-                                                    {new Date(a.ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                                </div>
-                                            </div>
-                                            <div className="mt-1 text-xs text-white/80">{a.note || `${a.value} recorded at ${a.deviceId}`}</div>
-                                            <div className="mt-2 text-[10px] uppercase font-bold tracking-wide text-rose-400">{a.severity} Priority</div>
-                                        </div>
-                                    ))
-                                )}
-                            </div>
-                        </div>
-
-                        {/* Badge Embed Helper */}
-                        <DarkCard title={t("dash.badge")} className="border-indigo-500/30">
-                            <p className="text-xs text-white/60 leading-relaxed mb-4">{t("dash.badge.desc")}</p>
-                            <div className="flex gap-2">
-                                <Button size="sm" variant="secondary" className="flex-1" onClick={onCopyBadge}>
-                                    {copied ? t("dash.badge.copied") : t("dash.badge.copy")}
-                                </Button>
-                                <Button size="sm" variant="secondary" onClick={() => window.open(`#/badge?site=S-SEO-001&lang=${lang}`, "_blank")}>
-                                    {t("dash.badge.preview")}
-                                </Button>
-                            </div>
-                        </DarkCard>
-                    </div>
-                </div>
-
-            </Container>
-            );
+        </Container>
+    );
 }
 
-            function PersonalDashboard({
-                lang,
-                t,
-                mode,
-                onChangeMode,
-                walletAddress,
-                creditCents,
-                setCreditCentsState,
-                subPlan,
-                setSubPlanState,
-                csvNewlineMode,
-                betaJoined,
-                onJoinBeta,
-                betaTasks,
-                setBetaTasksState,
+function PersonalDashboard({
+    lang,
+    t,
+    mode,
+    onChangeMode,
+    walletAddress,
+    creditCents,
+    setCreditCentsState,
+    subPlan,
+    setSubPlanState,
+    csvNewlineMode,
+    betaJoined,
+    onJoinBeta,
+    betaTasks,
+    setBetaTasksState,
 }: {
-                lang: Lang;
-            t: TFn;
-            mode: DashboardMode;
+    lang: Lang;
+    t: TFn;
+    mode: DashboardMode;
     onChangeMode: (m: DashboardMode) => void;
-            walletAddress: string | null;
-            creditCents: number;
+    walletAddress: string | null;
+    creditCents: number;
     setCreditCentsState: (c: number) => void;
-            subPlan: SubPlanId;
+    subPlan: SubPlanId;
     setSubPlanState: (p: SubPlanId) => void;
-            csvNewlineMode: CsvNewlineMode;
-            betaJoined: boolean;
+    csvNewlineMode: CsvNewlineMode;
+    betaJoined: boolean;
     onJoinBeta: () => void;
-            betaTasks: BetaTaskState;
+    betaTasks: BetaTaskState;
     setBetaTasksState: (s: BetaTaskState) => void;
 }) {
     if (!walletAddress) {
@@ -2066,338 +2065,338 @@ function HomePage({
                     </div>
                 </div>
             </Container>
-            );
+        );
     }
 
-            // Credit calculation logic
-            const cartSubtotal = 49900; // Example cart
-            const {capCents, usedCents, dueCents} = applyCreditsToSubtotal({subtotalCents: cartSubtotal, creditBalanceCents: creditCents });
+    // Credit calculation logic
+    const cartSubtotal = 49900; // Example cart
+    const { capCents, usedCents, dueCents } = applyCreditsToSubtotal({ subtotalCents: cartSubtotal, creditBalanceCents: creditCents });
 
-            const refCode = referralCodeFromWallet(walletAddress);
+    const refCode = referralCodeFromWallet(walletAddress);
 
     const toggleTask = (k: BetaTaskId) => {
-        const next = {...betaTasks, [k]: !betaTasks[k] };
-            setBetaTasksState(next);
-            // Mock credit reward for completing task
-            if (!betaTasks[k] && next[k]) {
-                setCreditCentsState(creditCents + 500); // +$5 reward
+        const next = { ...betaTasks, [k]: !betaTasks[k] };
+        setBetaTasksState(next);
+        // Mock credit reward for completing task
+        if (!betaTasks[k] && next[k]) {
+            setCreditCentsState(creditCents + 500); // +$5 reward
         }
     };
 
-            const plan = planById(subPlan);
+    const plan = planById(subPlan);
 
-            return (
-            <Container className="pb-20 pt-8">
-                <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-                    <div>
-                        <div className="flex items-center gap-2 text-sm font-bold text-indigo-400">
-                            <span className="h-2 w-2 rounded-full bg-indigo-400"></span>
-                            {t("dash.personal.kicker")}
-                        </div>
-                        <h2 className="mt-1 text-3xl font-bold text-white">{t("dash.personal.title")}</h2>
-                        <p className="text-white/60">{t("dash.personal.subtitle")}</p>
+    return (
+        <Container className="pb-20 pt-8">
+            <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+                <div>
+                    <div className="flex items-center gap-2 text-sm font-bold text-indigo-400">
+                        <span className="h-2 w-2 rounded-full bg-indigo-400"></span>
+                        {t("dash.personal.kicker")}
                     </div>
-                    <div className="flex bg-white/5 p-1 rounded-xl border border-white/10">
-                        {(["public", "ops", "personal"] as const).map(m => (
-                            <button
-                                key={m}
-                                onClick={() => onChangeMode(m)}
-                                className={`px-4 py-2 text-sm font-medium rounded-lg transition ${mode === m ? "bg-white/10 text-white shadow-sm" : "text-white/40 hover:text-white"
-                                    }`}
-                            >
-                                {t(`dash.mode.${m}` as any)}
-                            </button>
-                        ))}
+                    <h2 className="mt-1 text-3xl font-bold text-white">{t("dash.personal.title")}</h2>
+                    <p className="text-white/60">{t("dash.personal.subtitle")}</p>
+                </div>
+                <div className="flex bg-white/5 p-1 rounded-xl border border-white/10">
+                    {(["public", "ops", "personal"] as const).map(m => (
+                        <button
+                            key={m}
+                            onClick={() => onChangeMode(m)}
+                            className={`px-4 py-2 text-sm font-medium rounded-lg transition ${mode === m ? "bg-white/10 text-white shadow-sm" : "text-white/40 hover:text-white"
+                                }`}
+                        >
+                            {t(`dash.mode.${m}` as any)}
+                        </button>
+                    ))}
+                </div>
+            </div>
+
+            <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
+
+                {/* Credits / Subscription */}
+                <div className="space-y-6">
+                    <div className="rounded-3xl border border-indigo-500/30 bg-gradient-to-br from-indigo-900/40 to-slate-900 p-6">
+                        <div className="flex items-start justify-between">
+                            <div>
+                                <div className="text-sm font-bold text-indigo-300 uppercase tracking-wide">{t("credit.title")}</div>
+                                <div className="mt-2 text-4xl font-white text-white">{formatUsd(creditCents)}</div>
+                                <div className="mt-1 text-xs text-indigo-200">{t("credit.max60")}</div>
+                            </div>
+                            <div className="text-right">
+                                <div className="text-xs text-indigo-300">{t("credit.plan.current")}</div>
+                                <div className="font-bold text-white">{lang === "ko" ? plan.nameKo : plan.nameEn}</div>
+                                <div className="mt-2">
+                                    <select
+                                        className="bg-black/20 text-xs text-white p-1 rounded border border-white/10"
+                                        value={subPlan}
+                                        onChange={(e) => setSubPlanState(e.target.value as SubPlanId)}
+                                    >
+                                        {SUB_PLANS.map(p => <option key={p.id} value={p.id}>{lang === "ko" ? p.nameKo : p.nameEn}</option>)}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Simulator */}
+                        <div className="mt-8 rounded-xl bg-black/20 p-4">
+                            <div className="flex justify-between items-center mb-2">
+                                <div className="text-xs font-bold text-white/70">{t("credit.checkout")} (Sim)</div>
+                                <button onClick={() => setCreditCentsState(0)} className="text-[10px] text-white/40 hover:text-white underline">{t("credit.reset")}</button>
+                            </div>
+                            <div className="space-y-2 text-sm">
+                                <div className="flex justify-between text-white/60">
+                                    <span>{t("credit.product")} (List)</span>
+                                    <span>{formatUsd(cartSubtotal)}</span>
+                                </div>
+                                <div className="flex justify-between text-white/60">
+                                    <span>{t("credit.used")}</span>
+                                    <span className="text-emerald-400">-{formatUsd(usedCents)}</span>
+                                </div>
+                                <div className="border-t border-white/10 pt-2 flex justify-between font-bold text-white">
+                                    <span>{t("credit.due")}</span>
+                                    <span>{formatUsd(dueCents)}</span>
+                                </div>
+                            </div>
+                            <div className="mt-4 pt-4 border-t border-white/10 flex justify-center">
+                                <button
+                                    onClick={() => setCreditCentsState(creditCents + plan.creditsCentsPerMonth)}
+                                    className="text-xs flex items-center gap-1 text-indigo-300 hover:text-white transition"
+                                >
+                                    <span>📅 {t("credit.simulateMonth")} ({formatUsd(plan.creditsCentsPerMonth)})</span>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
-
-                    {/* Credits / Subscription */}
-                    <div className="space-y-6">
-                        <div className="rounded-3xl border border-indigo-500/30 bg-gradient-to-br from-indigo-900/40 to-slate-900 p-6">
-                            <div className="flex items-start justify-between">
-                                <div>
-                                    <div className="text-sm font-bold text-indigo-300 uppercase tracking-wide">{t("credit.title")}</div>
-                                    <div className="mt-2 text-4xl font-white text-white">{formatUsd(creditCents)}</div>
-                                    <div className="mt-1 text-xs text-indigo-200">{t("credit.max60")}</div>
-                                </div>
-                                <div className="text-right">
-                                    <div className="text-xs text-indigo-300">{t("credit.plan.current")}</div>
-                                    <div className="font-bold text-white">{lang === "ko" ? plan.nameKo : plan.nameEn}</div>
-                                    <div className="mt-2">
-                                        <select
-                                            className="bg-black/20 text-xs text-white p-1 rounded border border-white/10"
-                                            value={subPlan}
-                                            onChange={(e) => setSubPlanState(e.target.value as SubPlanId)}
-                                        >
-                                            {SUB_PLANS.map(p => <option key={p.id} value={p.id}>{lang === "ko" ? p.nameKo : p.nameEn}</option>)}
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Simulator */}
-                            <div className="mt-8 rounded-xl bg-black/20 p-4">
-                                <div className="flex justify-between items-center mb-2">
-                                    <div className="text-xs font-bold text-white/70">{t("credit.checkout")} (Sim)</div>
-                                    <button onClick={() => setCreditCentsState(0)} className="text-[10px] text-white/40 hover:text-white underline">{t("credit.reset")}</button>
-                                </div>
-                                <div className="space-y-2 text-sm">
-                                    <div className="flex justify-between text-white/60">
-                                        <span>{t("credit.product")} (List)</span>
-                                        <span>{formatUsd(cartSubtotal)}</span>
-                                    </div>
-                                    <div className="flex justify-between text-white/60">
-                                        <span>{t("credit.used")}</span>
-                                        <span className="text-emerald-400">-{formatUsd(usedCents)}</span>
-                                    </div>
-                                    <div className="border-t border-white/10 pt-2 flex justify-between font-bold text-white">
-                                        <span>{t("credit.due")}</span>
-                                        <span>{formatUsd(dueCents)}</span>
-                                    </div>
-                                </div>
-                                <div className="mt-4 pt-4 border-t border-white/10 flex justify-center">
-                                    <button
-                                        onClick={() => setCreditCentsState(creditCents + plan.creditsCentsPerMonth)}
-                                        className="text-xs flex items-center gap-1 text-indigo-300 hover:text-white transition"
-                                    >
-                                        <span>📅 {t("credit.simulateMonth")} ({formatUsd(plan.creditsCentsPerMonth)})</span>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Beta Section */}
-                    <div className="space-y-6">
-                        <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
-                            <div className="flex items-center justify-between">
-                                <h3 className="text-lg font-bold text-white">{t("beta.title")}</h3>
-                                {betaJoined ? (
-                                    <span className="px-2 py-1 rounded bg-emerald-500/20 text-emerald-400 text-xs font-bold">{t("beta.joined")}</span>
-                                ) : (
-                                    <Button size="sm" onClick={onJoinBeta}>{t("beta.join")}</Button>
-                                )}
-                            </div>
-                            <p className="mt-2 text-sm text-white/60">{t("beta.desc")}</p>
-
-                            {betaJoined && (
-                                <div className="mt-6 space-y-4">
-                                    {/* Referral */}
-                                    <div className="p-3 rounded-xl bg-black/20 border border-white/5">
-                                        <div className="text-xs text-white/40 mb-1">{t("beta.ref")}</div>
-                                        <div className="flex items-center justify-between bg-black/40 p-2 rounded-lg font-mono text-sm text-indigo-300 select-all">
-                                            {refCode}
-                                            <button
-                                                onClick={() => copyToClipboard(refCode)}
-                                                className="text-xs text-white/40 hover:text-white"
-                                            >
-                                                {t("beta.copy")}
-                                            </button>
-                                        </div>
-                                    </div>
-
-                                    {/* Missions Checklist */}
-                                    <div className="space-y-2">
-                                        {(Object.keys(DEFAULT_BETA_TASKS) as BetaTaskId[]).map(k => (
-                                            <div key={k}
-                                                className={`flex items-center gap-3 p-3 rounded-xl border transition cursor-pointer ${betaTasks[k] ? "bg-emerald-500/10 border-emerald-500/20" : "bg-white/5 border-white/5 hover:bg-white/10"
-                                                    }`}
-                                                onClick={() => toggleTask(k)}
-                                            >
-                                                <div className={`h-5 w-5 rounded border flex items-center justify-center ${betaTasks[k] ? "bg-emerald-500 border-emerald-500" : "border-white/30"
-                                                    }`}>
-                                                    {betaTasks[k] && <span className="text-black text-xs font-bold">✓</span>}
-                                                </div>
-                                                <div className={`text-sm ${betaTasks[k] ? "text-white line-through opacity-50" : "text-white"}`}>
-                                                    Task: {k.replace("_", " ").toUpperCase()}
-                                                </div>
-                                                {betaTasks[k] && <span className="ml-auto text-xs text-emerald-400">+Credits</span>}
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
+                {/* Beta Section */}
+                <div className="space-y-6">
+                    <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
+                        <div className="flex items-center justify-between">
+                            <h3 className="text-lg font-bold text-white">{t("beta.title")}</h3>
+                            {betaJoined ? (
+                                <span className="px-2 py-1 rounded bg-emerald-500/20 text-emerald-400 text-xs font-bold">{t("beta.joined")}</span>
+                            ) : (
+                                <Button size="sm" onClick={onJoinBeta}>{t("beta.join")}</Button>
                             )}
                         </div>
+                        <p className="mt-2 text-sm text-white/60">{t("beta.desc")}</p>
+
+                        {betaJoined && (
+                            <div className="mt-6 space-y-4">
+                                {/* Referral */}
+                                <div className="p-3 rounded-xl bg-black/20 border border-white/5">
+                                    <div className="text-xs text-white/40 mb-1">{t("beta.ref")}</div>
+                                    <div className="flex items-center justify-between bg-black/40 p-2 rounded-lg font-mono text-sm text-indigo-300 select-all">
+                                        {refCode}
+                                        <button
+                                            onClick={() => copyToClipboard(refCode)}
+                                            className="text-xs text-white/40 hover:text-white"
+                                        >
+                                            {t("beta.copy")}
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* Missions Checklist */}
+                                <div className="space-y-2">
+                                    {(Object.keys(DEFAULT_BETA_TASKS) as BetaTaskId[]).map(k => (
+                                        <div key={k}
+                                            className={`flex items-center gap-3 p-3 rounded-xl border transition cursor-pointer ${betaTasks[k] ? "bg-emerald-500/10 border-emerald-500/20" : "bg-white/5 border-white/5 hover:bg-white/10"
+                                                }`}
+                                            onClick={() => toggleTask(k)}
+                                        >
+                                            <div className={`h-5 w-5 rounded border flex items-center justify-center ${betaTasks[k] ? "bg-emerald-500 border-emerald-500" : "border-white/30"
+                                                }`}>
+                                                {betaTasks[k] && <span className="text-black text-xs font-bold">✓</span>}
+                                            </div>
+                                            <div className={`text-sm ${betaTasks[k] ? "text-white line-through opacity-50" : "text-white"}`}>
+                                                Task: {k.replace("_", " ").toUpperCase()}
+                                            </div>
+                                            {betaTasks[k] && <span className="ml-auto text-xs text-emerald-400">+Credits</span>}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
+            </div>
 
-            </Container>
-            );
+        </Container>
+    );
 }
 
-            function DashboardPage({
-                lang,
-                t,
-                mode,
-                onChangeMode,
-                walletAddress,
-                csvNewlineMode,
-                setCsvNewlineModeState,
-                creditCents,
-                setCreditCentsState,
-                subPlan,
-                setSubPlanState,
-                opsRange,
-                setOpsRangeState,
-                betaJoined,
-                onJoinBeta,
-                betaTasks,
-                setBetaTasksState,
+function DashboardPage({
+    lang,
+    t,
+    mode,
+    onChangeMode,
+    walletAddress,
+    csvNewlineMode,
+    setCsvNewlineModeState,
+    creditCents,
+    setCreditCentsState,
+    subPlan,
+    setSubPlanState,
+    opsRange,
+    setOpsRangeState,
+    betaJoined,
+    onJoinBeta,
+    betaTasks,
+    setBetaTasksState,
 }: {
-                lang: Lang;
-            t: TFn;
-            mode: DashboardMode;
+    lang: Lang;
+    t: TFn;
+    mode: DashboardMode;
     onChangeMode: (m: DashboardMode) => void;
-            walletAddress: string | null;
-            csvNewlineMode: CsvNewlineMode;
+    walletAddress: string | null;
+    csvNewlineMode: CsvNewlineMode;
     setCsvNewlineModeState: (m: CsvNewlineMode) => void;
-            creditCents: number;
+    creditCents: number;
     setCreditCentsState: (c: number) => void;
-            subPlan: SubPlanId;
+    subPlan: SubPlanId;
     setSubPlanState: (p: SubPlanId) => void;
-            opsRange: OpsRange;
+    opsRange: OpsRange;
     setOpsRangeState: (r: OpsRange) => void;
-            betaJoined: boolean;
+    betaJoined: boolean;
     onJoinBeta: () => void;
-            betaTasks: BetaTaskState;
+    betaTasks: BetaTaskState;
     setBetaTasksState: (s: BetaTaskState) => void;
 }) {
     return (
-            <div className="min-h-screen bg-zinc-950">
-                {mode === "public" ? (
-                    <PublicExplorerView lang={lang} t={t} mode={mode} onChangeMode={onChangeMode} />
-                ) : mode === "ops" ? (
-                    <OperationsDashboard
-                        lang={lang}
-                        t={t}
-                        mode={mode}
-                        onChangeMode={onChangeMode}
-                        opsRange={opsRange}
-                        setOpsRangeState={setOpsRangeState}
-                        csvNewlineMode={csvNewlineMode}
-                        setCsvNewlineModeState={setCsvNewlineModeState}
-                        creditCents={creditCents}
-                    />
-                ) : (
-                    <PersonalDashboard
-                        lang={lang}
-                        t={t}
-                        mode={mode}
-                        onChangeMode={onChangeMode}
-                        walletAddress={walletAddress}
-                        creditCents={creditCents}
-                        setCreditCentsState={setCreditCentsState}
-                        subPlan={subPlan}
-                        setSubPlanState={setSubPlanState}
-                        csvNewlineMode={csvNewlineMode}
-                        betaJoined={betaJoined}
-                        onJoinBeta={onJoinBeta}
-                        betaTasks={betaTasks}
-                        setBetaTasksState={setBetaTasksState}
-                    />
-                )}
+        <div className="min-h-screen bg-zinc-950">
+            {mode === "public" ? (
+                <PublicExplorerView lang={lang} t={t} mode={mode} onChangeMode={onChangeMode} />
+            ) : mode === "ops" ? (
+                <OperationsDashboard
+                    lang={lang}
+                    t={t}
+                    mode={mode}
+                    onChangeMode={onChangeMode}
+                    opsRange={opsRange}
+                    setOpsRangeState={setOpsRangeState}
+                    csvNewlineMode={csvNewlineMode}
+                    setCsvNewlineModeState={setCsvNewlineModeState}
+                    creditCents={creditCents}
+                />
+            ) : (
+                <PersonalDashboard
+                    lang={lang}
+                    t={t}
+                    mode={mode}
+                    onChangeMode={onChangeMode}
+                    walletAddress={walletAddress}
+                    creditCents={creditCents}
+                    setCreditCentsState={setCreditCentsState}
+                    subPlan={subPlan}
+                    setSubPlanState={setSubPlanState}
+                    csvNewlineMode={csvNewlineMode}
+                    betaJoined={betaJoined}
+                    onJoinBeta={onJoinBeta}
+                    betaTasks={betaTasks}
+                    setBetaTasksState={setBetaTasksState}
+                />
+            )}
 
-                {/* Dashboard Footer */}
-                <div className="border-t border-white/10 bg-black/20 py-8">
-                    <Container>
-                        <div className="flex justify-between items-center text-xs text-white/30">
-                            <div>AirVent {APP_VERSION} • {WEB3.chain} Beta</div>
-                            <div className="flex gap-4">
-                                <span>Terms</span>
-                                <span>Privacy</span>
-                                <span>Docs</span>
-                            </div>
+            {/* Dashboard Footer */}
+            <div className="border-t border-white/10 bg-black/20 py-8">
+                <Container>
+                    <div className="flex justify-between items-center text-xs text-white/30">
+                        <div>AirVent {APP_VERSION} • {WEB3.chain} Beta</div>
+                        <div className="flex gap-4">
+                            <span>Terms</span>
+                            <span>Privacy</span>
+                            <span>Docs</span>
                         </div>
-                    </Container>
-                </div>
+                    </div>
+                </Container>
             </div>
-            );
+        </div>
+    );
 }
 
-            // -----------------------------
-            // App Root
-            // -----------------------------
+// -----------------------------
+// App Root
+// -----------------------------
 
-            /**
-             * Debug API exposed on window.__airvent
-             */
-            function exposeDebugApi(api: any) {
+/**
+ * Debug API exposed on window.__airvent
+ */
+function exposeDebugApi(api: any) {
     if (typeof window !== "undefined") {
-                (window as any).__airvent = api;
+        (window as any).__airvent = api;
     }
 }
 
-            export default function App() {
+export default function App() {
     const [lang, setLang] = useState<Lang>(detectLang());
-                const [page, setPage] = useState<Page>("home");
+    const [page, setPage] = useState<Page>("home");
 
-                    // Global State (persisted)
-                    const [walletAddress, setWalletAddress] = useState<string | null>(null); // mock wallet
-                    const [mode, setMode] = useState<DashboardMode>(() => normalizeDashMode(window.localStorage?.getItem("airvent_mode")));
-                        const [csvNewlineMode, setCsvNewlineModeState] = useState<CsvNewlineMode>(detectCsvNewlineMode());
-                            const [creditCents, setCreditCentsState] = useState<number>(detectCreditCents());
-                                const [subPlan, setSubPlanState] = useState<SubPlanId>(detectSubPlan());
-                                    const [opsRange, setOpsRangeState] = useState<OpsRange>(detectOpsRange());
-                                        const [betaJoined, setBetaJoined] = useState<boolean>(detectBetaJoined());
-                                            const [betaTasks, setBetaTasksState] = useState<BetaTaskState>(detectBetaTasks());
+    // Global State (persisted)
+    const [walletAddress, setWalletAddress] = useState<string | null>(null); // mock wallet
+    const [mode, setMode] = useState<DashboardMode>(() => normalizeDashMode(window.localStorage?.getItem("airvent_mode")));
+    const [csvNewlineMode, setCsvNewlineModeState] = useState<CsvNewlineMode>(detectCsvNewlineMode());
+    const [creditCents, setCreditCentsState] = useState<number>(detectCreditCents());
+    const [subPlan, setSubPlanState] = useState<SubPlanId>(detectSubPlan());
+    const [opsRange, setOpsRangeState] = useState<OpsRange>(detectOpsRange());
+    const [betaJoined, setBetaJoined] = useState<boolean>(detectBetaJoined());
+    const [betaTasks, setBetaTasksState] = useState<BetaTaskState>(detectBetaTasks());
 
     // Listeners to save Persistence
     useEffect(() => {
         try {
-                                                    window.localStorage?.setItem("airvent_lang", lang);
+            window.localStorage?.setItem("airvent_lang", lang);
         } catch { }
     }, [lang]);
 
     const changeMode = (m: DashboardMode) => {
-                                                    setMode(m);
-                                                try {
-                                                    window.localStorage?.setItem("airvent_mode", m);
+        setMode(m);
+        try {
+            window.localStorage?.setItem("airvent_mode", m);
         } catch { }
-                                                if (page !== "dashboard") setPage("dashboard");
-                                                window.scrollTo(0, 0);
+        if (page !== "dashboard") setPage("dashboard");
+        window.scrollTo(0, 0);
     };
 
     const saveCsvNewline = (m: CsvNewlineMode) => {
-                                                    setCsvNewlineModeState(m);
-                                                setCsvNewlineMode(m);
+        setCsvNewlineModeState(m);
+        setCsvNewlineMode(m);
     };
 
     const saveCredit = (c: number) => {
-                                                    setCreditCentsState(c);
-                                                saveCreditCents(c);
+        setCreditCentsState(c);
+        saveCreditCents(c);
     };
 
     const saveSub = (p: SubPlanId) => {
-                                                    setSubPlanState(p);
-                                                saveSubPlan(p);
+        setSubPlanState(p);
+        saveSubPlan(p);
     };
 
     const saveRange = (r: OpsRange) => {
-                                                    setOpsRangeState(r);
-                                                saveOpsRange(r);
+        setOpsRangeState(r);
+        saveOpsRange(r);
     };
 
     const saveBeta = (b: boolean) => {
-                                                    setBetaJoined(b);
-                                                saveBetaJoined(b);
+        setBetaJoined(b);
+        saveBetaJoined(b);
     };
 
     const saveTasks = (t: BetaTaskState) => {
-                                                    setBetaTasksState(t);
-                                                saveBetaTasks(t);
+        setBetaTasksState(t);
+        saveBetaTasks(t);
     };
 
     // Wallet Mock
     const connectWallet = () => {
         // Simulate wallet connection
         const mockAddr = makeMockSolAddress(Date.now());
-                                                setWalletAddress(mockAddr);
-                                                // Auto-check beta task if joined
-                                                if (betaJoined && !betaTasks.connect_wallet) {
-                                                    saveTasks({ ...betaTasks, connect_wallet: true });
-                                                saveCredit(creditCents + 100); // Small bonus
+        setWalletAddress(mockAddr);
+        // Auto-check beta task if joined
+        if (betaJoined && !betaTasks.connect_wallet) {
+            saveTasks({ ...betaTasks, connect_wallet: true });
+            saveCredit(creditCents + 100); // Small bonus
         }
     };
     const disconnectWallet = () => setWalletAddress(null);
@@ -2409,71 +2408,71 @@ function HomePage({
 
     // Expose Debug API
     useEffect(() => {
-                                                    exposeDebugApi({
-                                                        setCredit: saveCredit,
-                                                        setSub: saveSub,
-                                                        reset: () => {
-                                                            window.localStorage.clear();
-                                                            window.location.reload();
-                                                        }
-                                                    });
+        exposeDebugApi({
+            setCredit: saveCredit,
+            setSub: saveSub,
+            reset: () => {
+                window.localStorage.clear();
+                window.location.reload();
+            }
+        });
     });
 
-                                                // Render Logic
-                                                if (embedRoute === "badge") {
+    // Render Logic
+    if (embedRoute === "badge") {
         return <BadgeEmbedPage />;
     }
 
-                                                return (
-                                                <div className="font-sans text-slate-900 antialiased selection:bg-indigo-500/30">
-                                                    <TopNav
-                                                        page={page}
-                                                        setPage={(p) => {
-                                                            setPage(p);
-                                                            window.scrollTo(0, 0);
-                                                        }}
-                                                        lang={lang}
-                                                        onToggleLang={() => setLang(lang === "en" ? "ko" : "en")}
-                                                        t={t}
-                                                        walletAddress={walletAddress}
-                                                        onConnectWallet={connectWallet}
-                                                        onDisconnectWallet={disconnectWallet}
-                                                    />
+    return (
+        <div className="font-sans text-slate-900 antialiased selection:bg-indigo-500/30">
+            <TopNav
+                page={page}
+                setPage={(p) => {
+                    setPage(p);
+                    window.scrollTo(0, 0);
+                }}
+                lang={lang}
+                onToggleLang={() => setLang(lang === "en" ? "ko" : "en")}
+                t={t}
+                walletAddress={walletAddress}
+                onConnectWallet={connectWallet}
+                onDisconnectWallet={disconnectWallet}
+            />
 
-                                                    <main>
-                                                        {page === "home" ? (
-                                                            <HomePage
-                                                                lang={lang}
-                                                                t={t}
-                                                                onOpenDashboard={(m) => changeMode(m || "public")}
-                                                                onJoinBeta={() => {
-                                                                    saveBeta(true);
-                                                                    changeMode("personal");
-                                                                }}
-                                                                betaJoined={betaJoined}
-                                                            />
-                                                        ) : (
-                                                            <DashboardPage
-                                                                lang={lang}
-                                                                t={t}
-                                                                mode={mode}
-                                                                onChangeMode={changeMode}
-                                                                walletAddress={walletAddress}
-                                                                csvNewlineMode={csvNewlineMode}
-                                                                setCsvNewlineModeState={saveCsvNewline}
-                                                                creditCents={creditCents}
-                                                                setCreditCentsState={saveCredit}
-                                                                subPlan={subPlan}
-                                                                setSubPlanState={saveSub}
-                                                                opsRange={opsRange}
-                                                                setOpsRangeState={saveRange}
-                                                                betaJoined={betaJoined}
-                                                                onJoinBeta={() => saveBeta(true)}
-                                                                betaTasks={betaTasks}
-                                                                setBetaTasksState={saveTasks}
-                                                            />
-                                                        )}
-                                                    </main>
-                                                </div>
-                                                );
+            <main>
+                {page === "home" ? (
+                    <HomePage
+                        lang={lang}
+                        t={t}
+                        onOpenDashboard={(m) => changeMode(m || "public")}
+                        onJoinBeta={() => {
+                            saveBeta(true);
+                            changeMode("personal");
+                        }}
+                        betaJoined={betaJoined}
+                    />
+                ) : (
+                    <DashboardPage
+                        lang={lang}
+                        t={t}
+                        mode={mode}
+                        onChangeMode={changeMode}
+                        walletAddress={walletAddress}
+                        csvNewlineMode={csvNewlineMode}
+                        setCsvNewlineModeState={saveCsvNewline}
+                        creditCents={creditCents}
+                        setCreditCentsState={saveCredit}
+                        subPlan={subPlan}
+                        setSubPlanState={saveSub}
+                        opsRange={opsRange}
+                        setOpsRangeState={saveRange}
+                        betaJoined={betaJoined}
+                        onJoinBeta={() => saveBeta(true)}
+                        betaTasks={betaTasks}
+                        setBetaTasksState={saveTasks}
+                    />
+                )}
+            </main>
+        </div>
+    );
 }
