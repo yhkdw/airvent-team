@@ -2083,7 +2083,7 @@ function PersonalDashboard({
 
     // Mining Logic
     const miningRate = AIVT_MINING_RATES[subPlan];
-    const [minedTotal, setMinedTotal] = useState(0);
+    const [minedTotal, setMinedTotal] = useState(100);
 
     useEffect(() => {
         const interval = setInterval(() => {
