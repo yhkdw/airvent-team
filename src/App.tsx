@@ -30,6 +30,11 @@ const APP_VERSION = "v1.4.6";
 // 참조 경로: /hero-airvent-device.png
 const HERO_BG_LOCAL = "/hero-airvent-device.png";
 
+// Header logo image (recommended): place a transparent PNG in /public and reference it by absolute path.
+// File: public/airvent-logo.png
+// URL : /airvent-logo.png
+const LOGO_LOCAL = "/airvent-logo.png";
+
 // -----------------------------
 // Brand palette
 // -----------------------------
@@ -946,6 +951,22 @@ function LogoMark({ size = 18 }: { size?: number }) {
     );
 }
 
+function BrandLogo({ size = 20, className = "" }: { size?: number; className?: string }) {
+    const [failed, setFailed] = useState(false);
+
+    if (failed) return <LogoMark size={size} />;
+
+    return (
+        <img
+            src={LOGO_LOCAL}
+            alt="AirVent"
+            style={{ height: size, width: "auto" }}
+            className={className}
+            onError={() => setFailed(true)}
+        />
+    );
+}
+
 function GradientText({ children }: { children: React.ReactNode }) {
     return (
         <span
@@ -1215,7 +1236,7 @@ function BadgeEmbedPage() {
             >
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                        <LogoMark size={18} />
+                        <BrandLogo size={18} />
                         <div className="text-sm font-extrabold text-slate-900">AirVent</div>
                     </div>
                     <div className="text-[11px] text-slate-500">Embeddable Badge</div>
@@ -1298,7 +1319,7 @@ function TopNav({
             <Container>
                 <div className="flex items-center justify-between py-3">
                     <button type="button" onClick={() => setPage("home")} className="flex items-center gap-2">
-                        <LogoMark size={20} />
+                        <BrandLogo size={22} />
                         <div className={isHome ? "text-sm font-extrabold text-slate-900" : "text-sm font-extrabold text-white"}>AirVent</div>
                         <div className={isHome ? "hidden md:block text-xs text-slate-500" : "hidden md:block text-xs text-white/55"}>{t("nav.tagline")}</div>
                     </button>
