@@ -356,6 +356,7 @@ const I18N = {
         "mine.title": "AIVT Real-time Mining",
         "mine.status": "Mining Active",
         "mine.rate": "Current Rate",
+        "mine.rate_unit": "/min",
         "mine.total": "Total Tokens Mined",
     },
     ko: {
@@ -513,6 +514,7 @@ const I18N = {
         "mine.title": "AIVT 실시간 채굴",
         "mine.status": "채굴 가동 중",
         "mine.rate": "채굴 속도",
+        "mine.rate_unit": "/분",
         "mine.total": "총 채굴량",
     },
 } as const;
@@ -1374,11 +1376,11 @@ function HomePage({
                                         backgroundImage: `url(${heroBgUrl})`,
                                         backgroundSize: "cover",
                                         backgroundPosition: "center",
-                                        opacity: 0.22,
-                                        filter: "saturate(0.95)",
+                                        opacity: 0.65,
+                                        filter: "saturate(1.1)",
                                     }}
                                 />
-                                <div className="absolute inset-0 bg-white/88 backdrop-blur-sm" />
+                                <div className="absolute inset-0 bg-white/40 backdrop-blur-[2px]" />
                                 <div className="relative p-6 md:p-8">
                                     <div className="grid grid-cols-1 gap-8 md:grid-cols-12 md:items-center">
                                         <div className="md:col-span-7">
@@ -2085,8 +2087,8 @@ function PersonalDashboard({
 
     useEffect(() => {
         const interval = setInterval(() => {
-            setMinedTotal((prev: number) => prev + miningRate / 10); // Update every 100ms
-        }, 100);
+            setMinedTotal((prev: number) => prev + miningRate * 60); // Update every 1 minute
+        }, 60000);
         return () => clearInterval(interval);
     }, [miningRate]);
 
@@ -2160,7 +2162,7 @@ function PersonalDashboard({
                             <div className="mt-6 grid grid-cols-2 gap-4 pt-6 border-t border-white/5">
                                 <div>
                                     <div className="text-[10px] text-white/30 uppercase font-bold tracking-wider">{t("mine.rate")}</div>
-                                    <div className="mt-0.5 text-sm font-bold text-white">+{miningRate.toFixed(5)} <span className="text-[10px] opacity-40 font-normal">/sec</span></div>
+                                    <div className="mt-0.5 text-sm font-bold text-white">+{(miningRate * 60).toFixed(4)} <span className="text-[10px] opacity-40 font-normal">{t("mine.rate_unit")}</span></div>
                                 </div>
                                 <div>
                                     <div className="text-[10px] text-white/30 uppercase font-bold tracking-wider">{t("mine.total")}</div>
