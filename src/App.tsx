@@ -929,21 +929,18 @@ function Container({ children }: { children: React.ReactNode }) {
 }
 
 function LogoMark({ size = 18 }: { size?: number }) {
-    // Logo mark SVG (brand gradient)
-
+    // Verified AirVent Logo Mark (Blue/Green swoosh)
     return (
-        <svg width={size} height={size} viewBox="0 0 64 64" aria-hidden="true">
-            <defs>
-                <linearGradient id="av_logo_grad" x1="0" y1="0" x2="1" y2="1">
-                    <stop offset="0%" stopColor={BRAND.blue} />
-                    <stop offset="55%" stopColor={BRAND.indigo} />
-                    <stop offset="100%" stopColor={BRAND.green} />
-                </linearGradient>
-            </defs>
-            <path d="M6 38c16-18 34-20 52-14-13 2-25 7-36 18C15 50 10 46 6 38z" fill={rgba(BRAND.indigo, 0.9)} />
+        <svg width={size} height={size} viewBox="0 0 120 60" aria-hidden="true" fill="none">
+            {/* Dark Blue Wedge (Bottom Left) */}
             <path
-                d="M18 18c9 10 19 16 40 14-12 6-22 14-34 22-6 4-13 2-18-4 6-10 9-20 12-32z"
-                fill="url(#av_logo_grad)"
+                d="M10 45 C 25 48, 45 45, 65 32 L 35 32 C 25 35, 15 40, 10 45 Z"
+                fill="#1B365D"
+            />
+            {/* Green Swoosh (Top Right) */}
+            <path
+                d="M35 32 Q 75 18 110 5 Q 85 25 55 35 Q 45 35 35 32 Z"
+                fill="#4B8C45"
             />
         </svg>
     );
