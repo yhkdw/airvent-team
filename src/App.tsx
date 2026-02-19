@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+﻿import React, { useEffect, useMemo, useRef, useState } from "react";
 
 /**
  * AirVent Homepage + Dashboard (single-file React app)
@@ -23,33 +23,26 @@ const APP_VERSION = "v1.4.6";
 // 참조 경로: /hero-airvent-device.png
 // (Local-only) Hero background image is served from the repo's /public folder.
 // File: public/hero-airvent-device.png
-// URL : /hero-airvent-device.png
-
-// 권장(안정적) 방식: 리포지토리 public 폴더에 파일을 두고 절대경로로 참조
-// 파일 위치: public/hero-airvent-device.png
-// 참조 경로: /hero-airvent-device.png
 const HERO_BG_LOCAL = "/hero-airvent-device.png";
 
-// Header logo image (recommended): place a transparent PNG in /public and reference it by absolute path.
-// File: public/airvent-logo.png
-// URL : /airvent-logo.png
+// 권장(안정적) 방식: 리포지토리 public 폴더에 파일을 두고 절대경로로 참조
+// 파일 위치: public/airvent-logo.png
+// 참조 경로: /airvent-logo.png
 const LOGO_LOCAL = "/airvent-logo.png";
 
-// -----------------------------
-// Brand palette
-// -----------------------------
-
+// Brand colors
 const BRAND = {
-    blue: "#3266A3",
-    indigo: "#2A2344",
-    green: "#30933F",
-    ink: "#0B1020",
-    surface: "#F6F9FF",
+    indigo: "#6366f1",
+    blue: "#3b82f6",
+    green: "#10b981",
+    slate: "#64748b",
 } as const;
 
+// Web3 / DePIN config
 const WEB3 = {
     chain: "Solana",
     token: "AIVT",
+    contract: "Mainnet-Beta",
     disclaimerEN:
         "Rewards and eligibility are subject to terms & policies. Network stats and locations may be privacy-preserved (approximate).",
     disclaimerKO:
@@ -57,20 +50,8 @@ const WEB3 = {
 } as const;
 
 // -----------------------------
-// Commerce / Credits
+// Domain types
 // -----------------------------
-
-const COMMERCE = {
-    currency: "USD",
-    listPriceCents: 49900, // $499
-    earlyBirdCents: 34900, // $349
-    standardCents: 39900, // $399
-    set3Cents: 99000, // $990
-    maxCreditRatio: 0.6, // up to 60% of subtotal
-    creditSymbol: "AVC", // AirVent Credits (voucher)
-} as const;
-
-type CsvNewlineMode = "CRLF" | "LF";
 
 type DashboardMode = "public" | "ops" | "personal";
 
@@ -78,9 +59,59 @@ type OpsRange = "24h" | "7d";
 
 type Metric = "pm25" | "co2" | "tvoc" | "temp" | "humidity";
 
+type CsvNewlineMode = "LF" | "CRLF";
+
+const COMMERCE = {
+    creditSymbol: "AVC",
+    creditUsdRate: 1.0, // 1 credit = $1 voucher
+    earlyBirdCents: 29900, // $299
+    standardCents: 39900, // $399
+    set3Cents: 89900, // $899 (approx $300/unit)
+    listPriceCents: 49900, // $499
+};
+
+function formatUsd(cents: number) {
+    return new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD",
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+    }).format(cents / 100);
+}
+
+function rgba(hex: string, alpha: number) {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+function brandGradientCss(deg = 135) {
+    return `linear-gradient(${deg}deg, ${BRAND.indigo}, ${BRAND.blue}, ${BRAND.green})`;
+}
+
+function metricColor(m: Metric) {
+    switch (m) {
+        case "pm25":
+            return BRAND.indigo;
+        case "co2":
+            return BRAND.blue;
+        case "tvoc":
+            return BRAND.green;
+        case "temp":
+            return "#f59e0b";
+        case "humidity":
+            return "#0ea5e9";
+    }
+}
+
+// -----------------------------
+// Subscription Plans
+// -----------------------------
+
 type SubPlanId = "free" | "lite" | "pro" | "ops";
 
-type SubscriptionPlan = {
+type SubPlan = {
     id: SubPlanId;
     nameEn: string;
     nameKo: string;
@@ -90,7 +121,7 @@ type SubscriptionPlan = {
     perksKo: string[];
 };
 
-const SUB_PLANS: SubscriptionPlan[] = [
+const SUB_PLANS: SubPlan[] = [
     {
         id: "free",
         nameEn: "Free",
@@ -100,7 +131,7 @@ const SUB_PLANS: SubscriptionPlan[] = [
         perksEn: [
             "Public Explorer + Air Badge",
             "Personal dashboard (basic)",
-            "Optional Beta: missions & referrals (verification)",
+            "Beta (Missions/Referrals) access (requires verification)",
             "Upgrade to earn purchase credits faster",
         ],
         perksKo: [
@@ -140,54 +171,20 @@ const SUB_PLANS: SubscriptionPlan[] = [
 ];
 
 function planById(id: SubPlanId) {
-    return SUB_PLANS.find((p) => p.id === id) ?? SUB_PLANS[0];
+    return SUB_PLANS.find((x) => x.id === id) ?? SUB_PLANS[0];
 }
 
-function maxCreditsForSubtotalCents(subtotalCents: number) {
-    return Math.floor(subtotalCents * COMMERCE.maxCreditRatio);
-}
-
-function applyCreditsToSubtotal(params: { subtotalCents: number; creditBalanceCents: number }) {
-    const capCents = maxCreditsForSubtotalCents(params.subtotalCents);
-    const usedCents = Math.max(0, Math.min(params.creditBalanceCents, capCents));
-    const dueCents = Math.max(0, params.subtotalCents - usedCents);
+function applyCreditsToSubtotal({
+    subtotalCents,
+    creditBalanceCents,
+}: {
+    subtotalCents: number;
+    creditBalanceCents: number;
+}) {
+    const capCents = Math.floor(subtotalCents * 0.6); // Max 60% usable
+    const usedCents = Math.min(capCents, creditBalanceCents);
+    const dueCents = subtotalCents - usedCents;
     return { capCents, usedCents, dueCents };
-}
-
-function centsToUsd(cents: number) {
-    return cents / 100;
-}
-
-function formatUsd(cents: number) {
-    const usd = centsToUsd(cents);
-    if (Math.abs(usd - Math.round(usd)) < 1e-9) return `$${Math.round(usd)}`;
-    return `$${usd.toFixed(2)}`;
-}
-
-function hexToRgb(hex: string) {
-    const h = hex.replace("#", "").trim();
-    const full = h.length === 3 ? h.split("").map((c) => c + c).join("") : h;
-    const n = Number.parseInt(full, 16);
-    const r = (n >> 16) & 255;
-    const g = (n >> 8) & 255;
-    const b = n & 255;
-    return { r, g, b };
-}
-
-function rgba(hex: string, a: number) {
-    const { r, g, b } = hexToRgb(hex);
-    return `rgba(${r},${g},${b},${a})`;
-}
-
-function brandGradientCss(angle = 90) {
-    return `linear-gradient(${angle}deg, ${BRAND.blue} 0%, ${BRAND.indigo} 52%, ${BRAND.green} 100%)`;
-}
-
-function metricColor(m: Metric) {
-    if (m === "co2") return BRAND.blue;
-    if (m === "pm25") return BRAND.indigo;
-    if (m === "tvoc") return BRAND.green;
-    return BRAND.blue;
 }
 
 // -----------------------------
@@ -327,7 +324,7 @@ const I18N = {
         "credit.plan.current": "Current plan",
         "credit.plan.monthly": "Monthly credits",
         "credit.add": "Add credits",
-        "credit.simulateMonth": "Simulate +1 month",
+        "credit.simulateMonth": "+1개월 시뮬",
         "credit.reset": "Reset",
 
         // Beta
@@ -542,7 +539,7 @@ function detectCsvNewlineMode(): CsvNewlineMode {
     return "CRLF";
 }
 
-export function setCsvNewlineMode(mode: CsvNewlineMode) {
+function setCsvNewlineMode(mode: CsvNewlineMode) {
     try {
         window.localStorage?.setItem("airvent_csv_newline", mode);
     } catch {
@@ -597,7 +594,7 @@ function detectSubPlan(): SubPlanId {
     return "free";
 }
 
-export function saveSubPlan(id: SubPlanId) {
+function saveSubPlan(id: SubPlanId) {
     try {
         window.localStorage?.setItem("airvent_sub_plan", id);
     } catch {
@@ -728,7 +725,7 @@ type ReadingPoint = {
     humidity: number;
 };
 
-export type Alert = {
+type Alert = {
     id: string;
     severity: "low" | "med" | "high";
     siteId: string;
@@ -770,65 +767,85 @@ const mockDevices: Device[] = [
 ];
 
 // -----------------------------
-// IAQ helpers
+// Generators / Utils
 // -----------------------------
 
-const THRESHOLDS: Record<Metric, number> = {
-    pm25: 35,
-    co2: 1000,
-    tvoc: 400,
-    temp: 26,
-    humidity: 60,
-};
-
-function clamp(n: number, a: number, b: number) {
-    return Math.max(a, Math.min(b, n));
+function hash32(str: string) {
+    let h = 0x811c9dc5;
+    for (let i = 0; i < str.length; i++) {
+        h ^= str.charCodeAt(i);
+        h = Math.imul(h, 0x01000193);
+    }
+    return h >>> 0;
 }
 
-function generateSeries(seed: number, points = 48): ReadingPoint[] {
-    let x = seed;
-    const rnd = () => {
-        x = (x * 1664525 + 1013904223) % 4294967296;
-        return x / 4294967296;
+function mulberry32(a: number) {
+    return function () {
+        let t = (a += 0x6d2b79f5);
+        t = Math.imul(t ^ (t >>> 15), t | 1);
+        t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
     };
+}
 
-    const now = Date.now();
+function clamp(v: number, min: number, max: number) {
+    return Math.min(Math.max(v, min), max);
+}
+
+function generateSeries(seed: number, points: number): ReadingPoint[] {
+    const rand = mulberry32(seed);
     const out: ReadingPoint[] = [];
-    for (let i = points - 1; i >= 0; i--) {
-        const ts = now - i * 30 * 60_000;
-        const hour = new Date(ts).getHours();
-        const busy = hour >= 9 && hour <= 20 ? 1 : 0.6;
+    const now = Date.now();
+    // We want points spaced by 1h for 24h view, or 4h for 7d view?
+    // Let's just do 30m intervals for simplicity.
+    const interval = 30 * 60_000;
 
-        const pm25 = Math.max(2, Math.round((10 + busy * 18) * (0.6 + rnd())));
-        const co2 = Math.round((520 + busy * 800) * (0.85 + rnd() * 0.35));
-        const tvoc = Math.round((80 + busy * 260) * (0.7 + rnd() * 0.9));
-        const temp = Math.round((21 + (rnd() - 0.5) * 2.5) * 10) / 10;
-        const humidity = Math.round((43 + (rnd() - 0.5) * 12) * 10) / 10;
+    // varied base levels
+    let pm25 = 15 + rand() * 10;
+    let co2 = 500 + rand() * 100;
+    let tvoc = 100 + rand() * 50;
+    let temp = 22 + rand() * 2;
+    let humidity = 45 + rand() * 5;
+
+    for (let i = points - 1; i >= 0; i--) {
+        const ts = now - i * interval;
+        // Walk
+        pm25 = clamp(pm25 + (rand() - 0.5) * 5, 5, 150);
+        co2 = clamp(co2 + (rand() - 0.5) * 50, 400, 2000);
+        tvoc = clamp(tvoc + (rand() - 0.5) * 20, 50, 800);
+        temp = clamp(temp + (rand() - 0.5) * 0.5, 18, 28);
+        humidity = clamp(humidity + (rand() - 0.5) * 2, 30, 70);
 
         out.push({
             t: new Date(ts).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
             ts,
-            pm25,
-            co2,
-            tvoc,
-            temp,
-            humidity,
+            pm25: Math.round(pm25),
+            co2: Math.round(co2),
+            tvoc: Math.round(tvoc),
+            temp: Number(temp.toFixed(1)),
+            humidity: Math.round(humidity),
         });
     }
     return out;
 }
 
-function scoreFromPoint(p: ReadingPoint): number {
-    const pm25 = 100 - clamp((p.pm25 / THRESHOLDS.pm25) * 55, 0, 55);
-    const co2 = 100 - clamp((p.co2 / THRESHOLDS.co2) * 45, 0, 45);
-    const tvoc = 100 - clamp((p.tvoc / THRESHOLDS.tvoc) * 35, 0, 35);
-    const temp = 100 - clamp(((p.temp - 22) / 6) * 18, 0, 18);
-    const humidity = 100 - clamp(((p.humidity - 45) / 20) * 18, 0, 18);
-    const v = pm25 * 0.28 + co2 * 0.28 + tvoc * 0.18 + temp * 0.13 + humidity * 0.13;
-    return Math.round(clamp(v, 0, 100));
+function scoreFromPoint(p: ReadingPoint) {
+    // Simple mock formula: 100 - penalties
+    let score = 100;
+    if (p.pm25 > 35) score -= (p.pm25 - 35) * 0.5;
+    if (p.co2 > 1000) score -= (p.co2 - 1000) * 0.05;
+    if (p.tvoc > 500) score -= (p.tvoc - 500) * 0.1;
+    return Math.round(clamp(score, 0, 100));
 }
 
-export function timeOverThreshold(series: ReadingPoint[], metric: Metric): number {
+function timeOverThreshold(series: ReadingPoint[], metric: Metric): number {
+    const THRESHOLDS: Record<Metric, number> = {
+        pm25: 35,
+        co2: 1000,
+        tvoc: 500,
+        temp: 30, // arbitrary
+        humidity: 70, // arbitrary
+    };
     const thr = THRESHOLDS[metric];
     const over = series.filter((p) => p[metric] > thr).length;
     return series.length === 0 ? 0 : Math.round((over / series.length) * 100);
@@ -836,122 +853,102 @@ export function timeOverThreshold(series: ReadingPoint[], metric: Metric): numbe
 
 function csvFromSeries(series: ReadingPoint[], newline: string): string {
     const header = ["timestamp", "pm25", "co2", "tvoc", "temp", "humidity"].join(",");
-    const rows = series
-        .map((p) => {
-            const iso = new Date(p.ts).toISOString();
-            return [iso, p.pm25, p.co2, p.tvoc, p.temp, p.humidity].join(",");
-        })
-        .join(newline);
-    return rows ? `${header}${newline}${rows}` : header;
+    const rows = series.map((p) => {
+        return [new Date(p.ts).toISOString(), p.pm25, p.co2, p.tvoc, p.temp, p.humidity].join(",");
+    });
+    return [header, ...rows].join(newline);
 }
 
-function downloadText(filename: string, text: string) {
-    if (typeof window === "undefined") return;
-    const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+function downloadText(filename: string, content: string) {
+    const blob = new Blob([content], { type: "text/csv;charset=utf-8;" });
+    if (typeof window.navigator !== "undefined" && (window.navigator as any).msSaveOrOpenBlob) {
+        (window.navigator as any).msSaveOrOpenBlob(blob, filename);
+        return;
+    }
     const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", filename);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
     URL.revokeObjectURL(url);
 }
 
-export async function copyToClipboard(text: string) {
+async function copyToClipboard(text: string) {
     try {
         await navigator.clipboard.writeText(text);
         return true;
     } catch {
-        // fallback
-        try {
-            const ta = document.createElement("textarea");
-            ta.value = text;
-            document.body.appendChild(ta);
-            ta.select();
-            document.execCommand("copy");
-            ta.remove();
-            return true;
-        } catch {
-            return false;
-        }
+        return false;
     }
 }
 
-function statusPill(status: Device["status"]) {
-    switch (status) {
-        case "online":
-            return "bg-emerald-500/15 text-emerald-200 border-emerald-500/30";
-        case "degraded":
-            return "bg-amber-500/15 text-amber-200 border-amber-500/30";
-        default:
-            return "bg-zinc-500/15 text-zinc-200 border-zinc-500/30";
-    }
+function queryParamsFromHref() {
+    if (typeof window === "undefined") return new URLSearchParams();
+    const href = window.location.href;
+    const qIdx = href.indexOf("?");
+    if (qIdx === -1) return new URLSearchParams();
+    return new URLSearchParams(href.slice(qIdx));
+}
+
+type EmbedRoute = "badge" | null;
+function detectEmbedRoute(): EmbedRoute {
+    if (typeof window === "undefined") return null;
+    const hash = window.location.hash;
+    if (hash.startsWith("#/badge")) return "badge";
+    return null;
 }
 
 function shortAddr(addr: string) {
     if (addr.length <= 10) return addr;
-    return `${addr.slice(0, 4)}…${addr.slice(-4)}`;
+    return `${addr.slice(0, 4)}...${addr.slice(-4)}`;
 }
 
 function makeMockSolAddress(seed: number) {
-    const base = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz123456789";
-    let x = seed >>> 0;
-    const pick = () => {
-        x = (x * 1664525 + 1013904223) >>> 0;
-        return base[x % base.length];
-    };
-    return Array.from({ length: 44 }).map(pick).join("");
-}
-
-function hash32(input: string) {
-    // FNV-1a 32-bit
-    let h = 0x811c9dc5;
-    for (let i = 0; i < input.length; i++) {
-        h ^= input.charCodeAt(i);
-        h = Math.imul(h, 0x01000193);
+    const chars = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
+    const rand = mulberry32(seed);
+    let out = "";
+    for (let i = 0; i < 44; i++) {
+        out += chars[Math.floor(rand() * chars.length)];
     }
-    return h >>> 0;
+    return out;
 }
 
-function projectEquirect(lat: number, lng: number, width: number, height: number) {
-    const x = ((lng + 180) / 360) * width;
-    const y = ((90 - lat) / 180) * height;
-    return { x, y };
-}
-
-export function referralCodeFromWallet(walletAddress: string) {
+function referralCodeFromWallet(walletAddress: string) {
     const h = hash32(walletAddress).toString(16).toUpperCase();
+    // e.g. AV-1A2B3C4D
     return `AV-${h.padStart(8, "0").slice(0, 8)}`;
 }
 
 // -----------------------------
-// UI primitives
+// Components
 // -----------------------------
 
-function Container({ children }: { children: React.ReactNode }) {
-    return <div className="mx-auto w-full max-w-6xl px-4 md:px-6">{children}</div>;
-}
-
 function LogoMark({ size = 18 }: { size?: number }) {
-    // Verified AirVent Logo Mark (Blue/Green swoosh)
+    // Brand gradient logo mark
+    // Simple geometric shape resembling A/V or a leaf/wind.
     return (
-        <svg width={size} height={size} viewBox="0 0 120 60" aria-hidden="true" fill="none">
-            {/* Dark Blue Wedge (Bottom Left) */}
+        <svg width={size} height={size} viewBox="0 0 64 64" aria-hidden="true">
+            <defs>
+                <linearGradient id="av_logo_grad" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stopColor={BRAND.blue} />
+                    <stop offset="55%" stopColor={BRAND.indigo} />
+                    <stop offset="100%" stopColor={BRAND.green} />
+                </linearGradient>
+            </defs>
+            {/* Abstract shape: "A" with a swoosh */}
+            <path d="M6 38c16-18 34-20 52-14-13 2-25 7-36 18C15 50 10 46 6 38z" fill={rgba(BRAND.indigo, 0.9)} />
             <path
-                d="M10 45 C 25 48, 45 45, 65 32 L 35 32 C 25 35, 15 40, 10 45 Z"
-                fill="#1B365D"
-            />
-            {/* Green Swoosh (Top Right) */}
-            <path
-                d="M35 32 Q 75 18 110 5 Q 85 25 55 35 Q 45 35 35 32 Z"
-                fill="#4B8C45"
+                d="M18 18c9 10 19 16 40 14-12 6-22 14-34 22-6 4-13 2-18-4 6-10 9-20 12-32z"
+                fill="url(#av_logo_grad)"
             />
         </svg>
     );
 }
 
 function BrandLogo({ size = 20, className = "" }: { size?: number; className?: string }) {
+    // Prioritize local image, fallback to SVG
     const [failed, setFailed] = useState(false);
 
     if (failed) return <LogoMark size={size} />;
@@ -967,103 +964,29 @@ function BrandLogo({ size = 20, className = "" }: { size?: number; className?: s
     );
 }
 
-function GradientText({ children }: { children: React.ReactNode }) {
-    return (
-        <span
-            style={{
-                backgroundImage: brandGradientCss(90),
-                WebkitBackgroundClip: "text",
-                backgroundClip: "text",
-                color: "transparent",
-            }}
-        >
-            {children}
-        </span>
-    );
+function Container({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+    return <div className={`mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 ${className}`}>{children}</div>;
 }
 
-type ButtonVariant = "primary" | "secondary" | "ghost";
-
-type ButtonProps = {
+function DarkCard({
+    title,
+    right,
+    children,
+    className = "",
+}: {
+    title: string;
+    right?: React.ReactNode;
     children: React.ReactNode;
-    onClick?: () => void;
     className?: string;
-    variant?: ButtonVariant;
-    size?: "sm" | "md";
-    type?: "button" | "submit";
-    disabled?: boolean;
-    title?: string;
-};
-
-function LightButton({
-    children,
-    onClick,
-    className = "",
-    variant = "primary",
-    size = "md",
-    type = "button",
-    disabled,
-    title,
-}: ButtonProps) {
-    const base =
-        "inline-flex items-center justify-center rounded-2xl font-semibold transition focus:outline-none focus:ring-2 focus:ring-offset-2";
-    const pad = size === "sm" ? "px-3 py-2 text-xs" : "px-4 py-2.5 text-sm";
-    const styles: Record<ButtonVariant, string> = {
-        primary: "text-white shadow-sm",
-        secondary: "bg-white text-slate-900 border border-slate-200",
-        ghost: "bg-transparent text-slate-800 hover:bg-slate-50 border border-transparent",
-    };
-    const styleProps: React.CSSProperties =
-        variant === "primary" ? { background: brandGradientCss(90) } : variant === "ghost" ? {} : {};
-    const disabledCls = disabled ? "opacity-60 pointer-events-none" : "";
-
+}) {
     return (
-        <button
-            type={type}
-            title={title}
-            onClick={onClick}
-            className={`${base} ${pad} ${styles[variant]} ${disabledCls} ${className}`.trim()}
-            style={styleProps}
-            disabled={disabled}
-        >
-            {children}
-        </button>
-    );
-}
-
-function Button({
-    children,
-    onClick,
-    className = "",
-    variant = "secondary",
-    size = "md",
-    type = "button",
-    disabled,
-    title,
-}: ButtonProps) {
-    // Dark theme button
-    const base =
-        "inline-flex items-center justify-center rounded-xl font-semibold transition focus:outline-none focus:ring-2 focus:ring-offset-0";
-    const pad = size === "sm" ? "px-3 py-2 text-xs" : "px-4 py-2 text-sm";
-    const styles: Record<ButtonVariant, string> = {
-        primary: "text-white",
-        secondary: "border border-white/10 bg-white/5 text-white hover:bg-white/10",
-        ghost: "bg-transparent text-white/80 hover:bg-white/5",
-    };
-    const styleProps: React.CSSProperties = variant === "primary" ? { background: brandGradientCss(90) } : {};
-    const disabledCls = disabled ? "opacity-60 pointer-events-none" : "";
-
-    return (
-        <button
-            type={type}
-            title={title}
-            onClick={onClick}
-            className={`${base} ${pad} ${styles[variant]} ${disabledCls} ${className}`.trim()}
-            style={styleProps}
-            disabled={disabled}
-        >
-            {children}
-        </button>
+        <div className={`rounded-3xl border border-white/10 bg-white/5 p-5 backdrop-blur-md ${className}`}>
+            <div className="flex items-center justify-between">
+                <h3 className="text-sm font-bold uppercase tracking-wider text-white/50">{title}</h3>
+                {right}
+            </div>
+            <div className="mt-4">{children}</div>
+        </div>
     );
 }
 
@@ -1073,134 +996,115 @@ function LightCard({
     children,
     className = "",
 }: {
-    title?: React.ReactNode;
+    title: string;
     right?: React.ReactNode;
     children: React.ReactNode;
     className?: string;
 }) {
-    const hasHeader = Boolean(title) || Boolean(right);
     return (
-        <div className={`rounded-3xl border border-slate-200 bg-white p-4 shadow-sm ${className}`.trim()}>
-            {hasHeader && (
-                <div className="flex items-start justify-between gap-3">
-                    <div className="text-sm font-semibold text-slate-900">{title}</div>
-                    <div className="text-xs text-slate-500">{right}</div>
-                </div>
-            )}
-            <div className={hasHeader ? "mt-3" : ""}>{children}</div>
+        <div
+            className={`rounded-3xl border border-slate-200 bg-white p-5 shadow-sm transition hover:shadow-md ${className}`}
+        >
+            <div className="flex items-center justify-between">
+                <h3 className="text-sm font-bold text-slate-900">{title}</h3>
+                {right}
+            </div>
+            <div className="mt-4">{children}</div>
         </div>
     );
 }
 
-function DarkCard({
-    title,
-    right,
-    children,
+function Button({
     className = "",
-}: {
-    title?: React.ReactNode;
-    right?: React.ReactNode;
-    children: React.ReactNode;
-    className?: string;
-}) {
-    const hasHeader = Boolean(title) || Boolean(right);
-    return (
-        <div className={`rounded-3xl border border-white/10 bg-white/5 p-4 ${className}`.trim()}>
-            {hasHeader && (
-                <div className="flex items-start justify-between gap-3">
-                    <div className="text-sm font-semibold text-white">{title}</div>
-                    <div className="text-xs text-white/60">{right}</div>
-                </div>
-            )}
-            <div className={hasHeader ? "mt-3" : ""}>{children}</div>
-        </div>
-    );
+    variant = "primary",
+    size = "md",
+    ...props
+}: React.ButtonHTMLAttributes<HTMLButtonElement> & { variant?: "primary" | "secondary" | "ghost"; size?: "sm" | "md" }) {
+    const base = "inline-flex items-center justify-center rounded-xl font-medium transition active:scale-95 disabled:opacity-50 disabled:pointer-events-none";
+    const variants = {
+        primary: "bg-white text-slate-900 hover:bg-slate-100",
+        secondary: "bg-white/10 text-white hover:bg-white/20",
+        ghost: "bg-transparent text-white/60 hover:text-white hover:bg-white/5",
+    };
+    const sizes = {
+        sm: "px-3 py-1.5 text-xs",
+        md: "px-4 py-2 text-sm",
+    };
+    return <button className={`${base} ${variants[variant]} ${sizes[size]} ${className}`} {...props} />;
 }
 
-function Stat({ label, value, sub }: { label: string; value: React.ReactNode; sub?: string }) {
-    return (
-        <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-            <div className="text-xs text-white/55">{label}</div>
-            <div className="mt-1 text-2xl font-extrabold text-white">{value}</div>
-            {sub ? <div className="mt-1 text-xs text-white/55">{sub}</div> : null}
-        </div>
-    );
+function LightButton({
+    className = "",
+    variant = "primary",
+    size = "md",
+    ...props
+}: React.ButtonHTMLAttributes<HTMLButtonElement> & { variant?: "primary" | "secondary" | "ghost"; size?: "sm" | "md" }) {
+    const base = "inline-flex items-center justify-center rounded-xl font-medium transition active:scale-95 disabled:opacity-50 disabled:pointer-events-none";
+    const variants = {
+        primary: "bg-slate-900 text-white hover:bg-slate-800",
+        secondary: "bg-slate-100 text-slate-900 hover:bg-slate-200",
+        ghost: "bg-transparent text-slate-500 hover:text-slate-900 hover:bg-slate-100",
+    };
+    const sizes = {
+        sm: "px-3 py-1.5 text-xs",
+        md: "px-4 py-2 text-sm",
+    };
+    return <button className={`${base} ${variants[variant]} ${sizes[size]} ${className}`} {...props} />;
 }
 
-function Input({
-    value,
-    onChange,
-    placeholder,
-}: {
-    value: string;
-    onChange: (v: string) => void;
-    placeholder?: string;
-}) {
+function Input({ className = "", ...props }: React.InputHTMLAttributes<HTMLInputElement>) {
     return (
         <input
-            value={value}
-            onChange={(e) => onChange(e.target.value)}
-            placeholder={placeholder}
-            className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none placeholder:text-white/35"
+            className={`block w-full rounded-xl border border-white/10 bg-black/20 px-4 py-2 text-sm text-white placeholder:text-white/30 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 ${className}`}
+            {...props}
         />
     );
 }
 
 function Select({
-    value,
-    onChange,
     options,
-}: {
-    value: string;
-    onChange: (v: string) => void;
-    options: { value: string; label: string }[];
-}) {
+    className = "",
+    ...props
+}: React.SelectHTMLAttributes<HTMLSelectElement> & { options: { value: string; label: string }[] }) {
     return (
-        <select
-            value={value}
-            onChange={(e) => onChange(e.target.value)}
-            className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none"
-        >
-            {options.map((o) => (
-                <option key={o.value} value={o.value} className="bg-zinc-950">
-                    {o.label}
-                </option>
-            ))}
-        </select>
+        <div className="relative">
+            <select
+                className={`block w-full appearance-none rounded-xl border border-white/10 bg-black/20 px-4 py-2 pr-8 text-sm text-white focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 ${className}`}
+                {...props}
+            >
+                {options.map((o) => (
+                    <option key={o.value} value={o.value} className="bg-zinc-900 text-white">
+                        {o.label}
+                    </option>
+                ))}
+            </select>
+            <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-white/40">▼</div>
+        </div>
     );
 }
 
-// -----------------------------
-// Routing (hash)
-// -----------------------------
-
-type Page = "home" | "dashboard";
-
-type EmbedRoute = "badge" | null;
-
-function detectEmbedRoute(): EmbedRoute {
-    try {
-        const h = (window.location.hash || "").toLowerCase();
-        if (h.startsWith("#/badge") || h.startsWith("#badge")) return "badge";
-    } catch {
-        // ignore
-    }
-    return null;
+function Stat({ label, value, sub }: { label: string; value: string | number; sub?: string }) {
+    return (
+        <DarkCard title={label} className="min-h-[120px]">
+            <div className="text-2xl font-bold text-white md:text-3xl">{value}</div>
+            {sub && <div className="mt-1 text-xs text-white/50">{sub}</div>}
+        </DarkCard>
+    );
 }
 
-function queryParamsFromHref(): URLSearchParams {
-    try {
-        const href = window.location.href;
-        const idx = href.indexOf("?");
-        if (idx < 0) return new URLSearchParams();
-        return new URLSearchParams(href.slice(idx + 1));
-    } catch {
-        return new URLSearchParams();
+function statusPill(status: Device["status"]) {
+    switch (status) {
+        case "online":
+            return "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
+        case "degraded":
+            return "bg-amber-500/10 text-amber-400 border-amber-500/20";
+        case "offline":
+            return "bg-rose-500/10 text-rose-400 border-rose-500/20";
     }
 }
 
 // -----------------------------
-// Badge embed
+// Badge Embed Component (Route: #/badge)
 // -----------------------------
 
 function BadgeEmbedPage() {
@@ -1212,21 +1116,17 @@ function BadgeEmbedPage() {
 
     const transparent = params.get("transparent") === "1";
 
-    const site = useMemo(() => mockSites.find((s) => s.id === siteId) ?? mockSites[0], [siteId]);
-    const seed = useMemo(() => siteId.split("").reduce((acc, ch) => acc + ch.charCodeAt(0), 0), [siteId]);
-    const series = useMemo(() => generateSeries(seed, 24), [seed]);
-    const latest = series[series.length - 1];
-    const score = latest ? scoreFromPoint(latest) : 0;
-
-    useEffect(() => {
-        try {
-            document.documentElement.style.background = "transparent";
-            document.body.style.margin = "0";
-            document.body.style.background = transparent ? "transparent" : "white";
-        } catch {
-            // ignore
-        }
-    }, [transparent]);
+    // Mock data for badge
+    const score = 87; // static mock
+    const latest: ReadingPoint = {
+        t: "12:00",
+        ts: Date.now(),
+        pm25: 12,
+        co2: 720,
+        tvoc: 110,
+        temp: 23.5,
+        humidity: 45,
+    };
 
     return (
         <div className="h-full w-full" style={{ background: transparent ? "transparent" : "white" }}>
@@ -1236,20 +1136,26 @@ function BadgeEmbedPage() {
             >
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                        <BrandLogo size={18} />
-                        <div className="text-sm font-extrabold text-slate-900">AirVent</div>
+                        <BrandLogo size={24} />
+                        <div className="text-xs font-bold text-slate-900">{t("badge.title")}</div>
                     </div>
-                    <div className="text-[11px] text-slate-500">Embeddable Badge</div>
+                    <div className="flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5">
+                        <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                        <div className="text-[10px] font-medium text-slate-600">Live</div>
+                    </div>
                 </div>
 
-                <div className="mt-2 flex items-end justify-between">
+                <div className="mt-3 flex items-end justify-between">
                     <div>
-                        <div className="text-xs text-slate-500">{t("badge.today")}</div>
-                        <div className="mt-0.5 text-4xl font-black text-slate-900">{score}</div>
+                        <div className="text-[10px] text-slate-500 uppercase tracking-wide">{t("badge.today")}</div>
+                        <div className="flex items-baseline gap-1">
+                            <span className="text-4xl font-black text-slate-900">{score}</span>
+                            <span className="text-sm font-medium text-emerald-500">Good</span>
+                        </div>
                     </div>
                     <div className="text-right">
-                        <div className="text-xs text-slate-500">{t("badge.site")}</div>
-                        <div className="mt-0.5 text-sm font-semibold text-slate-900">{site?.name ?? siteId}</div>
+                        <div className="text-[10px] text-slate-500">{t("badge.site")}</div>
+                        <div className="text-xs font-bold text-slate-900">{siteId}</div>
                     </div>
                 </div>
 
@@ -1260,19 +1166,35 @@ function BadgeEmbedPage() {
                         { k: "TVOC", v: latest?.tvoc ?? "-", c: BRAND.green },
                     ].map((x) => (
                         <div key={x.k} className="rounded-xl border border-slate-200 bg-white p-2">
-                            <div className="text-slate-500">{x.k}</div>
-                            <div className="mt-0.5 font-semibold text-slate-900">{x.v}</div>
-                            <div className="mt-1 h-1 rounded-full" style={{ backgroundColor: x.c, opacity: 0.35 }} />
+                            <div className="font-semibold" style={{ color: x.c }}>
+                                {x.k}
+                            </div>
+                            <div className="font-mono">{x.v}</div>
                         </div>
                     ))}
                 </div>
 
-                <div className="mt-2 text-[11px] text-slate-500">{t("badge.updated")}</div>
+                <div className="mt-3 border-t border-slate-100 pt-2 text-[9px] text-slate-400 flex justify-between">
+                    <span>{t("badge.updated")}</span>
+                    <a
+                        href={window.location.origin}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="hover:underline hover:text-slate-600"
+                    >
+                        Get AirVent &rarr;
+                    </a>
+                </div>
             </div>
         </div>
     );
 }
 
+// -----------------------------
+// Top nav
+// -----------------------------
+
+type Page = "home" | "dashboard";
 
 function TopNav({
     page,
@@ -1295,19 +1217,6 @@ function TopNav({
 }) {
     const isHome = page === "home";
 
-    const navTo = (id: string) => {
-        if (!isHome) {
-            setPage("home");
-            setTimeout(() => {
-                const el = document.getElementById(id);
-                if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-            }, 50);
-            return;
-        }
-        const el = document.getElementById(id);
-        if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-    };
-
     return (
         <div
             className={
@@ -1318,108 +1227,61 @@ function TopNav({
         >
             <Container>
                 <div className="flex items-center justify-between py-3">
-                    <button type="button" onClick={() => setPage("home")} className="flex items-center gap-2">
-                        <BrandLogo size={22} />
-                        <div className={isHome ? "text-sm font-extrabold text-slate-900" : "text-sm font-extrabold text-white"}>AirVent</div>
+                    <button type="button" onClick={() => setPage("home")} className="flex items-center gap-3">
+                        <BrandLogo size={isHome ? 40 : 36} className="shrink-0" />
                         <div className={isHome ? "hidden md:block text-xs text-slate-500" : "hidden md:block text-xs text-white/55"}>{t("nav.tagline")}</div>
                     </button>
 
-                    <div className="hidden md:flex items-center gap-1">
+                    <div className="flex items-center gap-1 md:gap-4">
                         <button
-                            type="button"
-                            onClick={() => navTo("comparison")}
-                            className={
-                                isHome
-                                    ? "rounded-full px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
-                                    : "rounded-full px-3 py-2 text-xs font-semibold text-white/70 hover:bg-white/5"
-                            }
+                            onClick={() => setPage("home")}
+                            className={`px-3 py-1.5 text-sm font-medium transition ${isHome
+                                    ? "text-slate-900"
+                                    : page === "home"
+                                        ? "text-white"
+                                        : "text-white/60 hover:text-white"
+                                } ${isHome ? "" : "hidden md:block"}`}
                         >
-                            {t("nav.comparison")}
+                            {t("nav.homepage")}
                         </button>
                         <button
-                            type="button"
-                            onClick={() => navTo("rewards")}
-                            className={
-                                isHome
-                                    ? "rounded-full px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
-                                    : "rounded-full px-3 py-2 text-xs font-semibold text-white/70 hover:bg-white/5"
-                            }
+                            onClick={() => setPage("dashboard")}
+                            className={`px-3 py-1.5 text-sm font-medium transition ${!isHome
+                                    ? "text-white"
+                                    : "text-slate-500 hover:text-slate-900"
+                                }`}
                         >
-                            {t("nav.rewards")}
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => navTo("subscription")}
-                            className={
-                                isHome
-                                    ? "rounded-full px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
-                                    : "rounded-full px-3 py-2 text-xs font-semibold text-white/70 hover:bg-white/5"
-                            }
-                        >
-                            {t("nav.subscription")}
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => navTo("faq")}
-                            className={
-                                isHome
-                                    ? "rounded-full px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
-                                    : "rounded-full px-3 py-2 text-xs font-semibold text-white/70 hover:bg-white/5"
-                            }
-                        >
-                            {t("nav.faq")}
-                        </button>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                        <button
-                            type="button"
-                            onClick={() => setPage(isHome ? "dashboard" : "home")}
-                            className={
-                                isHome
-                                    ? "rounded-full border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-800"
-                                    : "rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-white/85"
-                            }
-                            title={isHome ? t("nav.dashboard") : t("nav.homepage")}
-                        >
-                            {isHome ? t("nav.dashboard") : t("nav.homepage")}
+                            {t("nav.dashboard")}
                         </button>
 
+                        <div className="mx-2 h-4 w-px bg-current opacity-10" />
+
                         <button
-                            type="button"
                             onClick={onToggleLang}
-                            className={
-                                isHome
-                                    ? "rounded-full border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-800"
-                                    : "rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-white/85"
-                            }
-                            title="Language"
+                            className={`flex items-center gap-1 px-2 py-1 text-xs font-bold uppercase transition ${isHome ? "text-slate-500 hover:text-slate-900" : "text-white/60 hover:text-white"
+                                }`}
                         >
-                            {lang === "ko" ? t("nav.lang.ko") : t("nav.lang.en")}
+                            <span>{lang === "en" ? "KO" : "EN"}</span>
                         </button>
 
                         {walletAddress ? (
-                            <button
-                                type="button"
-                                onClick={onDisconnectWallet}
-                                className={
-                                    isHome
-                                        ? "rounded-full border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-800"
-                                        : "rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-white/85"
-                                }
-                                title={shortAddr(walletAddress)}
-                            >
-                                {t("wallet.disconnect")}
-                            </button>
+                            <div className="flex items-center gap-2 rounded-full border border-current px-3 py-1.5 text-xs font-mono opacity-80" style={{ color: isHome ? BRAND.slate : "white" }}>
+                                <span className="h-2 w-2 rounded-full bg-emerald-400" />
+                                {shortAddr(walletAddress)}
+                                <button
+                                    onClick={onDisconnectWallet}
+                                    className="ml-2 font-sans font-bold hover:underline"
+                                >
+                                    ✕
+                                </button>
+                            </div>
                         ) : (
                             <button
-                                type="button"
                                 onClick={onConnectWallet}
-                                className={
-                                    isHome
-                                        ? "rounded-full border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-800"
-                                        : "rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-white/85"
-                                }
+                                className={`rounded-full px-4 py-2 text-xs font-bold transition ${isHome
+                                        ? "bg-slate-900 text-white hover:bg-slate-800"
+                                        : "bg-white text-slate-900 hover:bg-slate-100"
+                                    }`}
                             >
                                 {t("wallet.connect")}
                             </button>
@@ -1432,7 +1294,7 @@ function TopNav({
 }
 
 // -----------------------------
-// Home
+// Home Page
 // -----------------------------
 
 function HomePage({
@@ -1444,710 +1306,715 @@ function HomePage({
 }: {
     lang: Lang;
     t: TFn;
-    onOpenDashboard: (mode?: DashboardMode, range?: OpsRange) => void;
+    onOpenDashboard: (mode?: DashboardMode) => void;
     onJoinBeta: () => void;
     betaJoined: boolean;
 }) {
-    const heroBgUrl = usePreloadedImage(HERO_BG_LOCAL, HERO_BG_LOCAL);
+    // Preload hero
+    const heroBgUrl = usePreloadedImage(HERO_BG_LOCAL, "");
 
     return (
-        <div className="bg-white">
-            <div className="bg-gradient-to-b from-white to-slate-50">
-                <Container>
-                    <div className="py-12 md:py-16">
-                        <div className="relative overflow-hidden rounded-3xl border border-slate-200 bg-white">
-                            <div className="absolute inset-0" style={{ backgroundImage: brandGradientCss(110), opacity: 0.10 }} />
+        <div className="bg-white pb-20">
+            {/* Hero */}
+            <div className="relative overflow-hidden bg-slate-50">
+                <Container className="relative pt-12 md:pt-20 lg:pt-28">
+                    <div className="relative z-10 mx-auto max-w-4xl text-center">
+                        <div className="inline-flex items-center gap-2 rounded-full border border-indigo-100 bg-white px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-indigo-600 shadow-sm md:text-xs">
+                            <span className="flex h-2 w-2">
+                                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-indigo-400 opacity-75"></span>
+                                <span className="relative inline-flex h-2 w-2 rounded-full bg-indigo-500"></span>
+                            </span>
+                            {t("hero.pill")}
+                        </div>
+                        <h1 className="mt-6 text-4xl font-black tracking-tight text-slate-900 md:text-6xl lg:text-7xl">
+                            {t("hero.title")}
+                        </h1>
+                        <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-slate-600 md:text-xl">
+                            {t("hero.desc")}
+                        </p>
+
+                        <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
+                            <LightButton
+                                variant="primary"
+                                className="h-12 w-full px-8 text-base shadow-xl shadow-indigo-500/20 sm:w-auto"
+                                onClick={() => onOpenDashboard("ops")}
+                            >
+                                {t("hero.cta.buy")}
+                            </LightButton>
+                            <LightButton
+                                variant="secondary"
+                                className="h-12 w-full px-8 text-base sm:w-auto"
+                                onClick={() => onOpenDashboard("public")}
+                            >
+                                {t("hero.cta.dashboard")}
+                            </LightButton>
+                        </div>
+                        <div className="mt-6 text-sm font-medium text-indigo-600 hover:text-indigo-700 cursor-pointer">
+                            {t("hero.cta.pilot")}
+                        </div>
+                    </div>
+
+                    <div className="mt-16 md:mt-24">
+                        <div className="relative mx-auto max-w-5xl rounded-2xl bg-white shadow-2xl ring-1 ring-slate-900/5">
                             <div
-                                className="absolute inset-0"
-                                style={{
-                                    backgroundImage: `url(${heroBgUrl})`,
-                                    backgroundSize: "cover",
-                                    backgroundPosition: "center",
-                                    opacity: 1,
-                                }}
-                            />
-                            {/* Gradient overlay for text readability */}
-                            <div className="absolute inset-0 bg-gradient-to-r from-white/95 via-white/70 to-transparent" />
-                            <div className="relative p-6 md:p-8">
-                                <div className="grid grid-cols-1 gap-8 md:grid-cols-12 md:items-center">
-                                    <div className="md:col-span-7">
-                                        <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700">
-                                            <span className="h-2 w-2 rounded-full" style={{ background: BRAND.green }} />
-                                            {t("hero.pill")}
-                                        </div>
-                                        <h1 className="mt-4 text-3xl font-black tracking-tight text-slate-900 md:text-5xl">
-                                            <GradientText>{t("hero.title")}</GradientText>
-                                        </h1>
-                                        <p className="mt-4 text-base leading-relaxed text-slate-600 md:text-lg">{t("hero.desc")}</p>
-                                        <div className="mt-6 flex flex-wrap gap-3">
-                                            <LightButton variant="primary" onClick={() => document.getElementById("rewards")?.scrollIntoView({ behavior: "smooth" })}>
-                                                {t("hero.cta.buy")}
-                                            </LightButton>
-                                            <LightButton variant="secondary" onClick={() => onOpenDashboard()}>
-                                                {t("hero.cta.dashboard")}
-                                            </LightButton>
-                                            <a
-                                                href="#"
-                                                onClick={(e) => e.preventDefault()}
-                                                className="inline-flex items-center gap-2 rounded-2xl px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-white"
-                                            >
-                                                {t("hero.cta.pilot")}
-                                            </a>
+                                className="aspect-[16/9] w-full rounded-2xl bg-slate-100 relative overflow-hidden"
+                            >
+                                <div
+                                    className="absolute inset-0"
+                                    style={{
+                                        backgroundImage: `url(${heroBgUrl})`,
+                                        backgroundSize: "cover",
+                                        backgroundPosition: "center",
+                                        opacity: 0.22,
+                                        filter: "saturate(0.95)",
+                                    }}
+                                />
+                                <div className="absolute inset-0 bg-white/88 backdrop-blur-sm" />
+                                <div className="relative p-6 md:p-8">
+                                    <div className="grid grid-cols-1 gap-8 md:grid-cols-12 md:items-center">
+                                        <div className="md:col-span-7">
+                                            <div className="flex items-center gap-2 text-sm font-bold text-indigo-600">
+                                                <span className="h-px w-8 bg-indigo-600"></span>
+                                                {t("cmp.kicker")}
+                                            </div>
+                                            <h2 className="mt-2 text-2xl font-extrabold text-slate-900 md:text-3xl">
+                                                {t("cmp.title")}
+                                            </h2>
+                                            <p className="mt-4 text-slate-600">{t("cmp.desc")}</p>
+
+                                            <div className="mt-8 overflow-hidden rounded-xl border border-slate-200">
+                                                <table className="w-full text-left text-sm">
+                                                    <thead className="bg-slate-50 text-slate-500">
+                                                        <tr>
+                                                            <th className="px-4 py-3 font-semibold">{t("cmp.col.cap")}</th>
+                                                            <th className="px-4 py-3 font-semibold">{t("cmp.col.trad")}</th>
+                                                            <th className="px-4 py-3 font-semibold text-indigo-700">{t("cmp.col.av")}</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody className="divide-y divide-slate-100 bg-white">
+                                                        <tr>
+                                                            <td className="px-4 py-3 font-medium text-slate-900">Rank/Score</td>
+                                                            <td className="px-4 py-3 text-slate-500">-</td>
+                                                            <td className="px-4 py-3 font-bold text-indigo-600">Yes</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td className="px-4 py-3 font-medium text-slate-900">Alerts</td>
+                                                            <td className="px-4 py-3 text-slate-500">Local-only</td>
+                                                            <td className="px-4 py-3 font-bold text-indigo-600">Cloud/SMS</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td className="px-4 py-3 font-medium text-slate-900">Reports</td>
+                                                            <td className="px-4 py-3 text-slate-500">Manual CSV</td>
+                                                            <td className="px-4 py-3 font-bold text-indigo-600">Auto-generated</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td className="px-4 py-3 font-medium text-slate-900">Cost</td>
+                                                            <td className="px-4 py-3 text-slate-500">Capex</td>
+                                                            <td className="px-4 py-3 font-bold text-indigo-600">Sub-to-Own</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
                                         </div>
 
-                                        <div className="mt-6 grid grid-cols-1 gap-3 md:grid-cols-2">
-                                            <LightCard
-                                                title={lang === "ko" ? "무료로 시작" : "Start Free"}
-                                                right={<span className="text-xs text-slate-500">{lang === "ko" ? "전환용 핵심" : "Conversion lever"}</span>}
-                                            >
-                                                <div className="text-sm text-slate-700">
-                                                    {lang === "ko"
-                                                        ? "7일 운영 리포트로 ‘관리되고 있다’는 신뢰를 먼저 보여주고, 이후 구독→크레딧으로 구매 장벽을 낮춥니다."
-                                                        : "Show trust first with a 7-day ops report, then reduce purchase friction via subscription-to-credits."}
+                                        <div className="md:col-span-5">
+                                            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-lg">
+                                                <div className="flex items-center gap-2 mb-4">
+                                                    <BrandLogo size={24} />
+                                                    <span className="font-bold text-slate-900">AirVent Demo</span>
                                                 </div>
-                                                <div className="mt-3">
-                                                    <LightButton variant="primary" size="sm" onClick={() => onOpenDashboard("ops", "7d")}>
-                                                        {t("sub.cta.7d")}
+                                                <div className="space-y-4">
+                                                    <LightButton
+                                                        variant="primary"
+                                                        className="w-full justify-between"
+                                                        onClick={() => onOpenDashboard("ops")}
+                                                    >
+                                                        <span>{t("dash.mode.ops")}</span>
+                                                        <span>&rarr;</span>
+                                                    </LightButton>
+                                                    <LightButton
+                                                        variant="secondary"
+                                                        className="w-full justify-between"
+                                                        onClick={() => onOpenDashboard("personal")}
+                                                    >
+                                                        <span>{t("dash.mode.personal")}</span>
+                                                        <span>&rarr;</span>
                                                     </LightButton>
                                                 </div>
-                                            </LightCard>
+                                            </div>
 
-                                            <LightCard
-                                                title={t("beta.title")}
-                                                right={
-                                                    <span className={`text-xs ${betaJoined ? "text-emerald-600" : "text-slate-500"}`}>
-                                                        {betaJoined ? t("beta.joined") : "Beta"}
-                                                    </span>
-                                                }
-                                            >
-                                                <div className="text-sm text-slate-700">{t("beta.desc")}</div>
-                                                <div className="mt-2 text-xs text-slate-500">{t("sub.beta.note")}</div>
-                                                <div className="mt-3 flex items-center gap-2">
-                                                    <LightButton variant={betaJoined ? "secondary" : "primary"} size="sm" onClick={onJoinBeta}>
-                                                        {betaJoined ? (lang === "ko" ? "베타 보기" : "View Beta") : t("beta.join")}
-                                                    </LightButton>
-                                                    <LightButton variant="ghost" size="sm" onClick={() => onOpenDashboard("personal")}>
-                                                        {lang === "ko" ? "개인 대시보드" : "Personal"}
-                                                    </LightButton>
-                                                </div>
-                                            </LightCard>
+                                            <div className="mt-6 grid grid-cols-1 gap-3 md:grid-cols-2">
+                                                <LightCard
+                                                    title={lang === "ko" ? "무료로 시작" : "Start Free"}
+                                                    right={<span className="text-xs text-slate-500">{lang === "ko" ? "전환용 핵심" : "Conversion lever"}</span>}
+                                                >
+                                                    <div className="text-sm text-slate-700">
+                                                        {lang === "ko"
+                                                            ? "7일 운영 리포트로 ‘관리되고 있다’는 신뢰를 먼저 보여주고, 이후 구독→크레딧으로 구매 장벽을 낮춥니다."
+                                                            : "Show trust first with a 7-day ops report, then reduce purchase friction via subscription-to-credits."}
+                                                    </div>
+                                                    <div className="mt-3">
+                                                        <span className="inline-flex items-center rounded-md bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-700 ring-1 ring-inset ring-emerald-600/20">
+                                                            {t("sub.cta.7d")}
+                                                        </span>
+                                                    </div>
+                                                </LightCard>
+
+                                                <LightCard
+                                                    title={lang === "ko" ? "베타 미션" : "Beta Missions"}
+                                                    right={<span className="text-xs text-slate-500">{lang === "ko" ? "리워드 지급" : "Rewards"}</span>}
+                                                >
+                                                    <div className="text-sm text-slate-700">
+                                                        {lang === "ko"
+                                                            ? "지갑 연결, 첫 사이트 등록 시 검증 후 바우처 크레딧을 지급합니다."
+                                                            : "Connect wallet & register first site to earn verified voucher credits."}
+                                                    </div>
+                                                    <div className="mt-2 text-xs text-slate-500">{t("sub.beta.note")}</div>
+                                                    <div className="mt-3 flex items-center gap-2">
+                                                        <LightButton variant={betaJoined ? "secondary" : "primary"} size="sm" onClick={onJoinBeta}>
+                                                            {betaJoined ? (lang === "ko" ? "베타 보기" : "View Beta") : t("beta.join")}
+                                                        </LightButton>
+                                                        <LightButton variant="ghost" size="sm" onClick={() => onOpenDashboard("personal")}>
+                                                            {lang === "ko" ? "개인 대시보드" : "Personal"}
+                                                        </LightButton>
+                                                    </div>
+                                                </LightCard>
+                                            </div>
+
                                         </div>
                                     </div>
-
-                                    <div className="md:col-span-5">
-                                        <LightCard title={t("badge.title")} right={t("badge.right")}>
-                                            <div className="flex items-end justify-between">
-                                                <div>
-                                                    <div className="text-xs text-slate-500">{t("badge.today")}</div>
-                                                    <div className="mt-1 text-5xl font-black text-slate-900">92</div>
-                                                </div>
-                                                <div className="text-right">
-                                                    <div className="text-xs text-slate-500">{t("badge.site")}</div>
-                                                    <div className="mt-1 text-sm font-semibold text-slate-900">AirVent HQ</div>
-                                                </div>
-                                            </div>
-                                            <div className="mt-4 grid grid-cols-3 gap-2 text-xs">
-                                                <div className="rounded-xl border border-slate-200 bg-white p-2">
-                                                    <div className="text-slate-500">PM2.5</div>
-                                                    <div className="mt-0.5 font-semibold text-slate-900">12</div>
-                                                    <div className="mt-1 h-1 rounded-full" style={{ backgroundColor: BRAND.indigo, opacity: 0.35 }} />
-                                                </div>
-                                                <div className="rounded-xl border border-slate-200 bg-white p-2">
-                                                    <div className="text-slate-500">CO₂</div>
-                                                    <div className="mt-0.5 font-semibold text-slate-900">720</div>
-                                                    <div className="mt-1 h-1 rounded-full" style={{ backgroundColor: BRAND.blue, opacity: 0.35 }} />
-                                                </div>
-                                                <div className="rounded-xl border border-slate-200 bg-white p-2">
-                                                    <div className="text-slate-500">TVOC</div>
-                                                    <div className="mt-0.5 font-semibold text-slate-900">180</div>
-                                                    <div className="mt-1 h-1 rounded-full" style={{ backgroundColor: BRAND.green, opacity: 0.35 }} />
-                                                </div>
-                                            </div>
-                                            <div className="mt-3 text-xs text-slate-500">{t("badge.updated")}</div>
-                                        </LightCard>
-                                    </div>                </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </Container>
+
+{/* Features / Product Section */ }
+<Container className="py-24">
+    <div className="flex flex-col gap-16">
+
+        {/* Badge Feature */}
+        <div className="grid grid-cols-1 gap-12 md:grid-cols-2 md:items-center">
+            <div>
+                <div className="text-sm font-bold text-indigo-600">{t("badge.title")}</div>
+                <h3 className="mt-2 text-3xl font-bold text-slate-900">{t("hero.pill").split("•")[2] || "Shareable Air Badge"}</h3>
+                <p className="mt-4 text-lg text-slate-600">
+                    {t("dash.badge.desc")}
+                </p>
+                <div className="mt-8">
+                    <LightButton variant="secondary" onClick={() => {
+                        // Open badge in new window
+                        window.open(`${window.location.origin}/#/badge`, "_blank");
+                    }}>
+                        {t("dash.badge.preview")} &rarr;
+                    </LightButton>
+                </div>
+            </div>
+            <div className="rounded-2xl bg-slate-100 p-8 shadow-inner">
+                {/* Mock Badge visual */}
+                <div className="mx-auto max-w-sm rounded-2xl bg-white p-4 shadow-xl">
+                    <div className="flex items-center gap-2 mb-4">
+                        <LogoMark size={24} />
+                        <span className="font-bold text-slate-900">Gangnam HQ</span>
+                    </div>
+                    <div className="flex items-end justify-between">
+                        <div>
+                            <div className="text-[10px] uppercase text-slate-500">Score</div>
+                            <div className="text-4xl font-black text-slate-900">87</div>
+                        </div>
+                        <div className="text-right">
+                            <div className="text-xs font-bold text-emerald-500">Good</div>
+                        </div>
+                    </div>
+                    <div className="mt-4 grid grid-cols-3 gap-2">
+                        <div className="rounded-xl border border-slate-200 bg-white p-2">
+                            <div className="text-slate-500">PM2.5</div>
+                            <div className="mt-0.5 font-semibold text-slate-900">12</div>
+                            <div className="mt-1 h-1 rounded-full" style={{ backgroundColor: BRAND.indigo, opacity: 0.35 }} />
+                        </div>
+                        <div className="rounded-xl border border-slate-200 bg-white p-2">
+                            <div className="text-slate-500">CO₂</div>
+                            <div className="mt-0.5 font-semibold text-slate-900">720</div>
+                            <div className="mt-1 h-1 rounded-full" style={{ backgroundColor: BRAND.blue, opacity: 0.35 }} />
+                        </div>
+                        <div className="rounded-xl border border-slate-200 bg-white p-2">
+                            <div className="text-slate-500">TVOC</div>
+                            <div className="mt-0.5 font-semibold text-slate-900">110</div>
+                            <div className="mt-1 h-1 rounded-full" style={{ backgroundColor: BRAND.green, opacity: 0.35 }} />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {/* Sub-to-Own Feature */}
+        <div className="rounded-3xl bg-slate-900 px-6 py-16 text-center shadow-2xl md:px-12">
+            <h2 className="text-3xl font-black text-white md:text-4xl">{t("sub.title")}</h2>
+            <p className="mx-auto mt-4 max-w-2xl text-lg text-slate-300">{t("sub.desc")}</p>
+
+            <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-3 text-left">
+                {[
+                    SUB_PLANS[0], // Free
+                    SUB_PLANS[2], // Pro
+                    SUB_PLANS[3], // Ops
+                ].map((p) => (
+                    <div key={p.id} className="rounded-2xl bg-white/5 p-6 border border-white/10 backdrop-blur-sm">
+                        <div className="text-sm font-bold text-indigo-400">{lang === "ko" ? p.nameKo : p.nameEn}</div>
+                        <div className="mt-2 text-3xl font-bold text-white">{formatUsd(p.priceCentsPerMonth)}<span className="text-sm font-normal text-white/50">/mo</span></div>
+                        <div className="mt-1 text-sm text-emerald-400">
+                            +{formatUsd(p.creditsCentsPerMonth)} {t("credit.plan.monthly")}
+                        </div>
+                        <ul className="mt-6 space-y-3">
+                            {(lang === "ko" ? p.perksKo : p.perksEn).map(pk => (
+                                <li key={pk} className="flex items-start gap-2 text-sm text-slate-300">
+                                    <span className="mt-0.5 text-indigo-400">✓</span>
+                                    {pk}
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                ))}
             </div>
 
-            <section id="comparison" className="border-t border-slate-200 bg-white">
-                <Container>
-                    <div className="py-12">
-                        <div className="text-xs font-semibold text-slate-500">{t("cmp.kicker")}</div>
-                        <h2 className="mt-2 text-2xl font-extrabold text-slate-900 md:text-3xl">{t("cmp.title")}</h2>
-                        <p className="mt-2 text-slate-600">{t("cmp.desc")}</p>
-
-                        <div className="mt-6 overflow-hidden rounded-3xl border border-slate-200">
-                            <div className="grid grid-cols-3 bg-slate-50 text-xs font-semibold text-slate-600">
-                                <div className="px-4 py-3">{t("cmp.col.cap")}</div>
-                                <div className="px-4 py-3">{t("cmp.col.trad")}</div>
-                                <div className="px-4 py-3">{t("cmp.col.av")}</div>
-                            </div>
-                            {["Multi-site operations", "Action KPI", "Customer trust", "Reporting"].map((cap, idx) => (
-                                <div key={cap} className="grid grid-cols-3 border-t border-slate-200 text-sm">
-                                    <div className="px-4 py-3 font-semibold text-slate-900">{cap}</div>
-                                    <div className="px-4 py-3 text-slate-600">{idx === 0 ? "Manual checks" : idx === 1 ? "Raw readings" : idx === 2 ? "No public proof" : "Screenshots"}</div>
-                                    <div className="px-4 py-3 text-slate-900">
-                                        {idx === 0 ? "HQ dashboard + ranking" : idx === 1 ? "Time-over-threshold + incidents" : idx === 2 ? "Shareable Air Badge" : "CSV export (roadmap: monthly PDF)"}
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </Container>
-            </section>
-
-            <section id="rewards" className="border-t border-slate-200 bg-white">
-                <Container>
-                    <div className="py-12">
-                        <div className="text-xs font-semibold text-slate-500">{t("rewards.kicker")}</div>
-                        <h2 className="mt-2 text-2xl font-extrabold text-slate-900 md:text-3xl">{t("rewards.title")}</h2>
-                        <p className="mt-2 text-slate-600">{t("rewards.note")}</p>
-                        <p className="mt-2 text-slate-600">{t("rewards.creditNote")}</p>
-
-                        <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-4">
-                            {[
-                                { name: lang === "ko" ? "Early Bird" : "Early Bird", price: COMMERCE.earlyBirdCents, desc: lang === "ko" ? "초기 구매자 혜택" : "Genesis allocation" },
-                                { name: lang === "ko" ? "Standard" : "Standard", price: COMMERCE.standardCents, desc: lang === "ko" ? "기본 구성" : "Standard package" },
-                                { name: lang === "ko" ? "Set (3)" : "Set (3)", price: COMMERCE.set3Cents, desc: lang === "ko" ? "3대 세트" : "3-unit bundle" },
-                                { name: lang === "ko" ? "List" : "List", price: COMMERCE.listPriceCents, desc: lang === "ko" ? "정가" : "List price" },
-                            ].map((p) => (
-                                <LightCard
-                                    key={p.name}
-                                    title={p.name}
-                                    right={<span className="text-sm font-extrabold text-slate-900">{formatUsd(p.price)}</span>}
-                                >
-                                    <div className="text-sm text-slate-600">{p.desc}</div>
-                                    <div className="mt-3 text-xs text-slate-500">PM1.0/2.5/10 • CO₂ • TVOC</div>
-                                </LightCard>
-                            ))}
-                        </div>
-                    </div>
-                </Container>
-            </section>
-
-            <section id="subscription" className="border-t border-slate-200 bg-slate-50">
-                <Container>
-                    <div className="py-12">
-                        <div className="text-xs font-semibold text-slate-500">{t("sub.kicker")}</div>
-                        <h2 className="mt-2 text-2xl font-extrabold text-slate-900 md:text-3xl">{t("sub.title")}</h2>
-                        <p className="mt-2 text-slate-600">{t("sub.desc")}</p>
-                        <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-4 text-sm text-slate-700">{t("sub.policy")}</div>
-
-                        <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-4">
-                            {SUB_PLANS.map((pl) => (
-                                <LightCard
-                                    key={pl.id}
-                                    title={lang === "ko" ? pl.nameKo : pl.nameEn}
-                                    right={<span className="text-sm font-extrabold text-slate-900">{formatUsd(pl.priceCentsPerMonth)}/mo</span>}
-                                >
-                                    <div className="text-sm text-slate-600">
-                                        {pl.creditsCentsPerMonth > 0 ? (
-                                            <>
-                                                +{formatUsd(pl.creditsCentsPerMonth)} {COMMERCE.creditSymbol}/{lang === "ko" ? "월" : "mo"}
-                                            </>
-                                        ) : (
-                                            <>{lang === "ko" ? "월 크레딧 없음" : "No monthly credits"}</>
-                                        )}
-                                    </div>
-                                    <ul className="mt-3 space-y-1 text-sm text-slate-700">
-                                        {(lang === "ko" ? pl.perksKo : pl.perksEn).map((x) => (
-                                            <li key={x}>• {x}</li>
-                                        ))}
-                                    </ul>
-                                </LightCard>
-                            ))}
-                        </div>
-
-                        <div className="mt-6 flex flex-wrap items-center gap-3">
-                            <LightButton variant="primary" onClick={() => onOpenDashboard("ops", "7d")}>
-                                {t("sub.cta.7d")}
-                            </LightButton>
-                            <LightButton variant="secondary" onClick={onJoinBeta}>
-                                {t("sub.cta.beta")}
-                            </LightButton>
-                            <div className="text-xs text-slate-500">{t("sub.beta.note")}</div>
-                        </div>
-                    </div>
-                </Container>
-            </section>
-
-            <section id="faq" className="border-t border-slate-200 bg-white">
-                <Container>
-                    <div className="py-12">
-                        <div className="text-xs font-semibold text-slate-500">{t("faq.kicker")}</div>
-                        <h2 className="mt-2 text-2xl font-extrabold text-slate-900 md:text-3xl">{t("faq.title")}</h2>
-
-                        <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
-                            <LightCard title={lang === "ko" ? "어떤 KPI를 보면 좋나요?" : "What KPI should we track?"}>
-                                <div className="text-sm text-slate-700">
-                                    {lang === "ko"
-                                        ? "초기에는 ‘임계치 초과 비율(24h/7d)’이 가장 좋습니다. 환기/필터링 같은 실행 행동으로 바로 연결되어 설득력이 큽니다."
-                                        : "Start with Time-over-threshold (24h/7d). It translates directly into actions like ventilation and filtration."}
-                                </div>
-                            </LightCard>
-                            <LightCard title={lang === "ko" ? "데이터를 내보낼 수 있나요?" : "Can we export data?"}>
-                                <div className="text-sm text-slate-700">
-                                    {lang === "ko" ? "네. 운영/개인 대시보드에서 CSV를 내보낼 수 있습니다." : "Yes. Operations/Personal dashboards can export CSV."}
-                                </div>
-                            </LightCard>
-                        </div>
-
-                        <div className="mt-10 flex items-center justify-between rounded-3xl border border-slate-200 bg-white p-6">
-                            <div>
-                                <div className="text-sm font-semibold text-slate-900">AirVent • {WEB3.chain} DePIN</div>
-                                <div className="mt-1 text-sm text-slate-600">Version {APP_VERSION}</div>
-                            </div>
-                            <div className="text-xs text-slate-500">{lang === "ko" ? WEB3.disclaimerKO : WEB3.disclaimerEN}</div>
-                        </div>
-                    </div>
-                </Container>
-            </section>
+            <div className="mt-12">
+                <div className="text-sm text-slate-400 max-w-2xl mx-auto border-t border-white/10 pt-6">
+                    {t("sub.policy")}
+                </div>
+            </div>
         </div>
-    );
+
+{/* Pricing / Rewards */ }
+<div>
+    <div className="text-center">
+        <div className="text-sm font-bold text-indigo-600">{t("rewards.kicker")}</div>
+        <h2 className="mt-2 text-3xl font-bold text-slate-900">{t("rewards.title")}</h2>
+        <p className="mt-4 text-slate-600">{t("rewards.note")}</p>
+    </div>
+
+    <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-4">
+        {[
+            { name: lang === "ko" ? "Early Bird" : "Early Bird", price: COMMERCE.earlyBirdCents, desc: lang === "ko" ? "초기 구매자 혜택" : "Genesis allocation" },
+            { name: lang === "ko" ? "Standard" : "Standard", price: COMMERCE.standardCents, desc: lang === "ko" ? "기본 구성" : "Standard package" },
+            { name: lang === "ko" ? "Set (3)" : "Set (3)", price: COMMERCE.set3Cents, desc: lang === "ko" ? "3대 세트" : "3-unit bundle" },
+            { name: lang === "ko" ? "List" : "List", price: COMMERCE.listPriceCents, desc: lang === "ko" ? "정가" : "List price" },
+        ].map((p) => (
+            <LightCard
+                key={p.name}
+                title={p.name}
+                right={<span className="text-sm font-extrabold text-slate-900">{formatUsd(p.price)}</span>}
+            >
+                <div className="text-sm text-slate-600">{p.desc}</div>
+                <div className="mt-3 text-xs text-slate-500">PM1.0/2.5/10 • CO₂ • TVOC</div>
+            </LightCard>
+        ))}
+    </div>
+
+    <div className="mt-8 rounded-xl bg-emerald-50 p-4 text-center text-sm text-emerald-800">
+        {t("rewards.creditNote")}
+    </div>
+</div>
+
+{/* FAQ */ }
+<div className="mx-auto max-w-3xl">
+    <div className="text-sm font-bold text-indigo-600">{t("faq.kicker")}</div>
+    <h2 className="mt-2 text-2xl font-extrabold text-slate-900 md:text-3xl">{t("faq.title")}</h2>
+
+    <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
+        <LightCard title={lang === "ko" ? "어떤 KPI를 보면 좋나요?" : "What KPI should we track?"}>
+            <div className="text-sm text-slate-700">
+                {lang === "ko"
+                    ? "초기에는 ‘임계치 초과 비율(24h/7d)’이 가장 좋습니다. 환기/필터링 같은 실행 행동으로 바로 연결되어 설득력이 큽니다."
+                    : "Start with Time-over-threshold (24h/7d). It translates directly into actions like ventilation and filtration."}
+            </div>
+        </LightCard>
+        <LightCard title={lang === "ko" ? "데이터를 내보낼 수 있나요?" : "Can we export data?"}>
+            <div className="text-sm text-slate-700">
+                {lang === "ko" ? "네. 운영/개인 대시보드에서 CSV를 내보낼 수 있습니다." : "Yes. Operations/Personal dashboards can export CSV."}
+            </div>
+        </LightCard>
+    </div>
+
+    <div className="mt-10 flex items-center justify-between rounded-3xl border border-slate-200 bg-white p-6">
+        <div>
+            <div className="text-sm font-semibold text-slate-900">AirVent • {WEB3.chain} DePIN</div>
+            <div className="mt-1 text-sm text-slate-600">Version {APP_VERSION}</div>
+        </div>
+        <div className="text-xs text-slate-500">{lang === "ko" ? WEB3.disclaimerKO : WEB3.disclaimerEN}</div>
+    </div>
+</div>
+
+            </div >
+        </Container >
+    </div >
+  );
 }
 
 // -----------------------------
-// Dashboard
+// Dashboard Components
 // -----------------------------
 
-function DashboardModeTabs({ mode, onChange, t }: { mode: DashboardMode; onChange: (m: DashboardMode) => void; t: TFn }) {
-    const items: { id: DashboardMode; label: string }[] = [
-        { id: "public", label: t("dash.mode.public") },
-        { id: "ops", label: t("dash.mode.ops") },
-        { id: "personal", label: t("dash.mode.personal") },
-    ];
+function SimpleAreaChart({ data, dataKey }: { data: ReadingPoint[]; dataKey: Metric }) {
+    const w = 560;
+    const h = 260;
+    const pad = 18;
 
-    return (
-        <div className="inline-flex overflow-hidden rounded-full border border-white/10 bg-white/5">
-            {items.map((it) => (
-                <button
-                    key={it.id}
-                    type="button"
-                    onClick={() => onChange(it.id)}
-                    className={
-                        "px-3 py-2 text-xs font-semibold transition " + (mode === it.id ? "bg-white/10 text-white" : "text-white/65 hover:bg-white/5")
-                    }
-                >
-                    {it.label}
-                </button>
-            ))}
-        </div>
-    );
-}
+    const values = data.map((d) => Number((d as any)[dataKey]));
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    const range = max - min || 1;
 
-function OpsRangeTabs({ range, onChange, t }: { range: OpsRange; onChange: (r: OpsRange) => void; t: TFn }) {
-    const items: { id: OpsRange; label: string }[] = [
-        { id: "24h", label: t("dash.range.24h") },
-        { id: "7d", label: t("dash.range.7d") },
-    ];
-    return (
-        <div className="inline-flex overflow-hidden rounded-full border border-white/10 bg-white/5">
-            <div className="px-3 py-2 text-xs font-semibold text-white/55">{t("dash.range")}</div>
-            {items.map((it) => (
-                <button
-                    key={it.id}
-                    type="button"
-                    onClick={() => onChange(it.id)}
-                    className={
-                        "px-3 py-2 text-xs font-semibold transition " + (range === it.id ? "bg-white/10 text-white" : "text-white/65 hover:bg-white/5")
-                    }
-                >
-                    {it.label}
-                </button>
-            ))}
-        </div>
-    );
-}
-
-function LockedPanel({ t }: { t: TFn }) {
-    return (
-        <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
-            <div className="text-sm font-semibold text-white">{t("dash.lock.title")}</div>
-            <div className="mt-2 text-sm text-white/70">{t("dash.lock.desc")}</div>
-            <div className="mt-4 text-xs text-white/55">Use the top-right button to connect your wallet.</div>
-        </div>
-    );
-}
-
-type PublicNode = {
-    id: string;
-    siteId: string;
-    siteName: string;
-    city: string;
-    status: Device["status"];
-    lat: number;
-    lng: number;
-    lastSeen: string;
-};
-
-function buildPublicNodes(devices: Device[], sites: Site[]): PublicNode[] {
-    const siteById = new Map(sites.map((s) => [s.id, s] as const));
-    return devices.map((d) => {
-        const s = siteById.get(d.siteId);
-        const baseLat = s?.lat ?? 0;
-        const baseLng = s?.lng ?? 0;
-        const h = hash32(d.deviceId + d.siteId);
-        const jLat = ((h % 1000) / 1000 - 0.5) * 0.08;
-        const jLng = (((h / 1000) % 1000) / 1000 - 0.5) * 0.08;
-
-        return {
-            id: d.deviceId,
-            siteId: d.siteId,
-            siteName: s?.name ?? d.siteId,
-            city: s?.city ?? "-",
-            status: d.status,
-            lat: baseLat + jLat,
-            lng: baseLng + jLng,
-            lastSeen: d.lastSeen,
-        };
+    const points = data.map((d, i) => {
+        const x = pad + (i / Math.max(1, data.length - 1)) * (w - pad * 2);
+        const y = pad + (1 - ((d as any)[dataKey] - min) / range) * (h - pad * 2);
+        return { x, y };
     });
+
+    const path = points
+        .map((p, i) => `${i === 0 ? "M" : "L"}${p.x.toFixed(2)} ${p.y.toFixed(2)}`)
+        .join(" ");
+
+    const area = `${path} L${(w - pad).toFixed(2)} ${h.toFixed(2)} L${pad} ${h} Z`;
+
+    // color from key
+    const color = metricColor(dataKey);
+
+    return (
+        <svg viewBox={`0 0 ${w} ${h}`} className="h-full w-full">
+            <defs>
+                <linearGradient id={`grad_${dataKey}`} x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor={color} stopOpacity={0.4} />
+                    <stop offset="100%" stopColor={color} stopOpacity={0} />
+                </linearGradient>
+            </defs>
+            {/* Grid lines */}
+            {[0, 0.25, 0.5, 0.75, 1].map((t) => (
+                <line
+                    key={t}
+                    x1={pad}
+                    y1={pad + t * (h - pad * 2)}
+                    x2={w - pad}
+                    y2={pad + t * (h - pad * 2)}
+                    stroke="rgba(255,255,255,0.1)"
+                    strokeDasharray="4 4"
+                />
+            ))}
+            <path d={area} fill={`url(#grad_${dataKey})`} />
+            <path d={path} fill="none" stroke={color} strokeWidth={2} strokeLinecap="round" />
+        </svg>
+    );
 }
 
-function PublicExplorerView({
+function PublicExplorerView({ lang, t, mode, onChangeMode }: { lang: Lang; t: TFn; mode: DashboardMode; onChangeMode: (v: DashboardMode) => void }) {
+    const [selectedNode, setSelectedNode] = useState<Site | null>(null);
+    const [filter, setFilter] = useState<"all" | "online" | "degraded" | "offline">("all");
+
+    const nodes = mockSites;
+
+    // Mock filter logic
+    const filtered = nodes.filter(n => {
+        // randomly assign statuses for demo since site != device 1:1 in this mock
+        // Just a stub
+        return true;
+    });
+
+    return (
+        <Container className="pb-20 pt-8">
+            <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+                <div>
+                    <div className="flex items-center gap-2 text-sm font-bold text-emerald-400">
+                        <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                        {t("dash.public.kicker")}
+                    </div>
+                    <h2 className="mt-1 text-3xl font-bold text-white">{t("dash.public.title")}</h2>
+                    <p className="text-white/60">{t("dash.public.subtitle")}</p>
+                </div>
+                <div className="flex bg-white/5 p-1 rounded-xl border border-white/10">
+                    {(["public", "ops", "personal"] as const).map(m => (
+                        <button
+                            key={m}
+                            onClick={() => onChangeMode(m)}
+                            className={`px-4 py-2 text-sm font-medium rounded-lg transition ${mode === m ? "bg-white/10 text-white shadow-sm" : "text-white/40 hover:text-white"
+                                }`}
+                        >
+                            {t(`dash.mode.${m}` as any)}
+                        </button>
+                    ))}
+                </div>
+            </div>
+
+            {/* Stats row */}
+            <div className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-4">
+                <Stat label={t("dash.public.stat.nodes")} value="1,240" sub="+12 today" />
+                <Stat label={t("dash.public.stat.online")} value="98.2%" sub="Active" />
+                <Stat label={t("dash.public.stat.cities")} value="42" sub="Global" />
+                <Stat label={t("dash.public.stat.uptime")} value="99.9%" sub="Network avg" />
+            </div>
+
+            <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
+                {/* Map (Mock) */}
+                <div className="lg:col-span-2 min-h-[400px] rounded-3xl border border-white/10 bg-zinc-900 relative overflow-hidden group">
+                    <div className="absolute inset-0 z-0 opacity-40"
+                        style={{
+                            backgroundImage: "radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.15) 0%, transparent 50%)"
+                        }}
+                    />
+                    <div className="absolute inset-x-0 top-0 p-6 flex justify-between items-start z-10">
+                        <h3 className="text-lg font-bold text-white">{t("dash.public.map")}</h3>
+                        <div className="text-xs text-white/40">{t("dash.public.map.right")}</div>
+                    </div>
+
+                    {/* Mock Map Dots */}
+                    <div className="absolute inset-0 mt-16 p-4">
+                        {mockSites.map((s, i) => (
+                            <div
+                                key={s.id}
+                                className="absolute h-3 w-3 rounded-full bg-indigo-500 hover:scale-150 transition cursor-pointer box-content border-2 border-zinc-900 shadow-[0_0_10px_rgba(99,102,241,0.6)]"
+                                style={{
+                                    top: `${20 + (Math.abs(s.lat * 123) % 60)}%`,
+                                    left: `${10 + (Math.abs(s.lng * 456) % 80)}%`,
+                                    transitionDelay: `${i * 50}ms`
+                                }}
+                                title={s.name}
+                                onClick={() => setSelectedNode(s)}
+                            />
+                        ))}
+                    </div>
+                </div>
+
+                {/* List */}
+                <div className="rounded-3xl border border-white/10 bg-white/5 flex flex-col h-[500px]">
+                    <div className="p-5 border-b border-white/10">
+                        <h3 className="text-sm font-bold text-white">{t("dash.public.list")}</h3>
+                        <div className="mt-3">
+                            <Input placeholder={t("dash.public.search")} className="text-xs" />
+                        </div>
+                        <div className="mt-3 flex gap-2 overflow-x-auto pb-2 no-scrollbar">
+                            {(["all", "online", "degraded", "offline"] as const).map(f => (
+                                <button
+                                    key={f}
+                                    onClick={() => setFilter(f)}
+                                    className={`whitespace-nowrap px-2.5 py-1 rounded-full text-[10px] uppercase font-bold border transition ${filter === f ? "bg-white text-black border-white" : "bg-transparent text-white/40 border-white/10 hover:border-white/30"
+                                        }`}
+                                >
+                                    {t(`dash.public.filter.${f}` as any)}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                    <div className="flex-1 overflow-y-auto p-2 space-y-1">
+                        {mockSites.map(s => (
+                            <div key={s.id}
+                                onClick={() => setSelectedNode(s)}
+                                className={`p-3 rounded-xl border border-transparent transition cursor-pointer ${selectedNode?.id === s.id ? "bg-indigo-500/20 border-indigo-500/50" : "hover:bg-white/5"
+                                    }`}
+                            >
+                                <div className="flex items-center justify-between">
+                                    <div className="text-xs font-bold text-white">{s.name}</div>
+                                    <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 shadow-[0_0_5px_currentColor]"></div>
+                                </div>
+                                <div className="flex justify-between mt-1 text-[10px] text-white/40">
+                                    <span>{s.city}, {s.country}</span>
+                                    <span className="font-mono">{s.id}</span>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+
+            {selectedNode && (
+                <div className="mt-6 rounded-2xl border border-emerald-500/30 bg-emerald-900/10 p-4 animate-fadeIn">
+                    <div className="flex items-center gap-3">
+                        <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                        <div className="text-sm font-bold text-emerald-300">{t("dash.public.selected")}: {selectedNode.name}</div>
+                    </div>
+                </div>
+            )}
+
+        </Container>
+    );
+}
+
+function OperationsDashboard({
     lang,
     t,
     mode,
     onChangeMode,
+    opsRange,
+    setOpsRangeState,
+    csvNewlineMode,
+    setCsvNewlineModeState,
+    creditCents,
 }: {
     lang: Lang;
     t: TFn;
     mode: DashboardMode;
     onChangeMode: (m: DashboardMode) => void;
+    opsRange: OpsRange;
+    setOpsRangeState: (r: OpsRange) => void;
+    csvNewlineMode: CsvNewlineMode;
+    setCsvNewlineModeState: (m: CsvNewlineMode) => void;
+    creditCents: number;
 }) {
-    const nodes = useMemo(() => buildPublicNodes(mockDevices, mockSites), []);
-    const [q, setQ] = useState<string>("");
-    const [filter, setFilter] = useState<"all" | "online" | "degraded" | "offline">("all");
-    const [selectedId, setSelectedId] = useState<string | null>(nodes[0]?.id ?? null);
-
-    const filtered = useMemo(() => {
-        const s = q.trim().toLowerCase();
-        return nodes
-            .filter((n) => (filter === "all" ? true : n.status === filter))
-            .filter((n) => {
-                if (!s) return true;
-                return [n.id, n.siteName, n.city].some((x) => x.toLowerCase().includes(s));
-            });
-    }, [nodes, q, filter]);
-
-    const selected = useMemo(() => filtered.find((n) => n.id === selectedId) ?? filtered[0] ?? null, [filtered, selectedId]);
-
-    const w = 720;
-    const h = 360;
-
-    return (
-        <Container>
-            <div className="py-6 md:py-8">
-                <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-                    <div>
-                        <div className="text-xs text-white/55">{t("dash.public.kicker")}</div>
-                        <div className="mt-1 text-2xl font-extrabold text-white">{t("dash.public.title")}</div>
-                        <div className="mt-2 text-sm text-white/70">{t("dash.public.subtitle")}</div>
-                    </div>
-                    <DashboardModeTabs mode={mode} onChange={onChangeMode} t={t} />
-                </div>
-
-                <div className="mt-6 grid grid-cols-1 gap-3 md:grid-cols-4">
-                    <Stat label={t("dash.public.stat.nodes")} value={nodes.length} />
-                    <Stat label={t("dash.public.stat.online")} value={nodes.filter((n) => n.status === "online").length} />
-                    <Stat label={t("dash.public.stat.cities")} value={new Set(nodes.map((n) => n.city)).size} />
-                    <Stat label={t("dash.public.stat.uptime")} value={`~${Math.round(92 + (hash32("u") % 6))}%`} />
-                </div>
-
-                <div className="mt-6 grid grid-cols-1 gap-3 md:grid-cols-12">
-                    <DarkCard
-                        className="md:col-span-7"
-                        title={t("dash.public.map")}
-                        right={<span className="text-white/50">{t("dash.public.map.right")}</span>}
-                    >
-                        <div className="rounded-2xl border border-white/10 bg-zinc-950/30 p-3">
-                            <svg viewBox={`0 0 ${w} ${h}`} className="h-[360px] w-full" aria-label="node-map">
-                                <rect x="0" y="0" width={w} height={h} rx="18" fill={rgba(BRAND.blue, 0.06)} />
-                                <path
-                                    d={`M20 ${h - 40} C 160 ${h - 130}, 280 ${h - 30}, 420 ${h - 100} C 520 ${h - 160}, 620 ${h - 60}, ${w - 20} ${h - 140}`}
-                                    fill="none"
-                                    stroke={rgba(BRAND.indigo, 0.18)}
-                                    strokeWidth="2"
-                                />
-
-                                {filtered.map((n) => {
-                                    const p = projectEquirect(n.lat, n.lng, w, h);
-                                    const isSel = selected && n.id === selected.id;
-                                    const c = n.status === "online" ? BRAND.green : n.status === "degraded" ? "#F59E0B" : "#94A3B8";
-                                    return (
-                                        <g key={n.id}>
-                                            <circle
-                                                cx={p.x}
-                                                cy={p.y}
-                                                r={isSel ? 7 : 5}
-                                                fill={c}
-                                                opacity={isSel ? 0.95 : 0.75}
-                                                onClick={() => setSelectedId(n.id)}
-                                                style={{ cursor: "pointer" }}
-                                            />
-                                            {isSel && <circle cx={p.x} cy={p.y} r={14} fill="none" stroke={c} strokeOpacity={0.5} strokeWidth="2" />}
-                                        </g>
-                                    );
-                                })}
-                            </svg>
-                        </div>
-                    </DarkCard>
-
-                    <DarkCard
-                        className="md:col-span-5"
-                        title={t("dash.public.list")}
-                        right={<span className="text-white/50">{t("dash.public.list.right")}</span>}
-                    >
-                        <div className="grid grid-cols-1 gap-2">
-                            <Input value={q} onChange={setQ} placeholder={t("dash.public.search")} />
-                            <Select
-                                value={filter}
-                                onChange={(v) => setFilter(v as any)}
-                                options={[
-                                    { value: "all", label: t("dash.public.filter.all") },
-                                    { value: "online", label: t("dash.public.filter.online") },
-                                    { value: "degraded", label: t("dash.public.filter.degraded") },
-                                    { value: "offline", label: t("dash.public.filter.offline") },
-                                ]}
-                            />
-                        </div>
-
-                        <div className="mt-3 max-h-[280px] overflow-auto rounded-2xl border border-white/10">
-                            <div className="divide-y divide-white/10">
-                                {filtered.map((n) => (
-                                    <button
-                                        key={n.id}
-                                        type="button"
-                                        onClick={() => setSelectedId(n.id)}
-                                        className={
-                                            "flex w-full items-center justify-between gap-3 px-3 py-2 text-left text-sm transition " +
-                                            (selected && selected.id === n.id ? "bg-white/10" : "hover:bg-white/5")
-                                        }
-                                    >
-                                        <div>
-                                            <div className="font-semibold text-white">{n.id}</div>
-                                            <div className="text-xs text-white/55">
-                                                {n.city} • {n.siteName}
-                                            </div>
-                                        </div>
-                                        <span className={`inline-flex rounded-full border px-2 py-1 text-xs ${statusPill(n.status)}`}>{n.status}</span>
-                                    </button>
-                                ))}
-                                {filtered.length === 0 && <div className="px-3 py-8 text-center text-sm text-white/60">{t("dash.public.none")}</div>}
-                            </div>
-                        </div>
-
-                        <div className="mt-3 rounded-2xl border border-white/10 bg-white/5 p-4">
-                            <div className="text-xs text-white/55">{t("dash.public.selected")}</div>
-                            {selected ? (
-                                <div className="mt-2">
-                                    <div className="text-sm font-semibold text-white">{selected.id}</div>
-                                    <div className="mt-1 text-xs text-white/60">
-                                        {selected.city} • {selected.siteName}
-                                    </div>
-                                    <div className="mt-2 text-xs text-white/60">Last seen: {new Date(selected.lastSeen).toLocaleString()}</div>
-                                </div>
-                            ) : (
-                                <div className="mt-2 text-sm text-white/60">-</div>
-                            )}
-                        </div>
-
-                        <div className="mt-3 text-xs text-white/55">{lang === "ko" ? WEB3.disclaimerKO : WEB3.disclaimerEN}</div>
-                    </DarkCard>
-                </div>
-            </div>
-        </Container>
-    );
-}
-
-
-function SimpleAreaChart({
-    series,
-    metric,
-    color,
-    height = 64,
-}: {
-    series: ReadingPoint[];
-    metric: Metric;
-    color: string;
-    height?: number;
-}) {
-    const data = series.map((p) => p[metric]);
-    const min = Math.min(...data);
-    const max = Math.max(...data);
-    const range = max - min || 1;
-
-    // Polyline points
-    const w = 100;
-    const h = 50;
-    const points = data
-        .map((v, i) => {
-            const x = (i / (data.length - 1)) * w;
-            const y = h - ((v - min) / range) * h;
-            return `${x},${y}`;
-        })
-        .join(" ");
-
-    // Closed area
-    const areaPoints = `0,${h} ${points} ${w},${h}`;
-
-    return (
-        <svg viewBox={`0 0 ${w} ${h}`} style={{ height, width: "100%" }} preserveAspectRatio="none">
-            <defs>
-                <linearGradient id={`grad_${metric}`} x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor={color} stopOpacity={0.2} />
-                    <stop offset="100%" stopColor={color} stopOpacity={0} />
-                </linearGradient>
-            </defs>
-            <polyline points={points} fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-            <polygon points={areaPoints} fill={`url(#grad_${metric})`} stroke="none" />
-        </svg>
-    );
-}
-
-function OperationsDashboard({
-    t,
-    mode,
-    onChangeMode,
-}: {
-    t: TFn;
-    mode: DashboardMode;
-    onChangeMode: (m: DashboardMode) => void;
-}) {
-    const [range, setRange] = useState<OpsRange>(() => detectOpsRange());
-    const [locked] = useState(false);
-
-    // In a real app, 'locked' would depend on wallet connection + ownership of NFT/SBT.
-    // Here, we simulate it unlocked for demo, or maybe toggle it?
-    // Let's assume unlocked for the demo unless we want to show the "Connect Wallet" state.
-
-    const handleRange = (r: OpsRange) => {
-        setRange(r);
-        saveOpsRange(r);
-    };
-
-    const seed = useMemo(() => 12345, []);
-    const series = useMemo(() => generateSeries(seed, range === "24h" ? 24 : 7 * 24), [seed, range]);
-
-    const stats = [
-        { label: t("dash.stat.score"), value: 87, sub: "+2% vs last period" },
-        { label: t("dash.stat.active"), value: "12/12", sub: "100% uptime" },
-        { label: t("dash.stat.alerts"), value: 0, sub: t("dash.alerts.none") },
-        { label: t("dash.stat.tot"), value: "1.2%", sub: "Target < 5%" },
+    // Generate mock data on fly
+    const series = useMemo(() => generateSeries(12345, opsRange === "24h" ? 48 : 42), [opsRange]); // 30m intervals
+    const alerts: Alert[] = [
+        {
+            id: "AL-101",
+            severity: "high",
+            siteId: "S-SEO-001",
+            deviceId: "AV-0000000001",
+            metric: "co2",
+            value: 1250,
+            threshold: 1000,
+            ts: Date.now() - 15 * 60_000,
+            note: "Meeting Room overcrowded",
+        },
+        {
+            id: "AL-102",
+            severity: "med",
+            siteId: "S-BUS-001",
+            deviceId: "AV-0000000202",
+            metric: "pm25",
+            value: 42,
+            threshold: 35,
+            ts: Date.now() - 45 * 60_000,
+        },
     ];
 
-    const handleExport = () => {
-        const csv = csvFromSeries(series, newlineFromMode(detectCsvNewlineMode()));
-        downloadText(`airvent-ops-${range}-${new Date().toISOString().slice(0, 10)}.csv`, csv);
+    const onExport = () => {
+        const csv = csvFromSeries(series, newlineFromMode(csvNewlineMode));
+        downloadText(`airvent_ops_${opsRange}_${Date.now()}.csv`, csv);
+    };
+
+    const [copied, setCopied] = useState(false);
+    const onCopyBadge = async () => {
+        const code = `<iframe src="${window.location.origin}/#/badge?site=S-SEO-001&lang=${lang}" width="300" height="200" style="border:none;"></iframe>`;
+        if (await copyToClipboard(code)) {
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        }
     };
 
     return (
-        <Container>
-            <div className="py-6 md:py-8">
-                <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-                    <div>
-                        <div className="text-xs text-white/55">{t("dash.kicker")}</div>
-                        <div className="mt-1 text-2xl font-extrabold text-white">{t("dash.title")}</div>
-                        <div className="mt-2 text-sm text-white/70">{t("dash.subtitle")}</div>
+        <Container className="pb-20 pt-8">
+            {/* Header */}
+            <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+                <div>
+                    <div className="flex items-center gap-2 text-sm font-bold text-indigo-400">
+                        <span className="h-2 w-2 rounded-full bg-indigo-400"></span>
+                        {t("dash.kicker")}
                     </div>
-                    <div className="flex flex-col items-end gap-2">
-                        <DashboardModeTabs mode={mode} onChange={onChangeMode} t={t} />
-                        <div className="flex items-center gap-2">
-                            <OpsRangeTabs range={range} onChange={handleRange} t={t} />
-                            <Button size="sm" onClick={handleExport}>
-                                {t("dash.export")}
-                            </Button>
+                    <div className="flex items-center gap-4">
+                        <h2 className="mt-1 text-3xl font-bold text-white">{t("dash.title")}</h2>
+                        {/* Range Toggle */}
+                        <div className="flex bg-white/10 rounded-lg p-0.5 mt-1">
+                            {(["24h", "7d"] as const).map(r => (
+                                <button
+                                    key={r}
+                                    onClick={() => setOpsRangeState(r)}
+                                    className={`px-3 py-1 text-xs font-bold rounded-md transition ${opsRange === r ? "bg-indigo-500 text-white shadow" : "text-white/60 hover:text-white"
+                                        }`}
+                                >
+                                    {t(`dash.range.${r}` as any)}
+                                </button>
+                            ))}
                         </div>
                     </div>
+                    <p className="text-white/60">{t("dash.subtitle")}</p>
                 </div>
 
-                {locked ? (
-                    <div className="mt-8">
-                        <LockedPanel t={t} />
+                <div className="flex flex-col items-end gap-3">
+                    <div className="flex bg-white/5 p-1 rounded-xl border border-white/10">
+                        {(["public", "ops", "personal"] as const).map(m => (
+                            <button
+                                key={m}
+                                onClick={() => onChangeMode(m)}
+                                className={`px-4 py-2 text-sm font-medium rounded-lg transition ${mode === m ? "bg-white/10 text-white shadow-sm" : "text-white/40 hover:text-white"
+                                    }`}
+                            >
+                                {t(`dash.mode.${m}` as any)}
+                            </button>
+                        ))}
                     </div>
-                ) : (
-                    <>
-                        <div className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-4">
-                            {stats.map((s) => (
-                                <Stat key={s.label} label={s.label} value={s.value} sub={s.sub} />
-                            ))}
-                        </div>
 
-                        <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2">
-                            {/* Main charts */}
-                            {(["pm25", "co2", "tvoc", "temp"] as Metric[]).map((m) => (
-                                <DarkCard
-                                    key={m}
-                                    title={t(`metric.${m}` as any)}
-                                    right={
-                                        <span className="text-xs text-white/50">
-                                            {range} {t("dash.trend")}
-                                        </span>
-                                    }
-                                >
-                                    <SimpleAreaChart series={series} metric={m} color={metricColor(m)} height={160} />
-                                    <div className="mt-3 flex items-center justify-between text-xs text-white/55">
-                                        <div>Min: {Math.min(...series.map((p) => p[m]))}</div>
-                                        <div>Max: {Math.max(...series.map((p) => p[m]))}</div>
-                                        <div>Avg: {Math.round(series.reduce((a, b) => a + b[m], 0) / series.length)}</div>
-                                    </div>
-                                </DarkCard>
-                            ))}
+                    <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 bg-white/5 text-xs text-white/60">
+                            <span>CSV Newline:</span>
+                            <button className={csvNewlineMode === "LF" ? "text-white font-bold" : "hover:text-white"} onClick={() => setCsvNewlineModeState("LF")}>LF</button>
+                            <span className="opacity-20">|</span>
+                            <button className={csvNewlineMode === "CRLF" ? "text-white font-bold" : "hover:text-white"} onClick={() => setCsvNewlineModeState("CRLF")}>CRLF</button>
                         </div>
-
-                        <div className="mt-6">
-                            <DarkCard title={t("dash.devices")}>
-                                <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                                    <div className="text-xs text-white/55">
-                                        {mockDevices.length} total, {mockDevices.filter((d) => d.status === "online").length} online
-                                    </div>
-                                    <div className="w-full md:w-64">
-                                        <Input value="" onChange={() => { }} placeholder={t("dash.devices.search")} />
-                                    </div>
-                                </div>
-                                <div className="mt-4 overflow-hidden rounded-xl border border-white/10">
-                                    <table className="w-full text-left text-sm text-white/70">
-                                        <thead className="bg-white/5 text-xs uppercase text-white/50">
-                                            <tr>
-                                                <th className="px-4 py-3 font-semibold">Device</th>
-                                                <th className="px-4 py-3 font-semibold">Site</th>
-                                                <th className="px-4 py-3 font-semibold">Status</th>
-                                                <th className="hidden px-4 py-3 font-semibold md:table-cell">Last Seen</th>
-                                                <th className="hidden px-4 py-3 font-semibold md:table-cell">Firmware</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-white/5">
-                                            {mockDevices.slice(0, 5).map((d) => (
-                                                <tr key={d.deviceId} className="hover:bg-white/5">
-                                                    <td className="px-4 py-3 font-medium text-white">
-                                                        {d.label}
-                                                        <div className="text-[10px] text-white/40">{d.deviceId}</div>
-                                                    </td>
-                                                    <td className="px-4 py-3">{d.siteId}</td>
-                                                    <td className="px-4 py-3">
-                                                        <span className={`inline-flex rounded-full border px-2 py-0.5 text-[10px] ${statusPill(d.status)}`}>
-                                                            {d.status}
-                                                        </span>
-                                                    </td>
-                                                    <td className="hidden px-4 py-3 text-xs md:table-cell">{new Date(d.lastSeen).toLocaleString()}</td>
-                                                    <td className="hidden px-4 py-3 text-xs md:table-cell font-mono">{d.firmware}</td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                    {mockDevices.length > 5 && (
-                                        <div className="border-t border-white/5 bg-white/[0.02] px-4 py-2 text-center text-xs text-white/40 hover:bg-white/5 cursor-pointer">
-                                            View all {mockDevices.length} devices
-                                        </div>
-                                    )}
-                                </div>
-                            </DarkCard>
-                        </div>
-                    </>
-                )}
+                        <Button onClick={onExport} size="sm" variant="secondary" className="gap-2">
+                            <span>{t("dash.export")}</span>
+                        </Button>
+                    </div>
+                </div>
             </div>
+
+            {/* KPI Cards */}
+            <div className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-4">
+                <Stat label={t("dash.stat.score")} value="87" sub="S-SEO-001 (Avg)" />
+                <Stat label={t("dash.stat.tot")} value={`${timeOverThreshold(series, 'co2')}%`} sub={`CO2 > 1000 (${opsRange})`} />
+                <Stat label={t("dash.stat.alerts")} value={alerts.length} sub="Active" />
+                <Stat label={t("dash.stat.credit")} value={formatUsd(creditCents)} sub={t("rewards.creditNote")} />
+            </div>
+
+            {/* Main Charts */}
+            <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
+                <div className="lg:col-span-2 space-y-6">
+                    <DarkCard title={`${t("dash.trend")} (PM2.5)`} className="h-64">
+                        <SimpleAreaChart data={series} dataKey="pm25" />
+                    </DarkCard>
+                    <DarkCard title={`${t("dash.trend")} (CO2)`} className="h-64">
+                        <SimpleAreaChart data={series} dataKey="co2" />
+                    </DarkCard>
+                </div>
+
+                <div className="space-y-6">
+                    {/* Alerts Feed */}
+                    <div className="rounded-3xl border border-white/10 bg-white/5 p-5 min-h-[300px]">
+                        <div className="flex items-center justify-between mb-4">
+                            <h3 className="text-sm font-bold uppercase tracking-wider text-rose-400">{t("dash.alerts")}</h3>
+                            <span className="text-xs font-mono text-white/40">{alerts.length}</span>
+                        </div>
+                        <div className="space-y-3">
+                            {alerts.length === 0 ? (
+                                <div className="text-center text-sm text-white/30 py-8">{t("dash.alerts.none")}</div>
+                            ) : (
+                                alerts.map(a => (
+                                    <div key={a.id} className="relative rounded-xl border border-rose-500/20 bg-rose-500/10 p-3">
+                                        <div className="flex justify-between items-start">
+                                            <div className="text-xs font-bold text-rose-300">
+                                                {a.metric.toUpperCase()} &gt; {a.threshold}
+                                            </div>
+                                            <div className="text-[10px] text-rose-300/60 font-mono">
+                                                {new Date(a.ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                            </div>
+                                        </div>
+                                        <div className="mt-1 text-xs text-white/80">{a.note || `${a.value} recorded at ${a.deviceId}`}</div>
+                                        <div className="mt-2 text-[10px] uppercase font-bold tracking-wide text-rose-400">{a.severity} Priority</div>
+                                    </div>
+                                ))
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Badge Embed Helper */}
+                    <DarkCard title={t("dash.badge")} className="border-indigo-500/30">
+                        <p className="text-xs text-white/60 leading-relaxed mb-4">{t("dash.badge.desc")}</p>
+                        <div className="flex gap-2">
+                            <Button size="sm" variant="secondary" className="flex-1" onClick={onCopyBadge}>
+                                {copied ? t("dash.badge.copied") : t("dash.badge.copy")}
+                            </Button>
+                            <Button size="sm" variant="secondary" onClick={() => window.open(`#/badge?site=S-SEO-001&lang=${lang}`, "_blank")}>
+                                {t("dash.badge.preview")}
+                            </Button>
+                        </div>
+                    </DarkCard>
+                </div>
+            </div>
+
         </Container>
     );
 }
@@ -2158,72 +2025,43 @@ function PersonalDashboard({
     mode,
     onChangeMode,
     walletAddress,
-    onConnectWallet,
+    creditCents,
+    setCreditCentsState,
+    subPlan,
+    setSubPlanState,
+    csvNewlineMode,
+    betaJoined,
+    onJoinBeta,
+    betaTasks,
+    setBetaTasksState,
 }: {
     lang: Lang;
     t: TFn;
     mode: DashboardMode;
     onChangeMode: (m: DashboardMode) => void;
     walletAddress: string | null;
-    onConnectWallet: () => void;
+    creditCents: number;
+    setCreditCentsState: (c: number) => void;
+    subPlan: SubPlanId;
+    setSubPlanState: (p: SubPlanId) => void;
+    csvNewlineMode: CsvNewlineMode;
+    betaJoined: boolean;
+    onJoinBeta: () => void;
+    betaTasks: BetaTaskState;
+    setBetaTasksState: (s: BetaTaskState) => void;
 }) {
-    const [creditCents, setCreditCents] = useState(() => detectCreditCents());
-    const [subPlan] = useState<SubPlanId>(() => detectSubPlan());
-    const [cartPoints, setCartPoints] = useState(0); // 0=none, 1=Early, 2=Std, 3=Set
-
-    useEffect(() => {
-        saveCreditCents(creditCents);
-    }, [creditCents]);
-
-    // const creditsUsd = centsToUsd(creditCents);
-    const plan = planById(subPlan);
-
-    // Cart logic
-    const cartItem =
-        cartPoints === 1
-            ? { name: t("credit.product.early"), price: COMMERCE.earlyBirdCents }
-            : cartPoints === 2
-                ? { name: t("credit.product.std"), price: COMMERCE.standardCents }
-                : cartPoints === 3
-                    ? { name: t("credit.product.set"), price: COMMERCE.set3Cents }
-                    : null;
-
-    const { capCents, usedCents, dueCents } = applyCreditsToSubtotal({
-        subtotalCents: cartItem?.price ?? 0,
-        creditBalanceCents: creditCents,
-    });
-
-    const handleSimulate = () => {
-        // Add monthly credits
-        const add = plan.creditsCentsPerMonth;
-        if (add > 0) {
-            setCreditCents((p) => p + add);
-            alert(`Simulated month passed. +${formatUsd(add)} credits added.`);
-        } else {
-            alert("Free plan has no monthly credits. Upgrade to Ops/Pro/Lite.");
-        }
-    };
-
-    const handleReset = () => {
-        setCreditCents(0);
-    };
-
     if (!walletAddress) {
         return (
-            <Container>
-                <div className="py-8">
-                    <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-                        <div>
-                            <div className="text-xs text-white/55">{t("dash.personal.kicker")}</div>
-                            <div className="mt-1 text-2xl font-extrabold text-white">{t("dash.personal.title")}</div>
-                        </div>
-                        <DashboardModeTabs mode={mode} onChange={onChangeMode} t={t} />
+            <Container className="pt-20">
+                <div className="mx-auto max-w-md rounded-3xl border border-white/10 bg-white/5 p-8 text-center backdrop-blur-md">
+                    <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-slate-800">
+                        <span className="text-3xl">🔒</span>
                     </div>
-                    <div className="mt-8 flex flex-col items-center justify-center rounded-3xl border border-white/10 bg-white/5 py-16 text-center">
-                        <div className="text-lg font-semibold text-white">{t("dash.lock.title")}</div>
-                        <div className="mt-2 text-white/60">{t("dash.lock.desc")}</div>
-                        <Button variant="primary" className="mt-6" onClick={onConnectWallet}>
-                            {t("wallet.connect")}
+                    <h2 className="mt-6 text-2xl font-bold text-white">{t("dash.lock.title")}</h2>
+                    <p className="mt-2 text-slate-400">{t("dash.lock.desc")}</p>
+                    <div className="mt-8 flex justify-center gap-4">
+                        <Button onClick={() => onChangeMode("public")}>
+                            &larr; {t("dash.mode.public")}
                         </Button>
                     </div>
                 </div>
@@ -2231,242 +2069,360 @@ function PersonalDashboard({
         );
     }
 
+    // Credit calculation logic
+    const cartSubtotal = 49900; // Example cart
+    const { capCents, usedCents, dueCents } = applyCreditsToSubtotal({ subtotalCents: cartSubtotal, creditBalanceCents: creditCents });
+
+    const refCode = referralCodeFromWallet(walletAddress);
+
+    const toggleTask = (k: BetaTaskId) => {
+        const next = { ...betaTasks, [k]: !betaTasks[k] };
+        setBetaTasksState(next);
+        // Mock credit reward for completing task
+        if (!betaTasks[k] && next[k]) {
+            setCreditCentsState(creditCents + 500); // +$5 reward
+        }
+    };
+
+    const plan = planById(subPlan);
+
     return (
-        <Container>
-            <div className="py-6 md:py-8">
-                <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-                    <div>
-                        <div className="text-xs text-white/55">{t("dash.personal.kicker")}</div>
-                        <div className="mt-1 text-2xl font-extrabold text-white">{t("dash.personal.title")}</div>
-                        <div className="mt-2 text-sm text-white/70">{t("dash.personal.subtitle")}</div>
+        <Container className="pb-20 pt-8">
+            <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+                <div>
+                    <div className="flex items-center gap-2 text-sm font-bold text-indigo-400">
+                        <span className="h-2 w-2 rounded-full bg-indigo-400"></span>
+                        {t("dash.personal.kicker")}
                     </div>
-                    <DashboardModeTabs mode={mode} onChange={onChangeMode} t={t} />
+                    <h2 className="mt-1 text-3xl font-bold text-white">{t("dash.personal.title")}</h2>
+                    <p className="text-white/60">{t("dash.personal.subtitle")}</p>
+                </div>
+                <div className="flex bg-white/5 p-1 rounded-xl border border-white/10">
+                    {(["public", "ops", "personal"] as const).map(m => (
+                        <button
+                            key={m}
+                            onClick={() => onChangeMode(m)}
+                            className={`px-4 py-2 text-sm font-medium rounded-lg transition ${mode === m ? "bg-white/10 text-white shadow-sm" : "text-white/40 hover:text-white"
+                                }`}
+                        >
+                            {t(`dash.mode.${m}` as any)}
+                        </button>
+                    ))}
+                </div>
+            </div>
+
+            <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
+
+                {/* Credits / Subscription */}
+                <div className="space-y-6">
+                    <div className="rounded-3xl border border-indigo-500/30 bg-gradient-to-br from-indigo-900/40 to-slate-900 p-6">
+                        <div className="flex items-start justify-between">
+                            <div>
+                                <div className="text-sm font-bold text-indigo-300 uppercase tracking-wide">{t("credit.title")}</div>
+                                <div className="mt-2 text-4xl font-white text-white">{formatUsd(creditCents)}</div>
+                                <div className="mt-1 text-xs text-indigo-200">{t("credit.max60")}</div>
+                            </div>
+                            <div className="text-right">
+                                <div className="text-xs text-indigo-300">{t("credit.plan.current")}</div>
+                                <div className="font-bold text-white">{lang === "ko" ? plan.nameKo : plan.nameEn}</div>
+                                <div className="mt-2">
+                                    <select
+                                        className="bg-black/20 text-xs text-white p-1 rounded border border-white/10"
+                                        value={subPlan}
+                                        onChange={(e) => setSubPlanState(e.target.value as SubPlanId)}
+                                    >
+                                        {SUB_PLANS.map(p => <option key={p.id} value={p.id}>{lang === "ko" ? p.nameKo : p.nameEn}</option>)}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Simulator */}
+                        <div className="mt-8 rounded-xl bg-black/20 p-4">
+                            <div className="flex justify-between items-center mb-2">
+                                <div className="text-xs font-bold text-white/70">{t("credit.checkout")} (Sim)</div>
+                                <button onClick={() => setCreditCentsState(0)} className="text-[10px] text-white/40 hover:text-white underline">{t("credit.reset")}</button>
+                            </div>
+                            <div className="space-y-2 text-sm">
+                                <div className="flex justify-between text-white/60">
+                                    <span>{t("credit.product")} (List)</span>
+                                    <span>{formatUsd(cartSubtotal)}</span>
+                                </div>
+                                <div className="flex justify-between text-white/60">
+                                    <span>{t("credit.used")}</span>
+                                    <span className="text-emerald-400">-{formatUsd(usedCents)}</span>
+                                </div>
+                                <div className="border-t border-white/10 pt-2 flex justify-between font-bold text-white">
+                                    <span>{t("credit.due")}</span>
+                                    <span>{formatUsd(dueCents)}</span>
+                                </div>
+                            </div>
+                            <div className="mt-4 pt-4 border-t border-white/10 flex justify-center">
+                                <button
+                                    onClick={() => setCreditCentsState(creditCents + plan.creditsCentsPerMonth)}
+                                    className="text-xs flex items-center gap-1 text-indigo-300 hover:text-white transition"
+                                >
+                                    <span>📅 {t("credit.simulateMonth")} ({formatUsd(plan.creditsCentsPerMonth)})</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-12">
-                    {/* Left: Credits & Plan */}
-                    <div className="space-y-6 md:col-span-4">
-                        <DarkCard title={t("credit.title")} right={<span className="text-xs text-emerald-400">{t("credit.max60")}</span>}>
-                            <div className="flex items-baseline gap-1">
-                                <span className="text-3xl font-black text-white">{formatUsd(creditCents)}</span>
-                                <span className="text-sm font-semibold text-white/60">{COMMERCE.creditSymbol}</span>
-                            </div>
-                            <div className="mt-1 text-xs text-white/40">≈ {formatUsd(creditCents)} USD value</div>
+                {/* Beta Section */}
+                <div className="space-y-6">
+                    <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
+                        <div className="flex items-center justify-between">
+                            <h3 className="text-lg font-bold text-white">{t("beta.title")}</h3>
+                            {betaJoined ? (
+                                <span className="px-2 py-1 rounded bg-emerald-500/20 text-emerald-400 text-xs font-bold">{t("beta.joined")}</span>
+                            ) : (
+                                <Button size="sm" onClick={onJoinBeta}>{t("beta.join")}</Button>
+                            )}
+                        </div>
+                        <p className="mt-2 text-sm text-white/60">{t("beta.desc")}</p>
 
-                            <div className="mt-6 space-y-3 border-t border-white/10 pt-4">
-                                <div className="flex items-center justify-between text-sm">
-                                    <span className="text-white/60">{t("credit.plan.current")}</span>
-                                    <span className="font-semibold text-white">
-                                        {lang === "ko" ? plan.nameKo : plan.nameEn}
-                                    </span>
-                                </div>
-                                <div className="flex items-center justify-between text-sm">
-                                    <span className="text-white/60">{t("credit.plan.monthly")}</span>
-                                    <span className="font-semibold text-emerald-400">
-                                        +{formatUsd(plan.creditsCentsPerMonth)}
-                                    </span>
-                                </div>
-                                <div className="border-t border-white/10 pt-3 flex gap-2">
-                                    <Button size="sm" onClick={handleSimulate} className="flex-1">
-                                        {t("credit.simulateMonth")}
-                                    </Button>
-                                    <Button size="sm" variant="ghost" onClick={handleReset}>
-                                        {t("credit.reset")}
-                                    </Button>
-                                </div>
-                            </div>
-                        </DarkCard>
-
-                        <DarkCard title={t("credit.checkout")}>
-                            <div className="space-y-3">
-                                <div className="text-sm text-white/60">{t("credit.product")}</div>
-                                <select
-                                    className="w-full rounded-xl border border-white/10 bg-zinc-950 px-3 py-2 text-sm text-white"
-                                    value={cartPoints}
-                                    onChange={(e) => setCartPoints(Number(e.target.value))}
-                                >
-                                    <option value={0}>-- Select --</option>
-                                    <option value={1}>{t("credit.product.early")} ({formatUsd(COMMERCE.earlyBirdCents)})</option>
-                                    <option value={2}>{t("credit.product.std")} ({formatUsd(COMMERCE.standardCents)})</option>
-                                    <option value={3}>{t("credit.product.set")} ({formatUsd(COMMERCE.set3Cents)})</option>
-                                </select>
-
-                                {cartItem && (
-                                    <div className="mt-4 space-y-2 rounded-xl bg-white/5 p-3 text-sm">
-                                        <div className="flex justify-between text-white/70">
-                                            <span>{t("credit.subtotal")}</span>
-                                            <span>{formatUsd(cartItem.price)}</span>
-                                        </div>
-                                        <div className="flex justify-between text-emerald-400">
-                                            <span>{t("credit.used")}</span>
-                                            <span>-{formatUsd(usedCents)}</span>
-                                        </div>
-                                        <div className="border-t border-white/10 pt-2 flex justify-between font-bold text-white">
-                                            <span>{t("credit.due")}</span>
-                                            <span>{formatUsd(dueCents)}</span>
-                                        </div>
-                                        <div className="mt-1 text-right text-[10px] text-white/40">
-                                            {t("credit.cap")}: {formatUsd(capCents)}
-                                        </div>
+                        {betaJoined && (
+                            <div className="mt-6 space-y-4">
+                                {/* Referral */}
+                                <div className="p-3 rounded-xl bg-black/20 border border-white/5">
+                                    <div className="text-xs text-white/40 mb-1">{t("beta.ref")}</div>
+                                    <div className="flex items-center justify-between bg-black/40 p-2 rounded-lg font-mono text-sm text-indigo-300 select-all">
+                                        {refCode}
+                                        <button
+                                            onClick={() => copyToClipboard(refCode)}
+                                            className="text-xs text-white/40 hover:text-white"
+                                        >
+                                            {t("beta.copy")}
+                                        </button>
                                     </div>
-                                )}
-                                <Button variant="primary" className="w-full" disabled={!cartItem}>
-                                    {t("hero.cta.buy")}
-                                </Button>
-                            </div>
-                        </DarkCard>
-                    </div>
+                                </div>
 
-                    {/* Right: Personal stats (simple) */}
-                    <div className="md:col-span-8">
-                        <DarkCard title={t("dash.personal.title")}>
-                            <div className="text-sm text-white/70">
-                                You have 0 connected devices. (Mock data shown in Ops dashboard).
+                                {/* Missions Checklist */}
+                                <div className="space-y-2">
+                                    {(Object.keys(DEFAULT_BETA_TASKS) as BetaTaskId[]).map(k => (
+                                        <div key={k}
+                                            className={`flex items-center gap-3 p-3 rounded-xl border transition cursor-pointer ${betaTasks[k] ? "bg-emerald-500/10 border-emerald-500/20" : "bg-white/5 border-white/5 hover:bg-white/10"
+                                                }`}
+                                            onClick={() => toggleTask(k)}
+                                        >
+                                            <div className={`h-5 w-5 rounded border flex items-center justify-center ${betaTasks[k] ? "bg-emerald-500 border-emerald-500" : "border-white/30"
+                                                }`}>
+                                                {betaTasks[k] && <span className="text-black text-xs font-bold">✓</span>}
+                                            </div>
+                                            <div className={`text-sm ${betaTasks[k] ? "text-white line-through opacity-50" : "text-white"}`}>
+                                                Task: {k.replace("_", " ").toUpperCase()}
+                                            </div>
+                                            {betaTasks[k] && <span className="ml-auto text-xs text-emerald-400">+Credits</span>}
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
-                            <div className="mt-4 grid grid-cols-2 gap-3">
-                                <Stat label="Total Rewards" value="12.4 AIVT" />
-                                <Stat label="Referrals" value="0" />
-                            </div>
-                        </DarkCard>
+                        )}
                     </div>
                 </div>
             </div>
+
         </Container>
     );
 }
-
-// -----------------------------
-// Dashboard Page Component
-// -----------------------------
 
 function DashboardPage({
     lang,
     t,
     mode,
-    setMode,
+    onChangeMode,
     walletAddress,
-    onConnectWallet,
+    csvNewlineMode,
+    setCsvNewlineModeState,
+    creditCents,
+    setCreditCentsState,
+    subPlan,
+    setSubPlanState,
+    opsRange,
+    setOpsRangeState,
+    betaJoined,
+    onJoinBeta,
+    betaTasks,
+    setBetaTasksState,
 }: {
     lang: Lang;
     t: TFn;
     mode: DashboardMode;
-    setMode: (m: DashboardMode) => void;
+    onChangeMode: (m: DashboardMode) => void;
     walletAddress: string | null;
-    onConnectWallet: () => void;
+    csvNewlineMode: CsvNewlineMode;
+    setCsvNewlineModeState: (m: CsvNewlineMode) => void;
+    creditCents: number;
+    setCreditCentsState: (c: number) => void;
+    subPlan: SubPlanId;
+    setSubPlanState: (p: SubPlanId) => void;
+    opsRange: OpsRange;
+    setOpsRangeState: (r: OpsRange) => void;
+    betaJoined: boolean;
+    onJoinBeta: () => void;
+    betaTasks: BetaTaskState;
+    setBetaTasksState: (s: BetaTaskState) => void;
 }) {
     return (
-        <div className="min-h-screen bg-zinc-950 pb-20">
-            {mode === "public" && <PublicExplorerView lang={lang} t={t} mode={mode} onChangeMode={setMode} />}
-            {mode === "ops" && <OperationsDashboard t={t} mode={mode} onChangeMode={setMode} />}
-            {mode === "personal" && (
+        <div className="min-h-screen bg-zinc-950">
+            {mode === "public" ? (
+                <PublicExplorerView lang={lang} t={t} mode={mode} onChangeMode={onChangeMode} />
+            ) : mode === "ops" ? (
+                <OperationsDashboard
+                    lang={lang}
+                    t={t}
+                    mode={mode}
+                    onChangeMode={onChangeMode}
+                    opsRange={opsRange}
+                    setOpsRangeState={setOpsRangeState}
+                    csvNewlineMode={csvNewlineMode}
+                    setCsvNewlineModeState={setCsvNewlineModeState}
+                    creditCents={creditCents}
+                />
+            ) : (
                 <PersonalDashboard
                     lang={lang}
                     t={t}
                     mode={mode}
-                    onChangeMode={setMode}
+                    onChangeMode={onChangeMode}
                     walletAddress={walletAddress}
-                    onConnectWallet={onConnectWallet}
+                    creditCents={creditCents}
+                    setCreditCentsState={setCreditCentsState}
+                    subPlan={subPlan}
+                    setSubPlanState={setSubPlanState}
+                    csvNewlineMode={csvNewlineMode}
+                    betaJoined={betaJoined}
+                    onJoinBeta={onJoinBeta}
+                    betaTasks={betaTasks}
+                    setBetaTasksState={setBetaTasksState}
                 />
             )}
+
+            {/* Dashboard Footer */}
+            <div className="border-t border-white/10 bg-black/20 py-8">
+                <Container>
+                    <div className="flex justify-between items-center text-xs text-white/30">
+                        <div>AirVent {APP_VERSION} • {WEB3.chain} Beta</div>
+                        <div className="flex gap-4">
+                            <span>Terms</span>
+                            <span>Privacy</span>
+                            <span>Docs</span>
+                        </div>
+                    </div>
+                </Container>
+            </div>
         </div>
     );
 }
 
 // -----------------------------
-// Self-tests (hidden)
+// App Root
 // -----------------------------
 
-if (typeof window !== "undefined") {
-    (window as any).__airvent = {
-        APP_VERSION,
-        BRAND,
-        I18N,
-        SUB_PLANS,
-        reset: () => {
-            localStorage.clear();
-            window.location.reload();
-        },
-    };
+/**
+ * Debug API exposed on window.__airvent
+ */
+function exposeDebugApi(api: any) {
+    if (typeof window !== "undefined") {
+        (window as any).__airvent = api;
+    }
 }
 
-// -----------------------------
-// App
-// -----------------------------
-
 export default function App() {
+    const [lang, setLang] = useState<Lang>(detectLang());
     const [page, setPage] = useState<Page>("home");
-    const [lang, setLang] = useState<Lang>(() => detectLang());
-    const [dashMode, setDashMode] = useState<DashboardMode>(() => normalizeDashMode(null));
-    const t = useMemo(() => makeT(lang), [lang]);
 
-    // Beta / Wallet state
-    const [walletAddress, setWalletAddress] = useState<string | null>(null);
-    const [betaJoined, setBetaJoined] = useState(() => detectBetaJoined());
-    const [betaTasks, setBetaTasks] = useState<BetaTaskState>(() => detectBetaTasks());
+    // Global State (persisted)
+    const [walletAddress, setWalletAddress] = useState<string | null>(null); // mock wallet
+    const [mode, setMode] = useState<DashboardMode>(() => normalizeDashMode(window.localStorage?.getItem("airvent_mode")));
+    const [csvNewlineMode, setCsvNewlineModeState] = useState<CsvNewlineMode>(detectCsvNewlineMode());
+    const [creditCents, setCreditCentsState] = useState<number>(detectCreditCents());
+    const [subPlan, setSubPlanState] = useState<SubPlanId>(detectSubPlan());
+    const [opsRange, setOpsRangeState] = useState<OpsRange>(detectOpsRange());
+    const [betaJoined, setBetaJoined] = useState<boolean>(detectBetaJoined());
+    const [betaTasks, setBetaTasksState] = useState<BetaTaskState>(detectBetaTasks());
 
+    // Listeners to save Persistence
     useEffect(() => {
-        // Only save lang if explicitly changed, but here we just respect what's used.
-        // (We could save to localStorage on effect)
-        window.localStorage?.setItem("airvent_lang", lang);
+        try {
+            window.localStorage?.setItem("airvent_lang", lang);
+        } catch { }
     }, [lang]);
 
-    useEffect(() => {
-        saveBetaJoined(betaJoined);
-    }, [betaJoined]);
+    const changeMode = (m: DashboardMode) => {
+        setMode(m);
+        try {
+            window.localStorage?.setItem("airvent_mode", m);
+        } catch { }
+        if (page !== "dashboard") setPage("dashboard");
+        window.scrollTo(0, 0);
+    };
 
-    useEffect(() => {
-        saveBetaTasks(betaTasks);
-    }, [betaTasks]);
+    const saveCsvNewline = (m: CsvNewlineMode) => {
+        setCsvNewlineModeState(m);
+        setCsvNewlineMode(m);
+    };
 
-    // Embed check
-    const [embed, setEmbed] = useState<EmbedRoute>(null);
-    useEffect(() => {
-        setEmbed(detectEmbedRoute());
-        const h = () => setEmbed(detectEmbedRoute());
-        window.addEventListener("hashchange", h);
-        return () => window.removeEventListener("hashchange", h);
-    }, []);
+    const saveCredit = (c: number) => {
+        setCreditCentsState(c);
+        saveCreditCents(c);
+    };
 
-    if (embed === "badge") {
-        return <BadgeEmbedPage />;
-    }
+    const saveSub = (p: SubPlanId) => {
+        setSubPlanState(p);
+        saveSubPlan(p);
+    };
 
-    const handleConnectWallet = () => {
-        // Mock wallet connection
+    const saveRange = (r: OpsRange) => {
+        setOpsRangeState(r);
+        saveOpsRange(r);
+    };
+
+    const saveBeta = (b: boolean) => {
+        setBetaJoined(b);
+        saveBetaJoined(b);
+    };
+
+    const saveTasks = (t: BetaTaskState) => {
+        setBetaTasksState(t);
+        saveBetaTasks(t);
+    };
+
+    // Wallet Mock
+    const connectWallet = () => {
+        // Simulate wallet connection
         const mockAddr = makeMockSolAddress(Date.now());
         setWalletAddress(mockAddr);
+        // Auto-check beta task if joined
         if (betaJoined && !betaTasks.connect_wallet) {
-            setBetaTasks((prev) => ({ ...prev, connect_wallet: true }));
-            alert("Mission Completed: Wallet Connected! (+100 Credits - demo)");
-            saveCreditCents(detectCreditCents() + 100);
+            saveTasks({ ...betaTasks, connect_wallet: true });
+            saveCredit(creditCents + 100); // Small bonus
         }
     };
+    const disconnectWallet = () => setWalletAddress(null);
 
-    const handleDisconnectWallet = () => {
-        setWalletAddress(null);
-    };
+    const t = useMemo(() => makeT(lang), [lang]);
 
-    const handleOpenDashboard = (mode?: DashboardMode, range?: OpsRange) => {
-        setPage("dashboard");
-        if (mode) setDashMode(mode);
-        if (range) saveOpsRange(range); // side-effect immediate
-        window.scrollTo({ top: 0, behavior: "smooth" });
-    };
+    // Route Check
+    const embedRoute = useMemo(() => detectEmbedRoute(), []);
 
-    const handleJoinBeta = () => {
-        if (!betaJoined) {
-            if (confirm("Join AirVent Beta?\n\n- Receive missions\n- Earn credits\n- Verify ID (mock)")) {
-                setBetaJoined(true);
-                alert("Welcome to Beta! Check your Personal Dashboard for missions.");
+    // Expose Debug API
+    useEffect(() => {
+        exposeDebugApi({
+            setCredit: saveCredit,
+            setSub: saveSub,
+            reset: () => {
+                window.localStorage.clear();
+                window.location.reload();
             }
-        } else {
-            handleOpenDashboard("personal");
-        }
-    };
+        });
+    });
 
-    const handleToggleLang = () => {
-        setLang((prev) => (prev === "en" ? "ko" : "en"));
-    };
+    // Render Logic
+    if (embedRoute === "badge") {
+        return <BadgeEmbedPage />;
+    }
 
     return (
         <div className="font-sans text-slate-900 antialiased selection:bg-indigo-500/30">
@@ -2474,38 +2430,50 @@ export default function App() {
                 page={page}
                 setPage={(p) => {
                     setPage(p);
-                    window.scrollTo({ top: 0, behavior: "smooth" });
+                    window.scrollTo(0, 0);
                 }}
                 lang={lang}
-                onToggleLang={handleToggleLang}
+                onToggleLang={() => setLang(lang === "en" ? "ko" : "en")}
                 t={t}
                 walletAddress={walletAddress}
-                onConnectWallet={handleConnectWallet}
-                onDisconnectWallet={handleDisconnectWallet}
+                onConnectWallet={connectWallet}
+                onDisconnectWallet={disconnectWallet}
             />
+
             <main>
-                {page === "home" && (
+                {page === "home" ? (
                     <HomePage
                         lang={lang}
                         t={t}
-                        onOpenDashboard={handleOpenDashboard}
-                        onJoinBeta={handleJoinBeta}
+                        onOpenDashboard={(m) => changeMode(m || "public")}
+                        onJoinBeta={() => {
+                            saveBeta(true);
+                            changeMode("personal");
+                        }}
                         betaJoined={betaJoined}
                     />
-                )}
-                {page === "dashboard" && (
+                ) : (
                     <DashboardPage
                         lang={lang}
                         t={t}
-                        mode={dashMode}
-                        setMode={setDashMode}
+                        mode={mode}
+                        onChangeMode={changeMode}
                         walletAddress={walletAddress}
-                        onConnectWallet={handleConnectWallet}
+                        csvNewlineMode={csvNewlineMode}
+                        setCsvNewlineModeState={saveCsvNewline}
+                        creditCents={creditCents}
+                        setCreditCentsState={saveCredit}
+                        subPlan={subPlan}
+                        setSubPlanState={saveSub}
+                        opsRange={opsRange}
+                        setOpsRangeState={saveRange}
+                        betaJoined={betaJoined}
+                        onJoinBeta={() => saveBeta(true)}
+                        betaTasks={betaTasks}
+                        setBetaTasksState={saveTasks}
                     />
                 )}
             </main>
         </div>
     );
 }
-
-
