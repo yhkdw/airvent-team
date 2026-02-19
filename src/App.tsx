@@ -2094,110 +2094,197 @@ function PersonalDashboard({
     const cartSubtotal = 49900; // Example cart
     const { capCents, usedCents, dueCents } = applyCreditsToSubtotal({ subtotalCents: cartSubtotal, creditBalanceCents: creditCents });
 
-    <div className="mt-1 text-xs text-indigo-200">{t("credit.max60")}</div>
-                </div >
-        <div className="text-right">
-            <div className="text-xs text-indigo-300">{t("credit.plan.current")}</div>
-            <div className="font-bold text-white">{lang === "ko" ? plan.nameKo : plan.nameEn}</div>
-            <div className="mt-2">
-                <select
-                    className="bg-black/20 text-xs text-white p-1 rounded border border-white/10"
-                    value={subPlan}
-                    onChange={(e) => setSubPlanState(e.target.value as SubPlanId)}
-                >
-                    {SUB_PLANS.map(p => <option key={p.id} value={p.id}>{lang === "ko" ? p.nameKo : p.nameEn}</option>)}
-                </select>
+    const refCode = referralCodeFromWallet(walletAddress);
+
+    const toggleTask = (k: BetaTaskId) => {
+        const next = { ...betaTasks, [k]: !betaTasks[k] };
+        setBetaTasksState(next);
+        // Mock credit reward for completing task
+        if (!betaTasks[k] && next[k]) {
+            setCreditCentsState(creditCents + 500); // +$5 reward
+        }
+    };
+
+    const plan = planById(subPlan);
+
+    return (
+        <Container className="pb-20 pt-8">
+            <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+                <div>
+                    <div className="flex items-center gap-2 text-sm font-bold text-indigo-400">
+                        <span className="h-2 w-2 rounded-full bg-indigo-400"></span>
+                        {t("dash.personal.kicker")}
+                    </div>
+                    <h2 className="mt-1 text-3xl font-bold text-white">{t("dash.personal.title")}</h2>
+                    <p className="text-white/60">{t("dash.personal.subtitle")}</p>
+                </div>
+                <div className="flex bg-white/5 p-1 rounded-xl border border-white/10">
+                    {(["public", "ops", "personal"] as const).map(m => (
+                        <button
+                            key={m}
+                            onClick={() => onChangeMode(m)}
+                            className={`px-4 py-2 text-sm font-medium rounded-lg transition ${mode === m ? "bg-white/10 text-white shadow-sm" : "text-white/40 hover:text-white"
+                                }`}
+                        >
+                            {t(`dash.mode.${m}` as any)}
+                        </button>
+                    ))}
+                </div>
             </div>
-        </div>
-            </div >
 
-        {/* Simulator */ }
-        < div className = "mt-8 rounded-xl bg-black/20 p-4" >
-                <div className="flex justify-between items-center mb-2">
-                    <div className="text-xs font-bold text-white/70">{t("credit.checkout")} (Sim)</div>
-                    <button onClick={() => setCreditCentsState(0)} className="text-[10px] text-white/40 hover:text-white underline">{t("credit.reset")}</button>
-                </div>
-                <div className="space-y-2 text-sm">
-                    <div className="flex justify-between text-white/60">
-                        <span>{t("credit.product")} (List)</span>
-                        <span>{formatUsd(cartSubtotal)}</span>
-                    </div>
-                    <div className="flex justify-between text-white/60">
-                        <span>{t("credit.used")}</span>
-                        <span className="text-emerald-400">-{formatUsd(usedCents)}</span>
-                    </div>
-                    <div className="border-t border-white/10 pt-2 flex justify-between font-bold text-white">
-                        <span>{t("credit.due")}</span>
-                        <span>{formatUsd(dueCents)}</span>
-                    </div>
-                </div>
-                <div className="mt-4 pt-4 border-t border-white/10 flex justify-center">
-                    <button
-                        onClick={() => setCreditCentsState(creditCents + plan.creditsCentsPerMonth)}
-                        className="text-xs flex items-center gap-1 text-indigo-300 hover:text-white transition"
-                    >
-                        <span>📅 {t("credit.simulateMonth")} ({formatUsd(plan.creditsCentsPerMonth)})</span>
-                    </button>
-                </div>
-            </div >
-        </div >
-    </div >
+            <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
 
-        {/* Beta Section */ }
-        < div className = "space-y-6" >
-            <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
-                <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-bold text-white">{t("beta.title")}</h3>
-                    {betaJoined ? (
-                        <span className="px-2 py-1 rounded bg-emerald-500/20 text-emerald-400 text-xs font-bold">{t("beta.joined")}</span>
-                    ) : (
-                        <Button size="sm" onClick={onJoinBeta}>{t("beta.join")}</Button>
-                    )}
-                </div>
-                <p className="mt-2 text-sm text-white/60">{t("beta.desc")}</p>
-
-                {betaJoined && (
-                    <div className="mt-6 space-y-4">
-                        {/* Referral */}
-                        <div className="p-3 rounded-xl bg-black/20 border border-white/5">
-                            <div className="text-xs text-white/40 mb-1">{t("beta.ref")}</div>
-                            <div className="flex items-center justify-between bg-black/40 p-2 rounded-lg font-mono text-sm text-indigo-300 select-all">
-                                {refCode}
-                                <button
-                                    onClick={() => copyToClipboard(refCode)}
-                                    className="text-xs text-white/40 hover:text-white"
-                                >
-                                    {t("beta.copy")}
-                                </button>
+                {/* Left Column: Mining & Credits */}
+                <div className="space-y-6">
+                    {/* Real-time Mining Card */}
+                    <div className="rounded-3xl border border-emerald-500/30 bg-gradient-to-br from-emerald-900/20 to-slate-900 p-6 shadow-lg relative overflow-hidden">
+                        <div className="absolute top-0 right-0 p-4">
+                            <div className="flex items-center gap-2 px-2 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 backdrop-blur-sm">
+                                <span className="flex h-1.5 w-1.5 relative">
+                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                    <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                                </span>
+                                <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-tight">{t("mine.status")}</span>
                             </div>
                         </div>
 
-                        {/* Missions Checklist */}
-                        <div className="space-y-2">
-                            {(Object.keys(DEFAULT_BETA_TASKS) as BetaTaskId[]).map(k => (
-                                <div key={k}
-                                    className={`flex items-center gap-3 p-3 rounded-xl border transition cursor-pointer ${betaTasks[k] ? "bg-emerald-500/10 border-emerald-500/20" : "bg-white/5 border-white/5 hover:bg-white/10"
-                                        }`}
-                                    onClick={() => toggleTask(k)}
-                                >
-                                    <div className={`h-5 w-5 rounded border flex items-center justify-center ${betaTasks[k] ? "bg-emerald-500 border-emerald-500" : "border-white/30"
-                                        }`}>
-                                        {betaTasks[k] && <span className="text-black text-xs font-bold">✓</span>}
-                                    </div>
-                                    <div className={`text-sm ${betaTasks[k] ? "text-white line-through opacity-50" : "text-white"}`}>
-                                        Task: {k.replace("_", " ").toUpperCase()}
-                                    </div>
-                                    {betaTasks[k] && <span className="ml-auto text-xs text-emerald-400">+Credits</span>}
+                        <div className="relative z-10">
+                            <div className="text-[11px] font-bold text-emerald-400 uppercase tracking-widest opacity-80">{t("mine.title")}</div>
+                            <div className="mt-4 flex items-baseline gap-2">
+                                <div className="text-5xl font-black text-white font-mono tracking-tighter tabular-nums">
+                                    {minedTotal.toFixed(6)}
                                 </div>
-                            ))}
+                                <div className="text-xl font-bold text-emerald-500">AIVT</div>
+                            </div>
+
+                            <div className="mt-6 grid grid-cols-2 gap-4 pt-6 border-t border-white/5">
+                                <div>
+                                    <div className="text-[10px] text-white/30 uppercase font-bold tracking-wider">{t("mine.rate")}</div>
+                                    <div className="mt-0.5 text-sm font-bold text-white">+{miningRate.toFixed(5)} <span className="text-[10px] opacity-40 font-normal">/sec</span></div>
+                                </div>
+                                <div>
+                                    <div className="text-[10px] text-white/30 uppercase font-bold tracking-wider">{t("mine.total")}</div>
+                                    <div className="mt-0.5 text-sm font-bold text-emerald-400">LIVE</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Decorative glow */}
+                        <div className="absolute -bottom-10 -right-10 h-32 w-32 bg-emerald-500/10 rounded-full blur-3xl"></div>
+                        <div className="absolute top-0 left-0 h-20 w-20 bg-emerald-500/5 rounded-full blur-2xl"></div>
+                    </div>
+
+                    {/* Credits / Subscription */}
+                    <div className="rounded-3xl border border-indigo-500/30 bg-gradient-to-br from-indigo-900/40 to-slate-900 p-6">
+                        <div className="flex items-start justify-between">
+                            <div>
+                                <div className="text-[11px] font-bold text-indigo-300 uppercase tracking-widest opacity-80">{t("credit.title")}</div>
+                                <div className="mt-2 text-4xl font-black text-white">{formatUsd(creditCents)}</div>
+                                <div className="mt-1 text-xs text-indigo-200/60">{t("credit.max60")}</div>
+                            </div>
+                            <div className="text-right">
+                                <div className="text-[10px] text-indigo-300 uppercase font-bold tracking-wider">{t("credit.plan.current")}</div>
+                                <div className="mt-0.5 font-bold text-white">{lang === "ko" ? plan.nameKo : plan.nameEn}</div>
+                                <div className="mt-3">
+                                    <select
+                                        className="bg-black/40 text-[10px] font-bold text-white px-2 py-1 rounded-lg border border-white/10 outline-none hover:border-indigo-500/50 transition cursor-pointer appearance-none"
+                                        value={subPlan}
+                                        onChange={(e) => setSubPlanState(e.target.value as SubPlanId)}
+                                    >
+                                        {SUB_PLANS.map(p => <option key={p.id} value={p.id} className="bg-slate-900">{lang === "ko" ? p.nameKo : p.nameEn}</option>)}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Simulator */}
+                        <div className="mt-8 rounded-2xl bg-black/30 p-4 border border-white/5">
+                            <div className="flex justify-between items-center mb-3">
+                                <div className="text-[10px] font-bold text-white/40 uppercase tracking-wider">{t("credit.checkout")} (Sim)</div>
+                                <button onClick={() => setCreditCentsState(0)} className="text-[10px] font-bold text-indigo-400 hover:text-white transition uppercase tracking-wider">{t("credit.reset")}</button>
+                            </div>
+                            <div className="space-y-2 text-xs">
+                                <div className="flex justify-between text-white/50">
+                                    <span>{t("credit.product")} (List)</span>
+                                    <span>{formatUsd(cartSubtotal)}</span>
+                                </div>
+                                <div className="flex justify-between text-white/50">
+                                    <span>{t("credit.used")}</span>
+                                    <span className="text-emerald-400">-{formatUsd(usedCents)}</span>
+                                </div>
+                                <div className="mt-3 pt-3 border-t border-white/10 flex justify-between font-bold text-white text-sm">
+                                    <span>{t("credit.due")}</span>
+                                    <span className="text-indigo-400">{formatUsd(dueCents)}</span>
+                                </div>
+                            </div>
+                            <div className="mt-5 pt-4 border-t border-white/5 flex justify-center">
+                                <button
+                                    onClick={() => setCreditCentsState(creditCents + plan.creditsCentsPerMonth)}
+                                    className="text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 text-indigo-400 hover:text-white transition group"
+                                >
+                                    <span className="group-hover:scale-110 transition-transform">📅</span> {t("credit.simulateMonth")} ({formatUsd(plan.creditsCentsPerMonth)})
+                                </button>
+                            </div>
                         </div>
                     </div>
-                )}
-            </div>
-    </div >
-            </div >
+                </div>
 
-        </Container >
+                {/* Right Column: Beta Section */}
+                <div className="space-y-6">
+                    <div className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm">
+                        <div className="flex items-center justify-between">
+                            <h3 className="text-lg font-bold text-white">{t("beta.title")}</h3>
+                            {betaJoined ? (
+                                <span className="px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-black uppercase tracking-widest">{t("beta.joined")}</span>
+                            ) : (
+                                <Button size="sm" onClick={onJoinBeta} className="rounded-full shadow-lg shadow-indigo-500/20">{t("beta.join")}</Button>
+                            )}
+                        </div>
+                        <p className="mt-2 text-sm text-white/50 leading-relaxed">{t("beta.desc")}</p>
+
+                        {betaJoined && (
+                            <div className="mt-8 space-y-6">
+                                {/* Referral */}
+                                <div className="p-4 rounded-2xl bg-black/40 border border-white/5">
+                                    <div className="text-[10px] font-bold text-white/30 uppercase tracking-widest mb-2">{t("beta.ref")}</div>
+                                    <div className="flex items-center justify-between bg-black/60 p-3 rounded-xl font-mono text-xs text-indigo-400 border border-indigo-500/10 select-all group cursor-pointer hover:border-indigo-500/30 transition">
+                                        <span className="tracking-widest">{refCode}</span>
+                                        <button
+                                            onClick={() => copyToClipboard(refCode)}
+                                            className="text-[10px] font-black uppercase tracking-widest text-indigo-300/40 group-hover:text-indigo-300 transition"
+                                        >
+                                            {t("beta.copy")}
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* Missions Checklist */}
+                                <div className="space-y-3">
+                                    <div className="text-[10px] font-bold text-white/30 uppercase tracking-widest mb-1">Active Missions</div>
+                                    {(Object.keys(DEFAULT_BETA_TASKS) as BetaTaskId[]).map(k => (
+                                        <div key={k}
+                                            className={`flex items-center gap-4 p-4 rounded-2xl border transition-all duration-300 cursor-pointer ${betaTasks[k] ? "bg-emerald-500/5 border-emerald-500/20" : "bg-white/5 border-white/5 hover:bg-white/10 group"
+                                                }`}
+                                            onClick={() => toggleTask(k)}
+                                        >
+                                            <div className={`h-6 w-6 rounded-lg border-2 flex items-center justify-center transition-colors ${betaTasks[k] ? "bg-emerald-500 border-emerald-500" : "border-white/10 group-hover:border-white/30"
+                                                }`}>
+                                                {betaTasks[k] && <span className="text-black text-xs font-black">✓</span>}
+                                            </div>
+                                            <div className={`text-sm font-medium transition-opacity ${betaTasks[k] ? "text-white/40 line-through" : "text-white"}`}>
+                                                {k.split("_").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ")}
+                                            </div>
+                                            {betaTasks[k] && <span className="ml-auto text-[10px] font-black uppercase tracking-widest text-emerald-400/60">+Credits</span>}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+
+        </Container>
     );
 }
 
