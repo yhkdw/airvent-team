@@ -1448,7 +1448,8 @@ function HomePage({
                                     opacity: 1,
                                 }}
                             />
-                            {/* <div className="absolute inset-0 bg-white/88 backdrop-blur-sm" /> */}
+                            {/* Gradient overlay for text readability */}
+                            <div className="absolute inset-0 bg-gradient-to-r from-white/95 via-white/70 to-transparent" />
                             <div className="relative p-6 md:p-8">
                                 <div className="grid grid-cols-1 gap-8 md:grid-cols-12 md:items-center">
                                     <div className="md:col-span-7">
