@@ -1,0 +1,20 @@
+[package]
+name = "airvent-subscription"
+version = "0.1.0"
+description = "AirVent DePIN 구독 관리 스마트 컨트랙트"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "airvent_subscription"
+
+[features]
+no-entrypoint = []
+no-idl = []
+no-log-ix-name = []
+cpi = ["no-entrypoint"]
+default = []
+idl-build = ["anchor-lang/idl-build"]
+
+[dependencies]
+anchor-lang = "0.30.1"

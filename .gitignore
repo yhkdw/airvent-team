@@ -1,7 +1,19 @@
-node_modules
-dist
-dist-ssr
-*.local
+# Rust / Anchor
+target/
+**/*.rs.bk
+node_modules/
+.anchor/
+test-ledger/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
 .DS_Store
+Thumbs.db
+
+# Env
 .env
-coverage

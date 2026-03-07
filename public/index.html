@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AirVent Codex — Solana Smart Contract</title>
+  <meta name="description" content="AirVent DePIN Solana Anchor 스마트 컨트랙트 — 구독 관리 프로그램" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap"
+    rel="stylesheet" />
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg-primary: #0a0e1a;
+      --bg-card: rgba(15, 23, 42, 0.6);
+      --border: rgba(51, 65, 85, 0.5);
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --accent-purple: #a78bfa;
+      --accent-emerald: #34d399;
+      --accent-amber: #fbbf24;
+      --gradient-start: #7c3aed;
+      --gradient-end: #06b6d4;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Animated background */
+    .bg-grid {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      background-image:
+        radial-gradient(circle at 25% 25%, rgba(124, 58, 237, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 75% 75%, rgba(6, 182, 212, 0.06) 0%, transparent 50%);
+    }
+
+    .bg-grid::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: linear-gradient(rgba(51, 65, 85, 0.12) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(51, 65, 85, 0.12) 1px, transparent 1px);
+      background-size: 60px 60px;
+      animation: gridMove 20s linear infinite;
+    }
+
+    @keyframes gridMove {
+      0% {
+        transform: translate(0, 0);
+      }
+
+      100% {
+        transform: translate(60px, 60px);
+      }
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 60px 24px;
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: 64px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(124, 58, 237, 0.15);
+      border: 1px solid rgba(124, 58, 237, 0.3);
+      color: var(--accent-purple);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 6px 16px;
+      border-radius: 999px;
+      margin-bottom: 24px;
+    }
+
+    .badge .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent-emerald);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.3;
+      }
+    }
+
+    h1 {
+      font-size: clamp(2.5rem, 5vw, 3.5rem);
+      font-weight: 900;
+      line-height: 1.1;
+      margin-bottom: 16px;
+      background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    /* Cards */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-bottom: 48px;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      backdrop-filter: blur(12px);
+      transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(124, 58, 237, 0.4);
+      box-shadow: 0 8px 32px rgba(124, 58, 237, 0.1);
+    }
+
+    .card-icon {
+      font-size: 28px;
+      margin-bottom: 16px;
+    }
+
+    .card h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .card p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    /* Code block */
+    .code-section {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      margin-bottom: 48px;
+      backdrop-filter: blur(12px);
+    }
+
+    .code-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .code-header h2 {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+
+    .code-tag {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--accent-emerald);
+      background: rgba(52, 211, 153, 0.1);
+      border: 1px solid rgba(52, 211, 153, 0.2);
+      padding: 4px 12px;
+      border-radius: 999px;
+    }
+
+    pre {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(51, 65, 85, 0.4);
+      border-radius: 12px;
+      padding: 20px;
+      overflow-x: auto;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      line-height: 1.7;
+      color: var(--text-secondary);
+    }
+
+    .kw {
+      color: #c084fc;
+    }
+
+    .fn {
+      color: #67e8f9;
+    }
+
+    .str {
+      color: #86efac;
+    }
+
+    .cmt {
+      color: #475569;
+      font-style: italic;
+    }
+
+    .num {
+      color: #fbbf24;
+    }
+
+    /* Stats */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 48px;
+    }
+
+    .stat {
+      text-align: center;
+      padding: 20px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      backdrop-filter: blur(12px);
+    }
+
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--accent-purple), var(--accent-emerald));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Links */
+    .links {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 28px;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.3s;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+      color: white;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(124, 58, 237, 0.3);
+    }
+
+    .btn-outline {
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      background: var(--bg-card);
+      backdrop-filter: blur(12px);
+    }
+
+    .btn-outline:hover {
+      border-color: var(--accent-purple);
+      color: var(--text-primary);
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 80px;
+      padding-top: 32px;
+      border-top: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 0.8rem;
+    }
+
+    @media (max-width: 600px) {
+      .stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .container {
+        padding: 40px 16px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="bg-grid"></div>
+  <div class="container">
+
+    <!-- Header -->
+    <header class="header">
+      <div class="badge"><span class="dot"></span> SOLANA TESTNET</div>
+      <h1>AirVent Codex</h1>
+      <p class="subtitle">
+        대기질 데이터를 수집·검증·보상하는 DePIN 프로토콜의<br>
+        Solana Anchor 스마트 컨트랙트
+      </p>
+    </header>
+
+    <!-- Feature Cards -->
+    <div class="cards">
+      <div class="card">
+        <div class="card-icon">📡</div>
+        <h3>무료 구독</h3>
+        <p>대시보드 가입 시 온체인 계정 자동 생성 · 출석/설문 참여로 AVP 포인트 적립</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">⚡</div>
+        <h3>프리미엄 노드</h3>
+        <p>하드웨어 시리얼 등록으로 프리미엄 업그레이드 · 실시간 센서 데이터 채굴</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🔒</div>
+        <h3>보안 설계</h3>
+        <p>Authority 오라클 서명 · 적립량 제한 · Overflow 보호 · PDA 기반 계정</p>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-value">4</div>
+        <div class="stat-label">Instructions</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value">6</div>
+        <div class="stat-label">Error Codes</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value">PDA</div>
+        <div class="stat-label">Account Model</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value">0.30</div>
+        <div class="stat-label">Anchor Ver</div>
+      </div>
+    </div>
+
+    <!-- Code Preview -->
+    <div class="code-section">
+      <div class="code-header">
+        <h2>📝 Contract Preview</h2>
+        <span class="code-tag">Rust / Anchor</span>
+      </div>
+      <pre><code><span class="kw">use</span> anchor_lang::prelude::*;
+
+<span class="cmt">/// 1. 무료 구독자 계정 생성</span>
+<span class="kw">pub fn</span> <span class="fn">initialize_free_subscription</span>(ctx: Context&lt;InitializeSubscription&gt;) -&gt; Result&lt;()&gt; {
+    <span class="kw">let</span> user_state = &amp;<span class="kw">mut</span> ctx.accounts.user_state;
+    user_state.owner = ctx.accounts.user.key();
+    user_state.is_premium = <span class="num">false</span>;
+    user_state.offchain_points = <span class="num">0</span>;
+    user_state.joined_at = Clock::get()?.unix_timestamp;
+    <span class="fn">msg!</span>(<span class="str">"AirVent 무료 구독 계정 생성 완료!"</span>);
+    Ok(())
+}
+
+<span class="cmt">/// 3. 프리미엄(하드웨어 노드) 업그레이드</span>
+<span class="kw">pub fn</span> <span class="fn">upgrade_to_premium</span>(ctx: Context, serial: String) -&gt; Result&lt;()&gt; {
+    <span class="kw">require!</span>(!user_state.is_premium, AirventError::AlreadyPremium);
+    <span class="kw">require!</span>(serial.len() &lt;= <span class="num">64</span>, AirventError::InvalidHardwareSerial);
+    user_state.is_premium = <span class="num">true</span>;
+    user_state.hardware_id = serial;
+    Ok(())
+}</code></pre>
+    </div>
+
+    <!-- Links -->
+    <div class="links">
+      <a href="https://github.com/yhkdw/Airvent-codex" class="btn btn-primary" target="_blank">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+          <path
+            d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z" />
+        </svg>
+        GitHub 소스코드
+      </a>
+      <a href="https://explorer.solana.com/?cluster=testnet" class="btn btn-outline" target="_blank">
+        🔍 Solana Explorer
+      </a>
+    </div>
+
+    <footer class="footer">
+      <p>AirVent DePIN Protocol · Powered by Solana &amp; Anchor Framework</p>
+    </footer>
+
+  </div>
+</body>
+
+</html>

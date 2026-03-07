@@ -1,0 +1,92 @@
+{
+    "nav": {
+        "home": "홈",
+        "air_quality": "대기 질",
+        "rewards": "리워드",
+        "wallet": "지갑",
+        "logout": "로그아웃"
+    },
+    "sidebar": {
+        "operations": "운영 센터",
+        "total_balance": "총 잔액",
+        "connected_wallet": "연결된 지갑",
+        "disconnect": "연결 해제",
+        "connect_wallet": "지갑 연결",
+        "connecting": "연결 중..."
+    },
+    "overview": {
+        "global_status": "글로벌 네트워크 상태",
+        "audit_engine": "DePIN AI 감사 엔진",
+        "integrity_title": "실시간 데이터 무결성",
+        "integrity_desc": "모든 센서 데이터는 개인 정보를 침해하지 않으면서 100% 신뢰성을 보장하기 위해 영지식 증명을 사용하는 탈중앙화 AI 레이어를 통해 자동으로 감사됩니다.",
+        "network_score": "네트워크 점수",
+        "total_audits": "총 감사 횟수",
+        "live_audit": "실시간 감사 피드",
+        "news_title": "네트워크 소식 및 공지사항",
+        "indoor_comfort": "실내 쾌적도",
+        "live_stream": "실시간 데이터",
+        "news": {
+            "forecast_title": "서울 PM2.5, 이번 주 '나쁨' 지속 전망",
+            "forecast_desc": "기상청은 중국발 미세먼지와 대기 정체로 수도권 PM2.5가 75µg/m³ 이상 유지될 것으로 예보했습니다.",
+            "policy_title": "WHO, 실내 공기질 가이드라인 2026 업데이트 발표",
+            "policy_desc": "세계보건기구가 실내 CO2 농도 기준을 1,000ppm에서 800ppm으로 강화하는 권고안을 발표했습니다.",
+            "network_title": "에어벤트, 슈퍼팀코리아 스타트업빌리지 참가 및 빌딩",
+            "network_desc": "AirVent 팀이 슈퍼팀코리아 스타트업빌리지(Superteam Korea Startup Village)에 참여하여 솔라나 생태계의 혁신적인 DePIN 솔루션을 집중적으로 개발하고 있습니다."
+        },
+        "read_more": "더 보기",
+        "view_all_news": "모든 공지사항 보기"
+    },
+    "wallet": {
+        "spl_account": "SPL 토큰 계정",
+        "send": "보내기",
+        "swap": "스왑",
+        "recent_tx": "최근 트랜잭션",
+        "view_all": "모두 보기",
+        "confirmed": "솔라나에서 확인됨",
+        "security": "지갑 보안",
+        "protected": "보호됨",
+        "backup": "복구 구문",
+        "network": "네트워크",
+        "secured_by": "Phantom에 의해 보안됨",
+        "devnet": "솔라나 데브넷"
+    },
+    "rewards": {
+        "efficiency": "마이닝 효율",
+        "epoch_rank": "에포크 순위",
+        "uptime": "업타임 (24시간)",
+        "last_epoch": "이전 에포크 대비",
+        "top_nodes": "전체 노드 상위 5%",
+        "status_ok": "상태: 정상 작동 중",
+        "audit_logs": "네트워크 감사 로그",
+        "realtime_stream": "실시간 스트림",
+        "mining_title": "AI DePIN 리워드 마이닝",
+        "token_name": "에어벤트 토큰 (AIVT)",
+        "verified": "온체인 검증됨",
+        "mining_stats": "노드 마이닝 통계",
+        "proof_hash": "ZKP 증명 해시",
+        "solana_tx": "솔라나 트랜잭션",
+        "broadcasting": "전송 중...",
+        "ai_auditor": "AI 감사 엔진",
+        "next_epoch": "다음 에포크",
+        "audit_panel_title": "AI 감사 패널",
+        "verifier_name": "Airvent-AI 검증기",
+        "confidence": "신뢰도",
+        "integrity": "무결성",
+        "insight_title": "AI 감사 인사이트",
+        "insight_initial": "데이터 패킷 수신 대기 중...",
+        "insight_analyzing": "시공간적 패턴 분석 중...",
+        "insight_verified": "로컬 텔레메트리 검증 완료. 현재 센서 범위 내 이상 징후 없음."
+    },
+    "login": {
+        "title": "Airvent DePIN",
+        "access_control": "액세스 권한",
+        "description": "사용자 계정으로 로그인하세요.",
+        "email_login": "이메일 로그인",
+        "email_label": "이메일",
+        "password_label": "비밀번호",
+        "sign_in": "로그인",
+        "signing_in": "로그인 중...",
+        "back_to_home": "홈으로 돌아가기",
+        "error_unauthorized": "계정 정보가 일치하지 않거나 서버 설정이 올바르지 않습니다."
+    }
+}

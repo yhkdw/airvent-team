@@ -1,0 +1,92 @@
+{
+    "nav": {
+        "home": "Home",
+        "air_quality": "Air Quality",
+        "rewards": "Rewards",
+        "wallet": "Wallet",
+        "logout": "Logout"
+    },
+    "sidebar": {
+        "operations": "Operations",
+        "total_balance": "Total Balance",
+        "connected_wallet": "Connected Wallet",
+        "disconnect": "Disconnect",
+        "connect_wallet": "Connect Wallet",
+        "connecting": "Connecting..."
+    },
+    "overview": {
+        "global_status": "Global Network Status",
+        "audit_engine": "DePIN AI Audit Engine",
+        "integrity_title": "Real-time Data Integrity",
+        "integrity_desc": "All sensor data is automatically audited through our decentralized AI layer using Zero-Knowledge proofs to ensure 100% authenticity without compromising privacy.",
+        "network_score": "Network Score",
+        "total_audits": "Total Audits",
+        "live_audit": "Live Audit Feed",
+        "news_title": "Network News & Announcements",
+        "indoor_comfort": "Indoor comfort",
+        "live_stream": "Live stream",
+        "news": {
+            "forecast_title": "Seoul PM2.5: 'Poor' forecast for the rest of the week",
+            "forecast_desc": "The KMA forecasts PM2.5 levels to stay above 75µg/m³ in the metropolitan area due to incoming fine dust and atmospheric stagnation.",
+            "policy_title": "WHO Announces 2026 Indoor Air Quality Guidelines Update",
+            "policy_desc": "The WHO has released recommendations to strengthen indoor CO2 concentration standards from 1,000ppm to 800ppm.",
+            "network_title": "AirVent: Participating in Superteam Korea Startup Village",
+            "network_desc": "The AirVent team is participating in the Superteam Korea Startup Village, focusing on developing innovative DePIN solutions for the Solana ecosystem."
+        },
+        "read_more": "READ MORE",
+        "view_all_news": "VIEW ALL ANNOUNCEMENTS"
+    },
+    "wallet": {
+        "spl_account": "SPL Token Account",
+        "send": "Send",
+        "swap": "Swap",
+        "recent_tx": "Recent Transactions",
+        "view_all": "View All",
+        "confirmed": "Confirmed on Solana",
+        "security": "Wallet Security",
+        "protected": "PROTECTED",
+        "backup": "Backup Phrase",
+        "network": "Network",
+        "secured_by": "Secured by Phantom",
+        "devnet": "Solana Devnet"
+    },
+    "rewards": {
+        "efficiency": "Mining Efficiency",
+        "epoch_rank": "Epoch Rank",
+        "uptime": "Uptime (24h)",
+        "last_epoch": "from last epoch",
+        "top_nodes": "Top 5% of all nodes",
+        "status_ok": "Status: Operational",
+        "audit_logs": "Network Audit Logs",
+        "realtime_stream": "Real-time Stream",
+        "mining_title": "AI DePIN REWARD MINING",
+        "token_name": "AirVent Token (AIVT)",
+        "verified": "ON-CHAIN VERIFIED",
+        "mining_stats": "Node Mining Stats",
+        "proof_hash": "ZKP Proof Hash",
+        "solana_tx": "Solana Tx",
+        "broadcasting": "Broadcasting...",
+        "ai_auditor": "AI Auditor",
+        "next_epoch": "Next Epoch",
+        "audit_panel_title": "AI Audit Panel",
+        "verifier_name": "Airvent-AI Verifier",
+        "confidence": "Confidence",
+        "integrity": "Integrity",
+        "insight_title": "AI Auditor Insight",
+        "insight_initial": "Awaiting data packets...",
+        "insight_analyzing": "Analyzing spatial temporal patterns...",
+        "insight_verified": "Local telemetry verified. No anomalies detected within current sensor range."
+    },
+    "login": {
+        "title": "Airvent DePIN",
+        "access_control": "ACCESS CONTROL",
+        "description": "Sign in with your user account.",
+        "email_login": "Email Login",
+        "email_label": "Email",
+        "password_label": "Password",
+        "sign_in": "Sign In",
+        "signing_in": "Signing In...",
+        "back_to_home": "Back to Home",
+        "error_unauthorized": "Invalid credentials or incorrect server configuration."
+    }
+}

@@ -1,0 +1,4 @@
+{"sensor_id": "A-01", "timestamp": "2026-02-22T00:00:00Z", "pm25": 12, "pm10": 28, "co2": 470, "signature": "88263244a70993e58b302fa1d9abd27ce0142501ae0663484946b4d8dc5a89b3"}
+{"sensor_id": "A-01", "timestamp": "2026-02-22T00:05:00Z", "pm25": 13, "pm10": 30, "co2": 488, "signature": "e9ea85ca7bd9dc1b4e11dbca1e2a75e423982e100b4454b6b126a7ca9a259b6d"}
+{"sensor_id": "A-01", "timestamp": "2026-02-22T00:10:00Z", "pm25": 14, "pm10": 31, "co2": 500, "signature": "BROKEN_SIGNATURE"}
+{"sensor_id": "A-01", "timestamp": "2026-02-22T00:15:00Z", "pm25": 200, "pm10": 320, "co2": 1700, "signature": "ced2a233df86f4d91220805d90670474e4e404dbe502fbbbd208393a220a312c"}

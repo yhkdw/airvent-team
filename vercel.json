@@ -1,0 +1,15 @@
+{
+  "buildCommand": "cd dashboard && npm install && VITE_SUPABASE_URL=https://mqosgmfglpvdoxflwafx.supabase.co VITE_SUPABASE_ANON_KEY=sb_publishable_KDnZDq1fPpYEP2Wbld0tcw_MxfesdAh npm run build",
+  "outputDirectory": "dashboard/dist",
+  "framework": "vite",
+  "env": {
+    "VITE_SUPABASE_URL": "https://mqosgmfglpvdoxflwafx.supabase.co",
+    "VITE_SUPABASE_ANON_KEY": "sb_publishable_KDnZDq1fPpYEP2Wbld0tcw_MxfesdAh"
+  },
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}

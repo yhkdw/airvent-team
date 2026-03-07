@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="data:;base64,iVBORw0KGgo= " />
+  <title>Airvent DePIN</title>
+  <script>
+    window.global = window;
+    window.process = {
+      env: { NODE_ENV: 'development' },
+      version: '',
+      nextTick: (cb) => setTimeout(cb, 0)
+    };
+  </script>
+  <script type="module">
+    import { Buffer } from 'buffer';
+    window.Buffer = Buffer;
+  </script>
+  <!-- Paddle Billing JS SDK -->
+  <script src="https://cdn.paddle.com/paddle/v2/paddle.js"></script>
+</head>
+
+<body class="bg-slate-950 text-slate-100">
+  <div id="root"></div>
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+
+</html>
