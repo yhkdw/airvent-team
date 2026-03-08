@@ -19,7 +19,7 @@ const t = {
     heroSub:
       "AirVent는 집·사무실·실내 공간의 공기질을 측정하는 스마트 노드입니다. 노드 출시와 Devnet 검증을 마친 지금, 제품 사용자이자 초기 네트워크 기여자로 함께할 첫 유저를 모집하고 있습니다.",
     heroCta: "노드 신청하기",
-    heroMore: "더 알아보기",
+    heroMore: "앱 DEMO",
     sections: {
       problems: "왜 AirVent가 필요한가요?",
       whyNow: "현재 단계와 핵심 메시지",
@@ -163,7 +163,7 @@ const t = {
     heroSub:
       "AirVent is a smart node that measures air quality in homes, offices, and indoor spaces. Following our Devnet verification, we are now recruiting the first users to join as product users and early network contributors.",
     heroCta: "Apply for Node",
-    heroMore: "Learn More",
+    heroMore: "App DEMO",
     sections: {
       problems: "Why AirVent?",
       whyNow: "Current Phase & Key Messages",
@@ -340,9 +340,7 @@ export default function LandingPage() {
             <nav className="hidden md:flex items-center gap-6">
               <a href="#problems" className="text-sm text-slate-400 hover:text-emerald-400 transition-colors">{tx.nav.about}</a>
               <Link to="/node" className="text-sm text-slate-400 hover:text-emerald-400 transition-colors">{tx.nav.node}</Link>
-              <Link to="/dashboard" className="px-4 py-2 rounded-lg bg-emerald-500/10 text-emerald-400 text-xs font-bold border border-emerald-500/20 hover:bg-emerald-500/20 transition-all">
-                {tx.nav.demo}
-              </Link>
+              
             </nav>
 
             {/* Right controls */}
@@ -389,9 +387,9 @@ export default function LandingPage() {
                     {tx.heroCta}
                     <span>→</span>
                   </Link>
-                  <a href="#problems" className="inline-flex items-center gap-2 rounded-xl border border-slate-700 text-slate-400 font-semibold px-8 py-4 text-base hover:border-slate-500 hover:text-white transition">
-                    {tx.heroMore}
-                  </a>
+                  <a href="http://localhost:5173" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-xl border border-slate-700 text-slate-400 font-semibold px-8 py-4 text-base hover:border-slate-500 hover:text-white transition">
+  {tx.heroMore}
+</a>
                 </div>
               </div>
 
@@ -521,29 +519,7 @@ export default function LandingPage() {
           </Container>
         </section>
 
-        {/* ── Node Cards ── */}
-        <section className="py-24 border-t border-slate-800/50">
-          <Container>
-            <div className="grid md:grid-cols-2 gap-8">
-              {tx.nodeCards.map((card, i) => (
-                <div key={i} className="group p-10 rounded-3xl bg-slate-900 border border-slate-800 hover:border-emerald-500/30 transition-all overflow-hidden relative">
-                  <div className="absolute top-0 right-0 p-8 text-6xl opacity-10 group-hover:opacity-20 transition-opacity">
-                    {i === 0 ? "📦" : "🖥️"}
-                  </div>
-                  <h3 className="text-2xl font-bold text-white mb-4">{card.name}</h3>
-                  <p className="text-slate-400 mb-8 max-w-xs">{card.desc}</p>
-                  <div className="flex flex-wrap gap-2">
-                    {card.specs.map((s, j) => (
-                      <span key={j} className="px-3 py-1 rounded-full bg-slate-800 text-slate-400 text-[10px] font-bold border border-slate-700">
-                        {s}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </Container>
-        </section>
+
 
 
         {/* ── Proof & FAQ ── */}
