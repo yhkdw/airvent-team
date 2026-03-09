@@ -36,6 +36,12 @@ export default function LoginPage() {
   const executePendingLogin = async () => {
     if (pendingProvider) {
       setShowTerms(false);
+      if (pendingProvider === 'naver') {
+        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'http://localhost:54321';
+        const redirectUrl = `${window.location.origin}/dashboard`;
+        window.location.href = `${supabaseUrl}/functions/v1/naver-auth?action=login&redirect_to=${encodeURIComponent(redirectUrl)}`;
+        return;
+      }
       const { error } = await loginWithSocial(pendingProvider);
       if (error) setError(error.message);
     }
