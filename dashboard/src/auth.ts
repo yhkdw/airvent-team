@@ -16,15 +16,16 @@ export async function loginWithEmail(email: string, password: string) {
   });
 }
 
-export async function loginWithSocial(provider: 'google' | 'twitter' | 'naver' | 'kakao') {
+export async function loginWithSocial(provider: 'google' | 'twitter' | 'naver' | 'kakao', next?: string) {
   const providerKey = provider === 'twitter' ? 'x' : provider;
   console.log(`[Auth] Initiating social login for provider: ${providerKey}`);
   console.log(`[Auth] Redirect: ${window.location.origin}/`);
 
+  const redirectPath = next ? `/?next=${encodeURIComponent(next)}` : '/';
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: providerKey as any,
     options: {
-      redirectTo: window.location.origin + '/',
+      redirectTo: window.location.origin + redirectPath,
       skipBrowserRedirect: false
     }
   });

@@ -25,10 +25,16 @@ export default function App() {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       console.log(`[App] Auth event: ${event}`);
       if (session) {
-        // Redirect to dashboard if on landing or login page
         if (location.pathname === "/login") {
-          console.log("[App] User authenticated, redirecting to /");
-          navigate("/");
+          const params = new URLSearchParams(location.search);
+          const next = params.get("next") || "/";
+          console.log("[App] User authenticated, redirecting to", next);
+          navigate(next);
+        } else if (location.pathname === "/" && new URLSearchParams(location.search).get("next")) {
+          // After OAuth callback lands on /?next=/node - redirect to next
+          const next = new URLSearchParams(location.search).get("next") || "/";
+          console.log("[App] OAuth callback with next, redirecting to", next);
+          navigate(next);
         }
       }
     });

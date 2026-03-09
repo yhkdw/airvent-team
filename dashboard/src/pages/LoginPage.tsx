@@ -31,7 +31,7 @@ export default function LoginPage() {
       setShowTerms(true);
       return;
     }
-    const { error } = await loginWithSocial(provider);
+    const { error } = await loginWithSocial(provider, nextPath !== '/' ? nextPath : undefined);
     if (error) setError(error.message);
   };
 
