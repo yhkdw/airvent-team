@@ -17,8 +17,8 @@ export default function LoginPage() {
   useEffect(() => {
     isAuthed().then(authed => {
       if (authed) {
-        console.log("[Login] Already authenticated, redirecting to /dashboard");
-        nav("/dashboard");
+        console.log("[Login] Already authenticated, redirecting to /");
+        nav("/");
       }
     });
   }, [nav]);
@@ -127,7 +127,7 @@ export default function LoginPage() {
             if (loginErr) {
               setError(loginErr.message || t("login.error_unauthorized"));
             } else {
-              nav("/dashboard");
+              nav("/");
             }
           }}
         >
