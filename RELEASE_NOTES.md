@@ -26,3 +26,10 @@
 - Version bump to `v1.6.0`.
 - Added the `airvent-demo` workspace directory directly into the repository for version control and cohesive updates.
 - General refactoring to translation files (`LandingPage.tsx`) for robust i18n support.
+
+## [v1.6.2] - 2026-03-09
+
+### Fixed
+- **Naver Social Login**: Fixed a bug where the `VITE_NAVER_CLIENT_ID` was not securely passed from the React frontend to the Edge Function proxy. 
+- **Github Actions**: Hardened the `Deploy to Solana Devnet` CI pipeline by downloading the Solana CLI installer explicitly to a file. This ensures the workflow catches and safely aborts on transient SSL download errors instead of silently failing the subsequent Anchor build commands.
+- **Frontend Build Issues**: Fixed TypeScript compiler errors (`any` typing) in the `NaverCallbackPage.tsx` component that were causing the Vite development server to freeze and output a blank page.
