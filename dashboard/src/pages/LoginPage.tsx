@@ -24,7 +24,7 @@ export default function LoginPage() {
   }, [nav]);
 
   const handleSocialLogin = async (provider: 'google' | 'twitter' | 'naver' | 'kakao') => {
-    if (provider === 'kakao') {
+    if (provider === 'kakao' || provider === 'naver') {
       setPendingProvider(provider);
       setShowTerms(true);
       return;
@@ -38,7 +38,7 @@ export default function LoginPage() {
       setShowTerms(false);
       if (pendingProvider === 'naver') {
         const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'http://localhost:54321';
-        const redirectUrl = `${window.location.origin}/dashboard`;
+        const redirectUrl = `${window.location.origin}/auth/naver/callback`;
         window.location.href = `${supabaseUrl}/functions/v1/naver-auth?action=login&redirect_to=${encodeURIComponent(redirectUrl)}`;
         return;
       }
