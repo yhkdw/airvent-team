@@ -400,9 +400,6 @@ export default function LandingPage() {
                       <a href="/demo/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-xl border border-slate-700 text-slate-400 font-semibold px-8 py-4 text-base hover:border-slate-500 hover:text-white transition">
                         {tx.heroMore}
                       </a>
-                      <Link to="/login" className="inline-flex items-center gap-2 rounded-xl border border-blue-500/50 text-blue-400 font-semibold px-8 py-4 text-base hover:border-blue-400 hover:text-white transition">
-                        {tx.heroWebDemo}
-                      </Link>
                     </>
                   ) : (
                     <>
@@ -413,6 +410,9 @@ export default function LandingPage() {
                       <a href="/demo/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-xl border border-slate-700 text-slate-400 font-semibold px-8 py-4 text-base hover:border-slate-500 hover:text-white transition">
                         {tx.heroMore}
                       </a>
+                      <Link to="/login" className="inline-flex items-center gap-2 rounded-xl border border-blue-500/50 text-blue-400 font-semibold px-8 py-4 text-base hover:border-blue-400 hover:text-white transition">
+                        {tx.heroWebDemo}
+                      </Link>
                     </>
                   )}
                 </div>
