@@ -1,4 +1,4 @@
-import { useNavigate, useLocation, Routes, Route, Navigate } from "react-router-dom";
+import { useNavigate, Routes, Route, Navigate } from "react-router-dom";
 import { useEffect } from "react";
 import { supabase } from "./lib/supabaseClient";
 import LandingPage from "./pages/LandingPage";
@@ -19,30 +19,32 @@ import WalletTab from "./pages/dashboard/WalletTab";
 
 export default function App() {
   const navigate = useNavigate();
-  const location = useLocation();
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       console.log(`[App] Auth event: ${event}`);
-      if (session) {
-        if (location.pathname === "/login") {
-          const params = new URLSearchParams(location.search);
-          const next = params.get("next") || "/";
-          console.log("[App] User authenticated, redirecting to", next);
-          navigate(next);
-        } else if (location.pathname === "/" && new URLSearchParams(location.search).get("next")) {
-          // After OAuth callback lands on /?next=/node - redirect to next
-          const next = new URLSearchParams(location.search).get("next") || "/";
-          console.log("[App] OAuth callback with next, redirecting to", next);
-          navigate(next);
+
+      // Only act on explicit sign-in events (not INITIAL_SESSION which fires on every page load)
+      if (event === "SIGNED_IN" && session) {
+        const currentPath = window.location.pathname;
+        const params = new URLSearchParams(window.location.search);
+        const next = params.get("next");
+
+        if (next) {
+          // OAuth callback with a ?next= param - redirect to that path
+          console.log("[App] OAuth SIGNED_IN with ?next=, redirecting to", next);
+          navigate(next, { replace: true });
+        } else if (currentPath === "/login") {
+          // Email login or social login from /login page with no next
+          console.log("[App] SIGNED_IN from /login, redirecting to /");
+          navigate("/", { replace: true });
         }
+        // For all other paths (/, /node, etc.) - do nothing, stay where we are
       }
     });
 
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [navigate, location.pathname]);
+    return () => { subscription.unsubscribe(); };
+  }, [navigate]);
 
   return (
     <Routes>
