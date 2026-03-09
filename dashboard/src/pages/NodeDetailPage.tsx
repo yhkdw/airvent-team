@@ -81,7 +81,7 @@ const faqs: { q: Record<Lang, string>; a: Record<Lang, string> }[] = [
 /* ─────────────── Component ─────────────── */
 export default function NodeDetailPage() {
     const [lang, setLang] = useState<Lang>("ko");
-    const [selected, setSelected] = useState<ProductKey>("titan");
+    const [selected, setSelected] = useState<ProductKey>("pro");
     const [uptime, setUptime] = useState(20); // hours/day
     const [openFaq, setOpenFaq] = useState<number | null>(null);
 
@@ -205,7 +205,7 @@ export default function NodeDetailPage() {
                                     </div>
                                 </div>
 
-                                <Link to="/login"
+                                <Link to="/login?next=/node"
                                     className="w-full flex items-center justify-center gap-2 rounded-xl bg-emerald-500 text-slate-950 font-bold py-4 text-lg hover:bg-emerald-400 transition shadow-lg shadow-emerald-500/25 hover:-translate-y-0.5 transform">
                                     {lang === "ko" ? "지금 구매하기" : "Buy Now"} →
                                 </Link>
@@ -391,7 +391,7 @@ export default function NodeDetailPage() {
                                     : "Early Bird stock is limited. Secure yours now and lock in Genesis pricing."}
                             </p>
                             <div className="flex flex-wrap justify-center gap-4">
-                                <Link to="/login"
+                                <Link to="/login?next=/node"
                                     className="inline-flex items-center gap-2 rounded-xl bg-emerald-500 text-slate-950 font-bold px-8 py-4 text-base hover:bg-emerald-400 transition shadow-lg shadow-emerald-500/25 hover:-translate-y-0.5 transform">
                                     {lang === "ko" ? "구매하기" : "Buy Now"} →
                                 </Link>

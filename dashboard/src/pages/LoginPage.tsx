@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { loginWithEmail, loginWithSocial, isAuthed } from "../auth";
 import { TermsScreen } from "../components/TermsScreen";
@@ -7,6 +7,8 @@ import { TermsScreen } from "../components/TermsScreen";
 export default function LoginPage() {
   const { t } = useTranslation();
   const nav = useNavigate();
+  const location = useLocation();
+  const nextPath = new URLSearchParams(location.search).get("next") || "/";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -17,8 +19,8 @@ export default function LoginPage() {
   useEffect(() => {
     isAuthed().then(authed => {
       if (authed) {
-        console.log("[Login] Already authenticated, redirecting to /");
-        nav("/");
+        console.log("[Login] Already authenticated, redirecting to", nextPath);
+        nav(nextPath);
       }
     });
   }, [nav]);
@@ -127,7 +129,7 @@ export default function LoginPage() {
             if (loginErr) {
               setError(loginErr.message || t("login.error_unauthorized"));
             } else {
-              nav("/");
+              nav(nextPath);
             }
           }}
         >
