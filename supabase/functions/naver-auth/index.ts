@@ -29,7 +29,9 @@ serve(async (req) => {
     // 1. Initial Login Redirect
     if (action === 'login') {
         const redirectTo = url.searchParams.get('redirect_to') || 'http://localhost:5174/dashboard'
-        const naverAuthUrl = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${CLI_ID}&redirect_uri=${encodeURIComponent(redirectUri)}&state=${encodeURIComponent(redirectTo)}`
+        const frontendClientId = url.searchParams.get('client_id');
+        const activeClientId = frontendClientId || CLI_ID;
+        const naverAuthUrl = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${activeClientId}&redirect_uri=${encodeURIComponent(redirectUri)}&state=${encodeURIComponent(redirectTo)}`
         return new Response(null, {
           status: 302,
           headers: { Location: naverAuthUrl }
