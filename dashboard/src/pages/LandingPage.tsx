@@ -164,6 +164,8 @@ const t = {
       "AirVent is a smart node that measures air quality in homes, offices, and indoor spaces. Following our Devnet verification, we are now recruiting the first users to join as product users and early network contributors.",
     heroCta: "Apply for Node",
     heroMore: "App DEMO",
+    heroCtaAuthed: "Apply for Node",
+    heroDash: "Enter Dashboard",
     sections: {
       problems: "Why AirVent?",
       whyNow: "Current Phase & Key Messages",
@@ -382,14 +384,30 @@ export default function LandingPage() {
                   {tx.heroSub}
                 </p>
                 <div className="flex flex-wrap gap-4">
-                  <Link to="/node"
-                    className="inline-flex items-center gap-2 rounded-xl bg-emerald-500 text-slate-950 font-bold px-8 py-4 text-base hover:bg-emerald-400 transition shadow-lg shadow-emerald-500/20 transform hover:-translate-y-0.5">
-                    {tx.heroCta}
-                    <span>→</span>
-                  </Link>
-                  <a href="http://localhost:5173" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-xl border border-slate-700 text-slate-400 font-semibold px-8 py-4 text-base hover:border-slate-500 hover:text-white transition">
-  {tx.heroMore}
-</a>
+                  {authenticated ? (
+                    <>
+                      <Link to="/node" className="inline-flex items-center gap-2 rounded-xl bg-emerald-500 text-slate-950 font-bold px-8 py-4 text-base hover:bg-emerald-400 transition shadow-lg shadow-emerald-500/20 transform hover:-translate-y-0.5">
+                        {tx.heroCtaAuthed}
+                        <span>→</span>
+                      </Link>
+                      <Link to="/dashboard" className="inline-flex items-center gap-2 rounded-xl bg-blue-500 text-white font-bold px-8 py-4 text-base hover:bg-blue-400 transition shadow-lg shadow-blue-500/20 transform hover:-translate-y-0.5">
+                        {tx.heroDash}
+                      </Link>
+                      <a href="http://localhost:5173" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-xl border border-slate-700 text-slate-400 font-semibold px-8 py-4 text-base hover:border-slate-500 hover:text-white transition">
+                        {tx.heroMore}
+                      </a>
+                    </>
+                  ) : (
+                    <>
+                      <Link to="/node" className="inline-flex items-center gap-2 rounded-xl bg-emerald-500 text-slate-950 font-bold px-8 py-4 text-base hover:bg-emerald-400 transition shadow-lg shadow-emerald-500/20 transform hover:-translate-y-0.5">
+                        {tx.heroCta}
+                        <span>→</span>
+                      </Link>
+                      <a href="http://localhost:5173" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-xl border border-slate-700 text-slate-400 font-semibold px-8 py-4 text-base hover:border-slate-500 hover:text-white transition">
+                        {tx.heroMore}
+                      </a>
+                    </>
+                  )}
                 </div>
               </div>
 
