@@ -1,5 +1,5 @@
 {
-  "buildCommand": "cd dashboard && npm install && VITE_SUPABASE_URL=https://mqosgmfglpvdoxflwafx.supabase.co VITE_SUPABASE_ANON_KEY=sb_publishable_KDnZDq1fPpYEP2Wbld0tcw_MxfesdAh npm run build && cd ../airvent-demo && npm install && npm run build && mv dist ../dashboard/dist/demo",
+  "buildCommand": "sh build.sh",
   "outputDirectory": "dashboard/dist",
   "framework": "vite",
   "env": {
