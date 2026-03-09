@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "../auth";
+import { supabase } from "../lib/supabaseClient";
 
 export default function NaverCallbackPage() {
   const navigate = useNavigate();
@@ -26,7 +26,7 @@ export default function NaverCallbackPage() {
           }, 1000);
         } else {
             // Listen for the hash exchange to finish
-            const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
+            const { data: listener } = supabase.auth.onAuthStateChange((event: any, session: any) => {
                 if (event === 'SIGNED_IN' && session) {
                     setStatus("로그인 완료! 대시보드로 이동합니다.");
                     navigate("/dashboard", { replace: true });

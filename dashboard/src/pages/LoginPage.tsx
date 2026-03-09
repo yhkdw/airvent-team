@@ -39,7 +39,8 @@ export default function LoginPage() {
       if (pendingProvider === 'naver') {
         const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'http://localhost:54321';
         const redirectUrl = `${window.location.origin}/auth/naver/callback`;
-        window.location.href = `${supabaseUrl}/functions/v1/naver-auth?action=login&redirect_to=${encodeURIComponent(redirectUrl)}`;
+        const naverClientId = import.meta.env.VITE_NAVER_CLIENT_ID || '';
+        window.location.href = `${supabaseUrl}/functions/v1/naver-auth?action=login&redirect_to=${encodeURIComponent(redirectUrl)}&client_id=${naverClientId}`;
         return;
       }
       const { error } = await loginWithSocial(pendingProvider);
