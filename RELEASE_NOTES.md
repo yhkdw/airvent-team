@@ -1,5 +1,16 @@
 # AirVent DePIN Release Notes
 
+## Version: v1.6.1
+
+### 🎉 What's New
+- **Kakao Login Terms UI (Demo App)**: Added a premium glassmorphic Terms of Service and Privacy Policy agreement screen to intercept the Kakao signup flow.
+- **Privacy & Terms Pages (Website)**: Created static `/privacy` and `/terms` routes in the main dashboard app to fulfill Kakao's business developer requirements. Only Kakao ID and emails are collected.
+
+### 🛠 Technical Changes
+- Version bump to `v1.6.1`.
+- Safely synced the latest `airvent-demo` source tree with the new changes.
+
+
 ## Version: v1.6.0
 
 ### 🎉 What's New

@@ -588,8 +588,8 @@ export default function LandingPage() {
               <div>
                 <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Legal</h4>
                 <ul className="space-y-2.5 text-sm text-slate-500">
-                  <li><a href="#" className="hover:text-emerald-400 transition-colors">{tx.footerLinks.privacy}</a></li>
-                  <li><a href="#" className="hover:text-emerald-400 transition-colors">{tx.footerLinks.terms}</a></li>
+                  <li><a href="/privacy" className="hover:text-emerald-400 transition-colors">{tx.footerLinks.privacy}</a></li>
+                  <li><a href="/terms" className="hover:text-emerald-400 transition-colors">{tx.footerLinks.terms}</a></li>
                 </ul>
               </div>
               <div>

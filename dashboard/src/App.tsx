@@ -4,6 +4,8 @@ import { supabase } from "./lib/supabaseClient";
 import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/LoginPage";
 import DashboardPage from "./pages/DashboardPage";
+import PrivacyPage from "./pages/PrivacyPage";
+import TermsPage from "./pages/TermsPage";
 import JudgeDemo from "./pages/JudgeDemo";
 import NodeDetailPage from "./pages/NodeDetailPage";
 import RequireAuth from "./components/RequireAuth";
@@ -40,6 +42,8 @@ export default function App() {
       <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/node" element={<NodeDetailPage />} />
+      <Route path="/privacy" element={<PrivacyPage />} />
+      <Route path="/terms" element={<TermsPage />} />
 
       <Route element={<RequireAuth />}>
         <Route path="/dashboard" element={<DashboardPage />}>
