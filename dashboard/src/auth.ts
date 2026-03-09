@@ -19,12 +19,12 @@ export async function loginWithEmail(email: string, password: string) {
 export async function loginWithSocial(provider: 'google' | 'twitter' | 'naver' | 'kakao') {
   const providerKey = provider === 'twitter' ? 'x' : provider;
   console.log(`[Auth] Initiating social login for provider: ${providerKey}`);
-  console.log(`[Auth] Redirect: ${window.location.origin}/dashboard`);
+  console.log(`[Auth] Redirect: ${window.location.origin}/`);
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: providerKey as any,
     options: {
-      redirectTo: window.location.origin + '/dashboard',
+      redirectTo: window.location.origin + '/',
       skipBrowserRedirect: false
     }
   });
