@@ -22,6 +22,7 @@ const t = {
     heroMore: "앱 DEMO",
     heroCtaAuthed: "노드 구매하기",
     heroDash: "대시보드 입장",
+    heroWebDemo: "웹 Demo",
     sections: {
       problems: "왜 AirVent가 필요한가요?",
       whyNow: "현재 단계와 핵심 메시지",
@@ -168,6 +169,7 @@ const t = {
     heroMore: "App DEMO",
     heroCtaAuthed: "Apply for Node",
     heroDash: "Enter Dashboard",
+    heroWebDemo: "Web Demo",
     sections: {
       problems: "Why AirVent?",
       whyNow: "Current Phase & Key Messages",
@@ -398,6 +400,9 @@ export default function LandingPage() {
                       <a href="/demo/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-xl border border-slate-700 text-slate-400 font-semibold px-8 py-4 text-base hover:border-slate-500 hover:text-white transition">
                         {tx.heroMore}
                       </a>
+                      <Link to="/login" className="inline-flex items-center gap-2 rounded-xl border border-blue-500/50 text-blue-400 font-semibold px-8 py-4 text-base hover:border-blue-400 hover:text-white transition">
+                        {tx.heroWebDemo}
+                      </Link>
                     </>
                   ) : (
                     <>

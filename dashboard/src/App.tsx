@@ -26,9 +26,9 @@ export default function App() {
       console.log(`[App] Auth event: ${event}`);
       if (session) {
         // Redirect to dashboard if on landing or login page
-        if (location.pathname === "/" || location.pathname === "/login") {
-          console.log("[App] User authenticated, redirecting to /dashboard");
-          navigate("/dashboard");
+        if (location.pathname === "/login") {
+          console.log("[App] User authenticated, redirecting to /");
+          navigate("/");
         }
       }
     });
