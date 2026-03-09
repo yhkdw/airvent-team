@@ -734,7 +734,7 @@ export default function AirVentDePINApp() {
 
   return (
     <div className="min-h-screen bg-slate-950 font-sans text-white md:p-8 flex items-center justify-center relative">
-      <a href="https://airvent.ai" className="absolute top-6 left-6 md:top-8 md:left-8 flex items-center gap-2 px-5 py-2.5 bg-white/5 hover:bg-white/10 text-white/80 hover:text-white rounded-full backdrop-blur-md transition border border-white/10 z-[100] shadow-lg">
+      <a href="/" className="absolute top-6 left-6 md:top-8 md:left-8 flex items-center gap-2 px-5 py-2.5 bg-white/5 hover:bg-white/10 text-white/80 hover:text-white rounded-full backdrop-blur-md transition border border-white/10 z-[100] shadow-lg">
         <ChevronLeft className="h-4 w-4" />
         <span className="text-[13px] font-bold tracking-wide">웹사이트로 돌아가기</span>
       </a>
