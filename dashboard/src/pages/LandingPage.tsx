@@ -18,7 +18,7 @@ const t = {
     heroTitle: "실내 공기질을 측정하는 노드,\n이제 Testnet의 첫 기여자를 모집합니다",
     heroSub:
       "AirVent는 집·사무실·실내 공간의 공기질을 측정하는 스마트 노드입니다. 노드 출시와 Devnet 검증을 마친 지금, 제품 사용자이자 초기 네트워크 기여자로 함께할 첫 유저를 모집하고 있습니다.",
-    heroCta: "노드 신청하기",
+    heroCta: "노드 구매하기",
     heroMore: "앱 DEMO",
     sections: {
       problems: "왜 AirVent가 필요한가요?",
