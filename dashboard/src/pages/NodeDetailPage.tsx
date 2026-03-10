@@ -85,6 +85,7 @@ export default function NodeDetailPage() {
     const [selected, setSelected] = useState<ProductKey>("pro");
     const [uptime, setUptime] = useState(20); // hours/day
     const [openFaq, setOpenFaq] = useState<number | null>(null);
+    const [selectedTier, setSelectedTier] = useState<number>(0); // 0: Early Bird, 1: Standard, 2: 3-Set, 3: List
     const [authenticated, setAuthenticated] = useState(false);
     const [menuOpen, setMenuOpen] = useState(false);
     const navigate = useNavigate();
@@ -222,15 +223,19 @@ export default function NodeDetailPage() {
                                     </div>
                                     <div className="grid grid-cols-2 gap-3">
                                         {[
-                                            { label: lang === "ko" ? "얼리버드" : "Early Bird", val: product.earlyBird, highlight: true },
-                                            { label: lang === "ko" ? "스탠다드" : "Standard", val: product.standard, highlight: false },
-                                            { label: lang === "ko" ? "3대 세트 (개당)" : "Set of 3 (each)", val: product.set3, highlight: false },
-                                            { label: lang === "ko" ? "정가" : "List Price", val: product.list, highlight: false },
+                                            { label: lang === "ko" ? "얼리버드" : "Early Bird", val: product.earlyBird },
+                                            { label: lang === "ko" ? "스탠다드" : "Standard", val: product.standard },
+                                            { label: lang === "ko" ? "3대 세트 (개당)" : "Set of 3 (each)", val: product.set3 },
+                                            { label: lang === "ko" ? "정가" : "List Price", val: product.list },
                                         ].map((p, i) => (
-                                            <div key={i} className={`rounded-xl p-3 flex justify-between items-center ${p.highlight ? "bg-emerald-500/10 border border-emerald-500/30" : "bg-slate-800/50"}`}>
-                                                <span className={`text-xs font-semibold ${p.highlight ? "text-emerald-400" : "text-slate-400"}`}>{p.label}</span>
-                                                <span className={`text-base font-black ${p.highlight ? "text-emerald-400" : "text-white"}`}>${p.val}</span>
-                                            </div>
+                                            <button 
+                                                key={i} 
+                                                onClick={() => setSelectedTier(i)}
+                                                className={`rounded-xl p-3 flex justify-between items-center transition-all border ${selectedTier === i ? "bg-emerald-500/10 border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.1)]" : "bg-slate-800/50 border-transparent hover:border-slate-700"}`}
+                                            >
+                                                <span className={`text-xs font-semibold ${selectedTier === i ? "text-emerald-400" : "text-slate-400"}`}>{p.label}</span>
+                                                <span className={`text-base font-black ${selectedTier === i ? "text-emerald-400" : "text-white"}`}>${p.val}</span>
+                                            </button>
                                         ))}
                                     </div>
                                     <div className="mt-4 text-xs text-slate-500 text-center">
@@ -238,7 +243,7 @@ export default function NodeDetailPage() {
                                     </div>
                                 </div>
 
-                                <Link to="/login?next=/node"
+                                <Link to={`/login?next=/node?product=${selected}&tier=${selectedTier}`}
                                     className="w-full flex items-center justify-center gap-2 rounded-xl bg-emerald-500 text-slate-950 font-bold py-4 text-lg hover:bg-emerald-400 transition shadow-lg shadow-emerald-500/25 hover:-translate-y-0.5 transform">
                                     {lang === "ko" ? "지금 구매하기" : "Buy Now"} →
                                 </Link>
@@ -424,7 +429,7 @@ export default function NodeDetailPage() {
                                     : "Early Bird stock is limited. Secure yours now and lock in Genesis pricing."}
                             </p>
                             <div className="flex flex-wrap justify-center gap-4">
-                                <Link to="/login?next=/node"
+                                <Link to={`/login?next=/node?product=${selected}&tier=${selectedTier}`}
                                     className="inline-flex items-center gap-2 rounded-xl bg-emerald-500 text-slate-950 font-bold px-8 py-4 text-base hover:bg-emerald-400 transition shadow-lg shadow-emerald-500/25 hover:-translate-y-0.5 transform">
                                     {lang === "ko" ? "구매하기" : "Buy Now"} →
                                 </Link>

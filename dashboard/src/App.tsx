@@ -30,17 +30,15 @@ export default function App() {
         const params = new URLSearchParams(window.location.search);
         const next = params.get("next");
 
+        console.log(`[App] SIGNED_IN event at ${currentPath}, next: ${next}`);
+
         if (next) {
-          // OAuth callback with a ?next= param - redirect to that path
-          console.log("[App] OAuth SIGNED_IN with ?next=, redirecting to", next);
+          console.log("[App] Redirecting to next:", next);
           navigate(next, { replace: true });
-        } else if (currentPath === "/login" || currentPath === "/dashboard") {
-          // Email login or social login from /login page with no next
-          // OR caught in a default redirect to /dashboard after OAuth
-          console.log(`[App] SIGNED_IN from ${currentPath}, redirecting to /`);
+        } else if (currentPath === "/login" || currentPath === "/dashboard" || currentPath.startsWith("/auth/")) {
+          console.log(`[App] Auto-redirecting from ${currentPath} to /`);
           navigate("/", { replace: true });
         }
-        // For all other paths (/, /node, etc.) - do nothing, stay where we are
       }
     });
 

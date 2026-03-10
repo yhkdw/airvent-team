@@ -21,11 +21,11 @@ export async function loginWithSocial(provider: 'google' | 'twitter' | 'naver' |
   console.log(`[Auth] Initiating social login for provider: ${providerKey}`);
   console.log(`[Auth] Redirect: ${window.location.origin}/`);
 
-  const redirectPath = next ? `/?next=${encodeURIComponent(next)}` : '/';
+  const redirectPath = next ? `/?next=${encodeURIComponent(next)}` : '/';\n  const redirectTo = window.location.origin.endsWith('/') ? window.location.origin.slice(0, -1) + redirectPath : window.location.origin + redirectPath;
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: providerKey as any,
     options: {
-      redirectTo: window.location.origin + redirectPath,
+      redirectTo,
       skipBrowserRedirect: false
     }
   });
