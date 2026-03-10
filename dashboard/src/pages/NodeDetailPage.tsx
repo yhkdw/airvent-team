@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Container from "../components/Container";
-import { isAuthed } from "../auth";
+import { isAuthed, logout } from "../auth";
 
 /* ─────────────── types ─────────────── */
 type Lang = "ko" | "en";
@@ -86,10 +86,19 @@ export default function NodeDetailPage() {
     const [uptime, setUptime] = useState(20); // hours/day
     const [openFaq, setOpenFaq] = useState<number | null>(null);
     const [authenticated, setAuthenticated] = useState(false);
+    const [menuOpen, setMenuOpen] = useState(false);
+    const navigate = useNavigate();
 
     useEffect(() => {
         isAuthed().then(setAuthenticated);
     }, []);
+
+    const handleLogout = async () => {
+        await logout();
+        setAuthenticated(false);
+        setMenuOpen(false);
+        navigate("/");
+    };
 
     const product = products[selected];
     // Estimated daily AIVT: ~0.8 AIVT/hr at 100% uptime (mock formula)
@@ -118,9 +127,27 @@ export default function NodeDetailPage() {
                                     </button>
                                 ))}
                             </div>
-                            <Link to={authenticated ? "/dashboard" : "/login"} className="rounded-xl bg-emerald-500 text-slate-950 font-bold px-4 py-2 text-sm hover:bg-emerald-400 transition">
-                                {authenticated ? (lang === "ko" ? "대시보드" : "Dashboard") : (lang === "ko" ? "로그인" : "Login")}
-                            </Link>
+                            {authenticated ? (
+                                <div className="relative">
+                                    <button onClick={() => setMenuOpen(!menuOpen)} className="rounded-xl bg-emerald-500 text-slate-950 font-bold px-4 py-2 text-sm hover:bg-emerald-400 transition flex items-center gap-1">
+                                        {lang === "ko" ? "내 계정" : "Account"} <span className="text-xs">{menuOpen ? "▲" : "▼"}</span>
+                                    </button>
+                                    {menuOpen && (
+                                        <div className="absolute right-0 mt-2 w-40 rounded-xl bg-slate-900 border border-slate-700 shadow-xl z-50 overflow-hidden">
+                                            <Link to="/dashboard" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 px-4 py-3 text-sm text-slate-200 hover:bg-slate-800 hover:text-emerald-400 transition-colors">
+                                                🏠 {lang === "ko" ? "대시보드" : "Dashboard"}
+                                            </Link>
+                                            <button onClick={handleLogout} className="w-full flex items-center gap-2 px-4 py-3 text-sm text-red-400 hover:bg-slate-800 hover:text-red-300 transition-colors">
+                                                🚪 {lang === "ko" ? "로그아웃" : "Logout"}
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                            ) : (
+                                <Link to="/login" className="rounded-xl bg-emerald-500 text-slate-950 font-bold px-4 py-2 text-sm hover:bg-emerald-400 transition">
+                                    {lang === "ko" ? "로그인" : "Login"}
+                                </Link>
+                            )}
                         </div>
                     </div>
                 </Container>
