@@ -10,7 +10,8 @@ import {
     LogOut,
     Menu,
     X,
-    Globe
+    Globe,
+    ChevronLeft
 } from "lucide-react";
 
 interface DashboardLayoutProps {
@@ -64,6 +65,10 @@ export default function DashboardLayout({
                     </button>
                     <span className="font-bold text-emerald-500">AirVent</span>
                 </div>
+                <Link to="/" className="flex items-center gap-1 text-[11px] font-bold text-slate-400 bg-slate-900 px-2 py-1 rounded-lg border border-slate-800">
+                    <ChevronLeft size={14} />
+                    {t("nav.back_to_website")}
+                </Link>
                 <div className="text-sm font-semibold text-emerald-400">{balance.toFixed(2)} AIVT</div>
             </header>
 
@@ -74,6 +79,13 @@ export default function DashboardLayout({
         ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}
       `}>
                 <div className="h-full flex flex-col p-4">
+                    <div className="mb-6 md:block">
+                        <Link to="/" className="inline-flex items-center gap-2 px-3 py-2 bg-slate-950/50 hover:bg-slate-950 text-slate-400 hover:text-white rounded-xl transition border border-slate-800 text-xs font-bold">
+                            <ChevronLeft size={14} />
+                            {t("nav.back_to_website")}
+                        </Link>
+                    </div>
+
                     <div className="mb-8 px-2 hidden md:block">
                         <div className="text-xs text-slate-400 font-medium uppercase tracking-wider">AirVent AI DePIN</div>
                         <div className="text-xl font-bold bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">{t("sidebar.operations")}</div>

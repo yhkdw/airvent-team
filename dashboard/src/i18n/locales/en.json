@@ -4,7 +4,8 @@
         "air_quality": "Air Quality",
         "rewards": "Rewards",
         "wallet": "Wallet",
-        "logout": "Logout"
+        "logout": "Logout",
+        "back_to_website": "Back to Website"
     },
     "sidebar": {
         "operations": "Operations",
