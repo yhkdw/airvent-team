@@ -34,9 +34,10 @@ export default function App() {
           // OAuth callback with a ?next= param - redirect to that path
           console.log("[App] OAuth SIGNED_IN with ?next=, redirecting to", next);
           navigate(next, { replace: true });
-        } else if (currentPath === "/login") {
+        } else if (currentPath === "/login" || currentPath === "/dashboard") {
           // Email login or social login from /login page with no next
-          console.log("[App] SIGNED_IN from /login, redirecting to /");
+          // OR caught in a default redirect to /dashboard after OAuth
+          console.log(`[App] SIGNED_IN from ${currentPath}, redirecting to /`);
           navigate("/", { replace: true });
         }
         // For all other paths (/, /node, etc.) - do nothing, stay where we are

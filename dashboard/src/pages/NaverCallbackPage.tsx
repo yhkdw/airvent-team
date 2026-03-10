@@ -20,16 +20,16 @@ export default function NaverCallbackPage() {
         }
 
         if (session) {
-          setStatus("로그인 완료! 대시보드로 이동합니다.");
+          setStatus("로그인 완료! 홈으로 이동합니다.");
           setTimeout(() => {
-            navigate("/dashboard", { replace: true });
+            navigate("/", { replace: true });
           }, 1000);
         } else {
             // Listen for the hash exchange to finish
             const { data: listener } = supabase.auth.onAuthStateChange((event: any, session: any) => {
                 if (event === 'SIGNED_IN' && session) {
-                    setStatus("로그인 완료! 대시보드로 이동합니다.");
-                    navigate("/dashboard", { replace: true });
+                    setStatus("로그인 완료! 홈으로 이동합니다.");
+                    navigate("/", { replace: true });
                 }
             });
             
