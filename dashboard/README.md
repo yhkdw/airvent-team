@@ -1,6 +1,6 @@
 # AirVent DePIN Dashboard (Gamified Edition)
 
-[🚀 Live Demo](https://airvent-depin-dashboard.vercel.app)
+[🚀 Live Demo](https://airvent-team.vercel.app)
 
 블록체인 기반 공기질 데이터 보상 플랫폼, **AirVent**의 대시보드입니다.
 사용자에게 채굴의 즐거움을 주는 **Gamification** 요소와 **AI 데이터 검증** 시뮬레이션이 포함되어 있습니다.
