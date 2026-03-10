@@ -13,6 +13,7 @@ import { useEffect, useState, useCallback, useMemo } from "react";
 import { useWallet, useAnchorWallet } from "@solana/wallet-adapter-react";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 import { PublicKey } from "@solana/web3.js";
+import { HelioCheckout } from "@heliofi/checkout-react";
 
 import {
     getExplorerUrl,
@@ -142,57 +143,29 @@ export default function SubscriptionCard() {
         }
     };
 
-    // ── 카드 결제 (Paddle) ──
-    const handlePaddlePayment = async () => {
-        setTxPending(true);
-        setError("");
-        try {
-            const paddle = (window as any).Paddle;
-            if (!paddle) throw new Error("Paddle SDK가 로드되지 않았습니다.");
+    // ── Polar 카드 결제 / 구독 ──
+    const handlePolarPayment = () => {
+        const polarCheckoutUrl = "https://checkout.polar.sh/";
+        alert("Polar.sh 결제 창으로 이동합니다. \n(데모: 링크 입력 필요)");
+        // window.location.href = polarCheckoutUrl;
+        setIsPolling(true);
+    };
 
-            // Paddle 초기화 (데모용 클라이언트 토큰)
-            paddle.Initialize({
-                token: "test_...", // 실제 클라이언트 토큰으로 교체 필요
-                environment: "sandbox"
-            });
-
-            // 체크아웃 열기
-            paddle.Checkout.open({
-                settings: {
-                    displayMode: "overlay",
-                    theme: "dark",
-                    locale: "ko"
-                },
-                customData: {
-                    wallet_address: walletAddress // 백엔드 웹후크에서 인식할 지갑 주소
-                },
-                eventCallback: (event: any) => {
-                    if (event.name === "checkout.completed") {
-                        console.log("Paddle Checkout Completed:", event.data);
-                        setIsPolling(true); // 온체인 업데이트 대기 시작
-                        alert("결제가 완료되었습니다! 온체인 구독 상태가 업데이트될 때까지 잠시만 기다려주세요.");
-                    }
-                },
-                items: [
-                    {
-                        priceId: "pri_...", // 실제 Price ID로 교체 필요
-                        quantity: 1
-                    }
-                ],
-                customer: {
-                    email: "demo@example.com"
-                }
-            });
-
-            // 데모 시뮬레이션 알림
-            setTimeout(() => {
-                alert("Paddle 결제창이 호출되었습니다. (데모 시뮬레이션)");
-                alert("결제 완료 후 하드웨어 시리얼을 입력하여 프리미엄 노드로 등록하세요.");
-            }, 1000);
-        } catch (err: any) {
-            setError(err.message || "결제 실패");
-        } finally {
-            setTxPending(false);
+    // ── Helio 위젯 설정 ──
+    const helioConfig = {
+        paylinkId: "679c8d1d86d5267a7a30364e",
+        theme: { themeMode: "dark" },
+        onSuccess: (event: any) => {
+            console.log("Helio Checkout Success:", event);
+            alert("Helio 결제가 완료되었습니다! 상태 업데이트를 대기합니다.");
+            setIsPolling(true);
+        },
+        onError: (event: any) => {
+            console.error("Helio Checkout Error:", event);
+            setError("암호화폐 결제 중 오류가 발생했습니다.");
+        },
+        onPending: (event: any) => {
+            console.log("Helio Checkout Pending:", event);
         }
     };
 
@@ -350,37 +323,33 @@ export default function SubscriptionCard() {
                         {/* 업그레이드/다운그레이드 버튼 */}
                         {!subscription.isPremium ? (
                             <div className="space-y-3">
-                                {/* Paddle 결제 섹션 */}
+                                {/* 결제 수단 1: Polar.sh (신용카드/구독) */}
                                 <div className="p-4 rounded-xl border border-slate-700 bg-slate-800/40">
                                     <div className="flex items-center justify-between mb-3">
                                         <div className="flex flex-col">
-                                            <span className="text-sm font-medium text-slate-200">플랜 구매 (Paddle)</span>
-                                            <span className="text-[10px] text-slate-400">Merchant of Record (글로벌 세금 처리)</span>
+                                            <span className="text-sm font-medium text-slate-200">1. 신용카드 / 구독 (Polar)</span>
+                                            <span className="text-[10px] text-slate-400">Merchant of Record</span>
                                         </div>
                                         <span className="text-sm font-bold text-purple-400">$99 / nodes</span>
                                     </div>
                                     <button
-                                        onClick={handlePaddlePayment}
+                                        onClick={handlePolarPayment}
                                         disabled={txPending || isPolling}
                                         className="w-full flex items-center justify-center gap-2 rounded-xl bg-slate-100 text-slate-950 font-bold py-2 hover:bg-white disabled:bg-slate-500 transition-all"
                                     >
-                                        {isPolling ? (
-                                            <>
-                                                <svg className="animate-spin h-5 w-5 text-slate-950" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                                </svg>
-                                                온체인 업데이트 대기 중...
-                                            </>
-                                        ) : (
-                                            <>
-                                                <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
-                                                    <path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z" />
-                                                </svg>
-                                                카드/PayPal로 결제하기
-                                            </>
-                                        )}
+                                        {isPolling ? "업데이트 대기 중..." : "💳 카드로 결제하기"}
                                     </button>
+                                </div>
+
+                                {/* 결제 수단 2: Helio (Crypto) */}
+                                <div className="p-4 rounded-xl border border-slate-700 bg-slate-800/40 mt-3">
+                                    <div className="flex flex-col mb-3">
+                                        <span className="text-sm font-medium text-slate-200">2. 암호화폐 결제 (Helio)</span>
+                                        <span className="text-[10px] text-slate-400">USDC / SOL 지원</span>
+                                    </div>
+                                    <div className="flex items-center justify-center bg-transparent rounded-xl">
+                                        <HelioCheckout config={helioConfig as any} />
+                                    </div>
                                 </div>
 
                                 <div className="relative flex items-center py-1">
