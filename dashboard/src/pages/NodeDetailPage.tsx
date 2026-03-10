@@ -58,24 +58,24 @@ const products: Record<ProductKey, {
 /* ─────────────── FAQ data ─────────────── */
 const faqs: { q: Record<Lang, string>; a: Record<Lang, string> }[] = [
     {
-        q: { ko: "설치가 어렵진 않나요?", en: "Is the installation difficult?" },
-        a: { ko: "전원과 Wi-Fi만 있으면 됩니다. 앱 가이드를 따라 30분 이내 완료할 수 있습니다.", en: "You only need power and Wi-Fi. Follow the in-app guide and setup takes under 30 minutes." },
+        q: { ko: "설치가 어렵진 않나요?", en: "Is the installation difficult?", ja: "設置は難しいですか？", "zh-TW": "安裝困難嗎？" },
+        a: { ko: "전원과 Wi-Fi만 있으면 됩니다. 앱 가이드를 따라 30분 이내 완료할 수 있습니다.", en: "You only need power and Wi-Fi. Follow the in-app guide and setup takes under 30 minutes.", ja: "電源とWi-Fiがあれば十分です。アプリのガイドに従えば30分以内に完了できます。", "zh-TW": "只需要電源和Wi-Fi。按照應用程序指南操作，30分鐘內即可完成。" },
     },
     {
-        q: { ko: "AIVT 토큰은 어디서 사용하나요?", en: "Where can I use AIVT tokens?" },
-        a: { ko: "Solana 기반 DEX에서 거래 가능하며, 추후 노드 구매 할인권 등으로 사용 범위가 확대됩니다.", en: "AIVT is tradeable on Solana-based DEXes and will expand to node purchase discounts and more." },
+        q: { ko: "AIVT 토큰은 어디서 사용하나요?", en: "Where can I use AIVT tokens?", ja: "AIVTトークンはどこで使用できますか？", "zh-TW": "AIVT代幣可以在哪裡使用？" },
+        a: { ko: "Solana 기반 DEX에서 거래 가능하며, 추후 노드 구매 할인권 등으로 사용 범위가 확대됩니다.", en: "AIVT is tradeable on Solana-based DEXes and will expand to node purchase discounts and more.", ja: "SolanaベースのDEXで取引可能であり、今後ノード購入の割引券などに利用範囲が拡大されます。", "zh-TW": "可在基於Solana의 DEX上進行交易，未來將擴展至節點購買折扣券等用途。" },
     },
     {
-        q: { ko: "보상 지급은 얼마나 자주 이루어지나요?", en: "How often are rewards distributed?" },
-        a: { ko: "데이터 검증 완료 즉시(약 1시간 주기) Solana 체인에서 자동 지급됩니다.", en: "Rewards are automatically distributed on-chain approximately every hour after data validation." },
+        q: { ko: "보상 지급은 얼마나 자주 이루어지나요?", en: "How often are rewards distributed?", ja: "リワードはどれくらいの頻度で支給されますか？", "zh-TW": "獎勵發放的頻率是多少？" },
+        a: { ko: "데이터 검증 완료 즉시(약 1시간 주기) Solana 체인에서 자동 지급됩니다.", en: "Rewards are automatically distributed on-chain approximately every hour after data validation.", ja: "データ検証完了後、直ちに（約1時間周期）Solanaチェーンで自動支給されます。", "zh-TW": "數據驗證完成後（約1小時週期），將在Solana鏈上自動發放。" },
     },
     {
-        q: { ko: "구독 크레딧으로 얼마나 할인받을 수 있나요?", en: "How much discount can I get with subscription credits?" },
+        q: { ko: "구독 크레딧으로 얼마나 할인받을 수 있나요?", en: "How much discount can I get with subscription credits?", ja: "サブスクリプションクレジットでどれくらいの割引を受けられますか？", "zh-TW": "使用訂閱積分可以獲得多少折扣？" },
         a: { ko: "Pro 구독(월 $19)부터 크레딧이 적립되며, 노드 구매 시 결제 소계의 최대 60%까지 크레딧으로 결제 가능합니다.", en: "Credits accrue from Pro subscription ($19/mo) and can cover up to 60% of your node purchase subtotal." },
     },
     {
-        q: { ko: "여러 노드를 한 계정에서 관리할 수 있나요?", en: "Can I manage multiple nodes in one account?" },
-        a: { ko: "네, Ops 플랜에서는 멀티사이트 운영 및 CSV 내보내기 등 대량 관리 기능을 제공합니다.", en: "Yes. The Ops plan supports multi-site management, bulk CSV exports, and org credit banking." },
+        q: { ko: "여러 노드를 한 계정에서 관리할 수 있나요?", en: "Can I manage multiple nodes in one account?", ja: "1つのアカウントで複数のノードを管理できますか？", "zh-TW": "可以在一個帳戶中管理多個節點嗎？" },
+        a: { ko: "네, Ops 플랜에서는 멀티사이트 운영 및 CSV 내보내기 등 대량 관리 기능을 제공합니다.", en: "Yes. The Ops plan supports multi-site management, bulk CSV exports, and org credit banking.", ja: "はい、Opsプランではマルチサイト運営やCSVエクスポートなどの大量管理機能を提供しています。", "zh-TW": "是的，Ops計劃提供多站點運營和CSV導出等批量管理功能。" },
     },
 ];
 
