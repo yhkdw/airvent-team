@@ -24,19 +24,22 @@ export default function App() {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       console.log(`[App] Auth event: ${event}`);
 
-      // Only act on explicit sign-in events (not INITIAL_SESSION which fires on every page load)
-      if (event === "SIGNED_IN" && session) {
+      // Act on explicit sign-in events OR initial sessions that are actually OAuth callbacks
+      const hasAccessToken = window.location.hash.includes("access_token");
+      if ((event === "SIGNED_IN" || event === "INITIAL_SESSION") && session) {
+        if (event === "INITIAL_SESSION" && !hasAccessToken) return; // Ignore normal page loads
+
         const currentPath = window.location.pathname;
         const params = new URLSearchParams(window.location.search);
         const next = params.get("next");
 
-        console.log(`[App] SIGNED_IN event at ${currentPath}, next: ${next}`);
+        console.log(`[App] ${event} event at ${currentPath}, next: ${next}, hasToken: ${hasAccessToken}`);
 
         if (next) {
           console.log("[App] Redirecting to next:", next);
           navigate(next, { replace: true });
-        } else if (currentPath === "/login" || currentPath === "/dashboard" || currentPath.startsWith("/auth/")) {
-          console.log(`[App] Auto-redirecting from ${currentPath} to /`);
+        } else if (currentPath === "/login" || currentPath === "/dashboard" || currentPath.startsWith("/auth/") || hasAccessToken) {
+          console.log(`[App] Auto-redirecting to /`);
           navigate("/", { replace: true });
         }
       }
