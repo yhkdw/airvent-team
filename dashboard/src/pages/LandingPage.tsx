@@ -159,8 +159,8 @@ const t = {
   },
   en: {
     nav: { about: "About", node: "Buy Node", demo: "Dashboard Demo" },
-    login: "ログイン",
-    dashboard: "ダッシュボード",
+    login: "Login",
+    dashboard: "Dashboard",
     heroEyebrow: "DEPIN AIR QUALITY NETWORK",
     heroTitle: "A Node for Indoor Air Quality,\nRecruiting Testnet Early Contributors",
     heroSub:
@@ -306,8 +306,8 @@ const t = {
   },
   ja: {
     nav: { about: "紹介", node: "ノード購入", demo: "ダッシュボードDemo" },
-    login: "登錄",
-    dashboard: "控制面板",
+    login: "ログイン",
+    dashboard: "ダッシュボード",
     heroEyebrow: "DEPIN AIR QUALITY NETWORK",
     heroTitle: "室内空気質を測定するノード、\nTestnetの最初の貢献者を募集しています",
     heroSub:
@@ -453,8 +453,8 @@ const t = {
   },
   'zh-TW': {
     nav: { about: "介紹", node: "購買節點", demo: "控制面板Demo" },
-    login: "Login",
-    dashboard: "Dashboard",
+    login: "登錄",
+    dashboard: "控制面板",
     heroEyebrow: "DEPIN AIR QUALITY NETWORK",
     heroTitle: "測量室內空氣質量的節點、\n現正招募Testnet的首批貢獻者",
     heroSub:
@@ -730,7 +730,7 @@ export default function LandingPage() {
                       <a href="/demo/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-xl border border-slate-700 text-slate-400 font-semibold px-8 py-4 text-base hover:border-slate-500 hover:text-white transition">
                         {tx.heroMore}
                       </a>
-                      <Link to="/login" className="inline-flex items-center gap-2 rounded-xl border border-blue-500/50 text-blue-400 font-semibold px-8 py-4 text-base hover:border-blue-400 hover:text-white transition">
+                      <Link to="/judge" className="inline-flex items-center gap-2 rounded-xl border border-blue-500/50 text-blue-400 font-semibold px-8 py-4 text-base hover:border-blue-400 hover:text-white transition">
                         {tx.heroWebDemo}
                       </Link>
                     </>
