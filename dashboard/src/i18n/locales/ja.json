@@ -1,0 +1,93 @@
+{
+    "nav": {
+        "home": "ホーム",
+        "air_quality": "空気質",
+        "rewards": "リワード",
+        "wallet": "ウォレット",
+        "logout": "ログアウト",
+        "back_to_website": "ウェブサイトへ戻る"
+    },
+    "sidebar": {
+        "operations": "オペレーション",
+        "total_balance": "総残高",
+        "connected_wallet": "接続中のウォレット",
+        "disconnect": "切断する",
+        "connect_wallet": "ウォレットを接続",
+        "connecting": "接続中..."
+    },
+    "overview": {
+        "global_status": "グローバルネットワークの状況",
+        "audit_engine": "DePIN AI監査エンジン",
+        "integrity_title": "リアルタイムのデータ整合性",
+        "integrity_desc": "すべてのセンサーデータは、分散型AIレイヤーを通じてゼロ知識証明で自動的に監査され、プライバシーを損なうことなく100％の真正性を保証いたします。",
+        "network_score": "ネットワークスコア",
+        "total_audits": "総監査数",
+        "live_audit": "ライブ監査フィード",
+        "news_title": "ネットワークニュース＆お知らせ",
+        "indoor_comfort": "室内環境の快適さ",
+        "live_stream": "ライブストリーム",
+        "news": {
+            "forecast_title": "ソウル PM2.5: 今週は「悪い」との予報です",
+            "forecast_desc": "大韓民国気象庁は、大気の停滞などにより首都圏のPM2.5濃度が75µg/m³を超えると予測しております。",
+            "policy_title": "WHO、2026年室内空気質ガイドラインの更新を発表",
+            "policy_desc": "WHOは、室内のCO2濃度基準を1,000ppmから800ppmへと強化するよう推奨いたしました。",
+            "network_title": "AirVent: Superteam Korea Startup Villageに参加いたします",
+            "network_desc": "AirVentチームは、Solanaエコシステム向けの革新的なDePINソリューションの開発に焦点を当て、Superteam Korea Startup Villageに参加しております。"
+        },
+        "read_more": "続きを読む",
+        "view_all_news": "すべてのお知らせを見る"
+    },
+    "wallet": {
+        "spl_account": "SPL トークンアカウント",
+        "send": "送信",
+        "swap": "スワップ",
+        "recent_tx": "最近のトランザクション",
+        "view_all": "すべて見る",
+        "confirmed": "Solanaでの確認完了",
+        "security": "ウォレットのセキュリティ",
+        "protected": "保護されています",
+        "backup": "バックアップフレーズ",
+        "network": "ネットワーク",
+        "secured_by": "Phantomで保護されています",
+        "devnet": "Solana デブネット"
+    },
+    "rewards": {
+        "efficiency": "マイニング効率",
+        "epoch_rank": "エポックランク",
+        "uptime": "稼働時間 (24時間)",
+        "last_epoch": "前回のエポックから",
+        "top_nodes": "全ノードの上位5%",
+        "status_ok": "ステータス: 稼働中",
+        "audit_logs": "ネットワーク監査ログ",
+        "realtime_stream": "リアルタイムストリーム",
+        "mining_title": "AI DePIN リワードマイニング",
+        "token_name": "AirVent トークン (AIVT)",
+        "verified": "オンチェーンで検証済み",
+        "mining_stats": "ノードマイニング統計",
+        "proof_hash": "ZKP Proof Hash",
+        "solana_tx": "Solana トランザクション",
+        "broadcasting": "ブロードキャスト中...",
+        "ai_auditor": "AI監査プログラム",
+        "next_epoch": "次のエポック",
+        "audit_panel_title": "AI監査パネル",
+        "verifier_name": "Airvent-AI 検証プログラム",
+        "confidence": "信頼度",
+        "integrity": "整合性",
+        "insight_title": "AI監査プログラムからの洞察",
+        "insight_initial": "データパケットを待機中です...",
+        "insight_analyzing": "時空間パターンを分析中です...",
+        "insight_verified": "ローカルテレメトリが検証されました。現在のセンサー範囲内で異常は検出されておりません。"
+    },
+    "login": {
+        "title": "Airvent DePIN",
+        "access_control": "アクセス制御",
+        "description": "ユーザーアカウントでサインインしてください。",
+        "email_login": "Eメールでログイン",
+        "email_label": "Eメール",
+        "password_label": "パスワード",
+        "sign_in": "サインイン",
+        "signing_in": "サインイン中...",
+        "back_to_home": "ホームへ戻る",
+        "error_unauthorized": "認証に失敗しました。認証情報またはサーバー設定をご確認ください。"
+    }
+}

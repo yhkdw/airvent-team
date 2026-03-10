@@ -4,7 +4,7 @@ import Container from "../components/Container";
 import { isAuthed, logout } from "../auth";
 
 /* ─────────────── types ─────────────── */
-type Lang = "ko" | "en";
+type Lang = "ko" | "en" | "ja" | "zh-TW";
 type ProductKey = "pro" | "titan";
 
 /* ─────────────── product data ─────────────── */
@@ -15,7 +15,7 @@ const products: Record<ProductKey, {
 }> = {
     pro: {
         name: "Airvent Pro",
-        tagline: { ko: "개인·가정용 하이퍼로컬 센서", en: "Personal & Home Hyperlocal Sensor" },
+        tagline: { ko: "개인·가정용 하이퍼로컬 센서", en: "Personal & Home Hyperlocal Sensor", ja: "個人・家庭用ハイパーローカルセンサー", "zh-TW": "個人・家庭用區域感測器" },
         image: "/airvent_pro.png",
         earlyBird: 349, standard: 399, set3: 299, list: 499,
         specs: [
@@ -35,7 +35,7 @@ const products: Record<ProductKey, {
     },
     titan: {
         name: "Airvent Titan",
-        tagline: { ko: "상업·옥외용 프리미엄 센서", en: "Commercial & Outdoor Premium Sensor" },
+        tagline: { ko: "상업·옥외용 프리미엄 센서", en: "Commercial & Outdoor Premium Sensor", ja: "商用・屋外用プレミアムセンサー", "zh-TW": "商用・戶外用頂級感測器" },
         image: "/airvent_titan.png",
         earlyBird: 599, standard: 699, set3: 549, list: 799,
         specs: [
@@ -121,32 +121,32 @@ export default function NodeDetailPage() {
                         </Link>
                         <div className="flex items-center gap-3">
                             <div className="flex gap-1 bg-slate-900 rounded-full p-1 border border-slate-800">
-                                {(["ko", "en"] as Lang[]).map((l) => (
+                                {(["ko", "en", "ja", "zh-TW"] as Lang[]).map((l) => (
                                     <button key={l} onClick={() => setLang(l)}
                                         className={`px-3 py-1 rounded-full text-xs font-bold transition-colors ${lang === l ? "bg-emerald-500 text-slate-950" : "text-slate-400 hover:text-slate-200"}`}>
-                                        {l.toUpperCase()}
+                                        {l.toUpperCase() === "ZH-TW" ? "ZH" : l.toUpperCase()}
                                     </button>
                                 ))}
                             </div>
                             {authenticated ? (
                                 <div className="relative">
                                     <button onClick={() => setMenuOpen(!menuOpen)} className="rounded-xl bg-emerald-500 text-slate-950 font-bold px-4 py-2 text-sm hover:bg-emerald-400 transition flex items-center gap-1">
-                                        {lang === "ko" ? "내 계정" : "Account"} <span className="text-xs">{menuOpen ? "▲" : "▼"}</span>
+                                        {lang === "ko" ? "내 계정" : lang === "ja" ? "マイアカウント" : lang === "zh-TW" ? "我的帳戶" : "Account"} <span className="text-xs">{menuOpen ? "▲" : "▼"}</span>
                                     </button>
                                     {menuOpen && (
                                         <div className="absolute right-0 mt-2 w-40 rounded-xl bg-slate-900 border border-slate-700 shadow-xl z-50 overflow-hidden">
                                             <Link to="/dashboard" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 px-4 py-3 text-sm text-slate-200 hover:bg-slate-800 hover:text-emerald-400 transition-colors">
-                                                🏠 {lang === "ko" ? "대시보드" : "Dashboard"}
+                                                🏠 {lang === "ko" ? "대시보드" : lang === "ja" ? "ダッシュボード" : lang === "zh-TW" ? "控制面板" : "Dashboard"}
                                             </Link>
                                             <button onClick={handleLogout} className="w-full flex items-center gap-2 px-4 py-3 text-sm text-red-400 hover:bg-slate-800 hover:text-red-300 transition-colors">
-                                                🚪 {lang === "ko" ? "로그아웃" : "Logout"}
+                                                🚪 {lang === "ko" ? "로그아웃" : lang === "ja" ? "ログアウト" : lang === "zh-TW" ? "登出" : "Logout"}
                                             </button>
                                         </div>
                                     )}
                                 </div>
                             ) : (
                                 <Link to="/login" className="rounded-xl bg-emerald-500 text-slate-950 font-bold px-4 py-2 text-sm hover:bg-emerald-400 transition">
-                                    {lang === "ko" ? "로그인" : "Login"}
+                                    {lang === "ko" ? "로그인" : lang === "ja" ? "ログイン" : lang === "zh-TW" ? "登錄" : "Login"}
                                 </Link>
                             )}
                         </div>
@@ -160,10 +160,10 @@ export default function NodeDetailPage() {
                     <Container>
                         <div className="py-3 flex items-center gap-2 text-xs text-slate-500 font-medium">
                             <Link to="/" className="hover:text-emerald-400 transition-colors">
-                                {lang === "ko" ? "홈" : "Home"}
+                                {lang === "ko" ? "홈" : lang === "ja" ? "ホーム" : lang === "zh-TW" ? "首頁" : "Home"}
                             </Link>
                             <span>›</span>
-                            <span className="text-slate-300">{lang === "ko" ? "노드 구매" : "Buy Node"}</span>
+                            <span className="text-slate-300">{lang === "ko" ? "노드 구매" : lang === "ja" ? "ノード購入" : lang === "zh-TW" ? "購買節點" : "Buy Node"}</span>
                         </div>
                     </Container>
                 </div>

@@ -159,10 +159,304 @@ const t = {
   },
   en: {
     nav: { about: "About", node: "Buy Node", demo: "Dashboard Demo" },
+    login: "ログイン",
+    dashboard: "ダッシュボード",
+    heroEyebrow: "DEPIN AIR QUALITY NETWORK",
+    heroTitle: "A Node for Indoor Air Quality,\nRecruiting Testnet Early Contributors",
+    heroSub:
+      "AirVent is a smart node that measures air quality in homes, offices, and indoor spaces. Following our Devnet verification, we are now recruiting the first users to join as product users and early network contributors.",
+    heroCta: "Apply for Node",
+    heroMore: "App DEMO",
+    heroCtaAuthed: "Apply for Node",
+    heroDash: "Enter Dashboard",
+    heroWebDemo: "Web Demo",
+    sections: {
+      problems: "Why AirVent?",
+      whyNow: "Current Phase & Key Messages",
+      whyNowSub: "AirVent is passing through its most crucial milestone.",
+      howItWorks: "How It Works",
+      howItWorksSub: "From measurement to contribution",
+      timeline: "Network Timeline",
+      benefits: "Participation Benefits",
+      proof: "Proof Coming Soon",
+      faq: "Frequently Asked Questions",
+    },
+    problems: [
+      "Existing air quality monitors are hard to popularize due to cost and limited utility.",
+      "It is difficult to consistently understand indoor air conditions and quickly identify anomalies.",
+      "Even when data is collected, it often fails to connect users with long-term value or engagement.",
+    ],
+    whyNowItems: [
+      {
+        title: "Node Launch Complete",
+        desc: "We are at a stage where early user onboarding can begin based on actual, usable physical nodes.",
+        icon: "radar",
+      },
+      {
+        title: "Devnet Verified",
+        desc: "Highlights the completion of core verification for basic operations, data flow, and network integration.",
+        icon: "shield",
+      },
+      {
+        title: "Initial Testnet Recruitment",
+        desc: "Currently, we focus on building early contributions and real-world validation rather than mass sales.",
+        icon: "flask",
+      },
+    ],
+    howItWorksItems: [
+      {
+        step: "01",
+        title: "Install the Node",
+        desc: "Easily install in indoor spaces like homes, offices, or stores.",
+        icon: "home",
+      },
+      {
+        step: "02",
+        title: "Collect Environment Data",
+        desc: "Measure indoor air quality signals such as Temperature, Humidity, PM, and CO₂.",
+        icon: "activity",
+      },
+      {
+        step: "03",
+        title: "Verify Data Quality",
+        desc: "Review measurement data from a network perspective to enhance reliability.",
+        icon: "shield",
+      },
+      {
+        step: "04",
+        title: "Join as Early Contributor",
+        desc: "Join as a real-world user and early network contributor during the Testnet phase.",
+        icon: "wallet",
+      },
+    ],
+    audienceItems: [
+      {
+        title: "General Users / Early Adopters",
+        icon: "wind",
+        points: [
+          "Users who want to visually monitor air quality in their homes and spaces.",
+          "Users who want to detect anomalies more quickly.",
+          "Users who want to be the first to try new smart devices.",
+        ],
+      },
+      {
+        title: "Blockchain / DePIN Users",
+        icon: "layers",
+        points: [
+          "Users who want to participate from the start of a physical-based data network.",
+          "Users who want to grow with the project from the Testnet stage.",
+          "Users who want to secure an early contributor position.",
+        ],
+      },
+    ],
+    timelineItems: [
+      "Product Design & Node Preparation",
+      "Devnet Verification Complete",
+      "Initial Testnet User Recruitment",
+      "Sequential release of usage data, reviews, and operational proofs",
+      "Network expansion and advanced participation structures",
+    ],
+    benefitItems: [
+      "Early Testnet participation experience",
+      "Priority access to updates and community",
+      "Accumulation of node operation experience",
+      "Preemptive effect for upcoming contribution structures",
+      "Securing an early user position",
+      "Direct involvement in product and network evolution",
+    ],
+    nodeCards: [
+      {
+        name: "AirVent Node",
+        desc: "A smart node designed for indoor air quality sensing and network participation.",
+        specs: ["Indoor IAQ sensing", "Dashboard connected", "Early user ready"],
+      },
+      {
+        name: "AirVent Dashboard",
+        desc: "The starting point for monitoring measurement flows and node status.",
+        specs: ["Node overview", "Status monitoring", "Proof-ready structure"],
+      },
+    ],
+    proofItems: [
+      "Early operator reviews coming soon",
+      "Indoor installation photos and usage cases coming soon",
+      "Dashboard measurement snapshots coming soon",
+      "Testnet operational/contribution data coming soon",
+      "Sequential updates of additional verification reports",
+    ],
+    faqs: [
+      {
+        q: "What kind of product is AirVent?",
+        a: "AirVent is a smart node that measures indoor air quality and serves as an entry point for early participation in a verifiable environmental data network.",
+      },
+      {
+        q: "Is it a commercial launch or a Testnet stage?",
+        a: "Currently, we are at the stage of recruiting initial Testnet users after completing node launch and Devnet verification.",
+      },
+      {
+        q: "Can general users participate?",
+        a: "Yes. It is designed so that even users without blockchain knowledge can participate from an air quality monitoring and product usage perspective.",
+      },
+      {
+        q: "When will reviews and operational data be released?",
+        a: "We plan to sequentially release real-world cases and operational data after the initial user recruitment.",
+      },
+    ],
+    footerTagline: "Hyperlocal Air Quality Network — Powered by Solana",
+    footerLinks: { docs: "Docs", github: "GitHub", blog: "Blog", privacy: "Privacy Policy", terms: "Terms of Service" },
+  },
+  ja: {
+    nav: { about: "紹介", node: "ノード購入", demo: "ダッシュボードDemo" },
+    login: "登錄",
+    dashboard: "控制面板",
+    heroEyebrow: "DEPIN AIR QUALITY NETWORK",
+    heroTitle: "室内空気質を測定するノード、\nTestnetの最初の貢献者を募集しています",
+    heroSub:
+      "AirVent is a smart node that measures air quality in homes, offices, and indoor spaces. Following our Devnet verification, we are now recruiting the first users to join as product users and early network contributors.",
+    heroCta: "Apply for Node",
+    heroMore: "App DEMO",
+    heroCtaAuthed: "Apply for Node",
+    heroDash: "Enter Dashboard",
+    heroWebDemo: "Web Demo",
+    sections: {
+      problems: "Why AirVent?",
+      whyNow: "Current Phase & Key Messages",
+      whyNowSub: "AirVent is passing through its most crucial milestone.",
+      howItWorks: "How It Works",
+      howItWorksSub: "From measurement to contribution",
+      timeline: "Network Timeline",
+      benefits: "Participation Benefits",
+      proof: "Proof Coming Soon",
+      faq: "Frequently Asked Questions",
+    },
+    problems: [
+      "Existing air quality monitors are hard to popularize due to cost and limited utility.",
+      "It is difficult to consistently understand indoor air conditions and quickly identify anomalies.",
+      "Even when data is collected, it often fails to connect users with long-term value or engagement.",
+    ],
+    whyNowItems: [
+      {
+        title: "Node Launch Complete",
+        desc: "We are at a stage where early user onboarding can begin based on actual, usable physical nodes.",
+        icon: "radar",
+      },
+      {
+        title: "Devnet Verified",
+        desc: "Highlights the completion of core verification for basic operations, data flow, and network integration.",
+        icon: "shield",
+      },
+      {
+        title: "Initial Testnet Recruitment",
+        desc: "Currently, we focus on building early contributions and real-world validation rather than mass sales.",
+        icon: "flask",
+      },
+    ],
+    howItWorksItems: [
+      {
+        step: "01",
+        title: "Install the Node",
+        desc: "Easily install in indoor spaces like homes, offices, or stores.",
+        icon: "home",
+      },
+      {
+        step: "02",
+        title: "Collect Environment Data",
+        desc: "Measure indoor air quality signals such as Temperature, Humidity, PM, and CO₂.",
+        icon: "activity",
+      },
+      {
+        step: "03",
+        title: "Verify Data Quality",
+        desc: "Review measurement data from a network perspective to enhance reliability.",
+        icon: "shield",
+      },
+      {
+        step: "04",
+        title: "Join as Early Contributor",
+        desc: "Join as a real-world user and early network contributor during the Testnet phase.",
+        icon: "wallet",
+      },
+    ],
+    audienceItems: [
+      {
+        title: "General Users / Early Adopters",
+        icon: "wind",
+        points: [
+          "Users who want to visually monitor air quality in their homes and spaces.",
+          "Users who want to detect anomalies more quickly.",
+          "Users who want to be the first to try new smart devices.",
+        ],
+      },
+      {
+        title: "Blockchain / DePIN Users",
+        icon: "layers",
+        points: [
+          "Users who want to participate from the start of a physical-based data network.",
+          "Users who want to grow with the project from the Testnet stage.",
+          "Users who want to secure an early contributor position.",
+        ],
+      },
+    ],
+    timelineItems: [
+      "Product Design & Node Preparation",
+      "Devnet Verification Complete",
+      "Initial Testnet User Recruitment",
+      "Sequential release of usage data, reviews, and operational proofs",
+      "Network expansion and advanced participation structures",
+    ],
+    benefitItems: [
+      "Early Testnet participation experience",
+      "Priority access to updates and community",
+      "Accumulation of node operation experience",
+      "Preemptive effect for upcoming contribution structures",
+      "Securing an early user position",
+      "Direct involvement in product and network evolution",
+    ],
+    nodeCards: [
+      {
+        name: "AirVent Node",
+        desc: "A smart node designed for indoor air quality sensing and network participation.",
+        specs: ["Indoor IAQ sensing", "Dashboard connected", "Early user ready"],
+      },
+      {
+        name: "AirVent Dashboard",
+        desc: "The starting point for monitoring measurement flows and node status.",
+        specs: ["Node overview", "Status monitoring", "Proof-ready structure"],
+      },
+    ],
+    proofItems: [
+      "Early operator reviews coming soon",
+      "Indoor installation photos and usage cases coming soon",
+      "Dashboard measurement snapshots coming soon",
+      "Testnet operational/contribution data coming soon",
+      "Sequential updates of additional verification reports",
+    ],
+    faqs: [
+      {
+        q: "What kind of product is AirVent?",
+        a: "AirVent is a smart node that measures indoor air quality and serves as an entry point for early participation in a verifiable environmental data network.",
+      },
+      {
+        q: "Is it a commercial launch or a Testnet stage?",
+        a: "Currently, we are at the stage of recruiting initial Testnet users after completing node launch and Devnet verification.",
+      },
+      {
+        q: "Can general users participate?",
+        a: "Yes. It is designed so that even users without blockchain knowledge can participate from an air quality monitoring and product usage perspective.",
+      },
+      {
+        q: "When will reviews and operational data be released?",
+        a: "We plan to sequentially release real-world cases and operational data after the initial user recruitment.",
+      },
+    ],
+    footerTagline: "Hyperlocal Air Quality Network — Powered by Solana",
+    footerLinks: { docs: "Docs", github: "GitHub", blog: "Blog", privacy: "Privacy Policy", terms: "Terms of Service" },
+  },
+  'zh-TW': {
+    nav: { about: "介紹", node: "購買節點", demo: "控制面板Demo" },
     login: "Login",
     dashboard: "Dashboard",
     heroEyebrow: "DEPIN AIR QUALITY NETWORK",
-    heroTitle: "A Node for Indoor Air Quality,\nRecruiting Testnet Early Contributors",
+    heroTitle: "測量室內空氣質量的節點、\n現正招募Testnet的首批貢獻者",
     heroSub:
       "AirVent is a smart node that measures air quality in homes, offices, and indoor spaces. Following our Devnet verification, we are now recruiting the first users to join as product users and early network contributors.",
     heroCta: "Apply for Node",
@@ -360,10 +654,10 @@ export default function LandingPage() {
             {/* Right controls */}
             <div className="flex items-center gap-3">
               <div className="flex gap-1 bg-slate-900 rounded-full p-1 border border-slate-800">
-                {(["ko", "en"] as Lang[]).map((l) => (
+                {(["ko", "en", "ja", "zh-TW"] as Lang[]).map((l) => (
                   <button key={l} onClick={() => setLang(l)}
                     className={`px-3 py-1 rounded-full text-xs font-bold transition-colors ${lang === l ? "bg-emerald-500 text-slate-950" : "text-slate-400 hover:text-slate-200"}`}>
-                    {l.toUpperCase()}
+                    {l.toUpperCase() === "ZH-TW" ? "ZH" : l.toUpperCase()}
                   </button>
                 ))}
               </div>

@@ -94,6 +94,7 @@ export default function DashboardLayout({
                     {/* Language Switcher */}
                     <div className="mb-6 px-2 flex items-center gap-2">
                         <Globe size={14} className="text-slate-500" />
+                        
                         <div className="flex bg-slate-950/50 rounded-lg p-1 border border-slate-800">
                             <button
                                 onClick={() => changeLanguage('en')}
@@ -106,6 +107,18 @@ export default function DashboardLayout({
                                 className={`px-2 py-1 text-[10px] font-bold rounded transition-colors ${i18n.language.startsWith('ko') ? 'bg-emerald-600 text-white' : 'text-slate-500 hover:text-slate-300'}`}
                             >
                                 KO
+                            </button>
+                            <button
+                                onClick={() => changeLanguage('ja')}
+                                className={`px-2 py-1 text-[10px] font-bold rounded transition-colors ${i18n.language.startsWith('ja') ? 'bg-emerald-600 text-white' : 'text-slate-500 hover:text-slate-300'}`}
+                            >
+                                JA
+                            </button>
+                            <button
+                                onClick={() => changeLanguage('zh-TW')}
+                                className={`px-2 py-1 text-[10px] font-bold rounded transition-colors ${i18n.language.startsWith('zh') ? 'bg-emerald-600 text-white' : 'text-slate-500 hover:text-slate-300'}`}
+                            >
+                                ZH
                             </button>
                         </div>
                     </div>

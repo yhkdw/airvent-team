@@ -4,6 +4,8 @@ import LanguageDetector from 'i18next-browser-languagedetector';
 
 import en from './locales/en.json';
 import ko from './locales/ko.json';
+import ja from './locales/ja.json';
+import zhTW from './locales/zh-TW.json';
 
 i18n
     .use(LanguageDetector)
@@ -11,7 +13,9 @@ i18n
     .init({
         resources: {
             en: { translation: en },
-            ko: { translation: ko }
+            ko: { translation: ko },
+            ja: { translation: ja },
+            "zh-TW": { translation: zhTW }
         },
         lng: 'en', // Force English as default
         fallbackLng: 'en',

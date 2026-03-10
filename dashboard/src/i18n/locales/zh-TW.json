@@ -1,0 +1,93 @@
+{
+    "nav": {
+        "home": "首頁",
+        "air_quality": "空氣品質",
+        "rewards": "獎勵",
+        "wallet": "錢包",
+        "logout": "登出",
+        "back_to_website": "返回網站"
+    },
+    "sidebar": {
+        "operations": "營運",
+        "total_balance": "總餘額",
+        "connected_wallet": "已連接的錢包",
+        "disconnect": "斷開連接",
+        "connect_wallet": "連接錢包",
+        "connecting": "連接中..."
+    },
+    "overview": {
+        "global_status": "全球網路狀態",
+        "audit_engine": "DePIN AI審計引擎",
+        "integrity_title": "即時資料完整性",
+        "integrity_desc": "所有的感測器資料均會自動透過我們的去中心化人工智慧層，以零知識證明進行審計，確保在不損害隱私的前提下提供100％的真實性。",
+        "network_score": "網路評分",
+        "total_audits": "總審計次数",
+        "live_audit": "即時審計動態",
+        "news_title": "網路新聞與公告",
+        "indoor_comfort": "室內舒適度",
+        "live_stream": "即時串流",
+        "news": {
+            "forecast_title": "首爾 PM2.5：本週預測達到「不良」等級",
+            "forecast_desc": "因細粉塵流入及大氣停滯等影響，韓國氣象廳預測首都圈的 PM2.5 濃度將超過 75µg/m³。",
+            "policy_title": "WHO 宣佈更新 2026 年室內空氣品質指引",
+            "policy_desc": "世界衛生組織建議將室內二氧化碳（CO2）濃度標準從目前的 1,000ppm 強化至 800ppm。",
+            "network_title": "AirVent：參與 Superteam Korea Startup Village 活動",
+            "network_desc": "AirVent 團隊目前正在參與 Superteam Korea Startup Village，致力於為 Solana 生態系開發創新的 DePIN 解決方案。"
+        },
+        "read_more": "閱讀更多",
+        "view_all_news": "查看所有公告"
+    },
+    "wallet": {
+        "spl_account": "SPL 代幣帳戶",
+        "send": "發送",
+        "swap": "兌換",
+        "recent_tx": "近期交易",
+        "view_all": "查看全部",
+        "confirmed": "已在 Solana 上確認",
+        "security": "錢包安全性",
+        "protected": "受保護",
+        "backup": "備份助記詞",
+        "network": "網路",
+        "secured_by": "由 Phantom 提供安全保障",
+        "devnet": "Solana 測試網"
+    },
+    "rewards": {
+        "efficiency": "挖礦效率",
+        "epoch_rank": "週期排名",
+        "uptime": "運行時間 (24小時)",
+        "last_epoch": "自上次週期以來",
+        "top_nodes": "所有節點的前 5%",
+        "status_ok": "狀態：正常運作",
+        "audit_logs": "網路審計日誌",
+        "realtime_stream": "即時串流",
+        "mining_title": "AI DePIN 獎勵挖礦",
+        "token_name": "AirVent 代幣 (AIVT)",
+        "verified": "已於鏈上驗證",
+        "mining_stats": "節點挖礦統計",
+        "proof_hash": "ZKP 證明哈希值",
+        "solana_tx": "Solana 交易",
+        "broadcasting": "廣播中...",
+        "ai_auditor": "AI 審計程式",
+        "next_epoch": "下一個週期",
+        "audit_panel_title": "AI 審計面板",
+        "verifier_name": "Airvent-AI 驗證程式",
+        "confidence": "信心指數",
+        "integrity": "完整性",
+        "insight_title": "AI 審計程式洞察",
+        "insight_initial": "正在等待數據封包...",
+        "insight_analyzing": "正在分析時空模式...",
+        "insight_verified": "區域遙測數據已驗證。目前感測範圍內未偵測到異常活動。"
+    },
+    "login": {
+        "title": "Airvent DePIN",
+        "access_control": "存取控制",
+        "description": "請使用您的使用者帳號進行登入。",
+        "email_login": "電子郵件登入",
+        "email_label": "電子郵件",
+        "password_label": "密碼",
+        "sign_in": "登入",
+        "signing_in": "登入中...",
+        "back_to_home": "返回首頁",
+        "error_unauthorized": "認證失敗。請再次檢查您的憑證或伺服器設定。"
+    }
+}
