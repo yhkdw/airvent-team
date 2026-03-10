@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Container from "../components/Container";
+import { isAuthed } from "../auth";
 
 /* ─────────────── types ─────────────── */
 type Lang = "ko" | "en";
@@ -84,6 +85,11 @@ export default function NodeDetailPage() {
     const [selected, setSelected] = useState<ProductKey>("pro");
     const [uptime, setUptime] = useState(20); // hours/day
     const [openFaq, setOpenFaq] = useState<number | null>(null);
+    const [authenticated, setAuthenticated] = useState(false);
+
+    useEffect(() => {
+        isAuthed().then(setAuthenticated);
+    }, []);
 
     const product = products[selected];
     // Estimated daily AIVT: ~0.8 AIVT/hr at 100% uptime (mock formula)
@@ -112,8 +118,8 @@ export default function NodeDetailPage() {
                                     </button>
                                 ))}
                             </div>
-                            <Link to="/login" className="rounded-xl bg-emerald-500 text-slate-950 font-bold px-4 py-2 text-sm hover:bg-emerald-400 transition">
-                                {lang === "ko" ? "로그인" : "Login"}
+                            <Link to={authenticated ? "/dashboard" : "/login"} className="rounded-xl bg-emerald-500 text-slate-950 font-bold px-4 py-2 text-sm hover:bg-emerald-400 transition">
+                                {authenticated ? (lang === "ko" ? "대시보드" : "Dashboard") : (lang === "ko" ? "로그인" : "Login")}
                             </Link>
                         </div>
                     </div>
