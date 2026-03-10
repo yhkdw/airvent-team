@@ -5,7 +5,6 @@ import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/LoginPage";
 import DashboardPage from "./pages/DashboardPage";
 import PrivacyPage from "./pages/PrivacyPage";
-import NaverCallbackPage from "./pages/NaverCallbackPage";
 import TermsPage from "./pages/TermsPage";
 import JudgeDemo from "./pages/JudgeDemo";
 import NodeDetailPage from "./pages/NodeDetailPage";
@@ -52,7 +51,6 @@ export default function App() {
     <Routes>
       <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<LoginPage />} />
-      <Route path="/auth/naver/callback" element={<NaverCallbackPage />} />
       <Route path="/node" element={<NodeDetailPage />} />
       <Route path="/privacy" element={<PrivacyPage />} />
       <Route path="/terms" element={<TermsPage />} />
