@@ -71,7 +71,7 @@ const faqs: { q: Record<Lang, string>; a: Record<Lang, string> }[] = [
     },
     {
         q: { ko: "구독 크레딧으로 얼마나 할인받을 수 있나요?", en: "How much discount can I get with subscription credits?", ja: "サブスクリプションクレジットでどれくらいの割引を受けられますか？", "zh-TW": "使用訂閱積分可以獲得多少折扣？" },
-        a: { ko: "Pro 구독(월 $19)부터 크레딧이 적립되며, 노드 구매 시 결제 소계의 최대 60%까지 크레딧으로 결제 가능합니다.", en: "Credits accrue from Pro subscription ($19/mo) and can cover up to 60% of your node purchase subtotal." },
+        a: { ko: "Pro 구독(월 )부터 크레딧이 적립되며, 노드 구매 시 결제 소계의 최대 60%까지 크레딧으로 결제 가능합니다.", en: "Credits accrue from Pro subscription (/mo) and can cover up to 60% of your node purchase subtotal.", ja: "Proサブスクリプション(月)からクレジットが蓄積され、ノード購入時に小計の最大60%までクレジットで決済可能です。", "zh-TW": "從 Pro 訂閱（每月 19 美元）開始累積積分，購買節點時最多可以使用積分支付小計的 60%。" },
     },
     {
         q: { ko: "여러 노드를 한 계정에서 관리할 수 있나요?", en: "Can I manage multiple nodes in one account?", ja: "1つのアカウントで複数のノードを管理できますか？", "zh-TW": "可以在一個帳戶中管理多個節點嗎？" },
