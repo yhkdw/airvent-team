@@ -1,5 +1,18 @@
 # AirVent DePIN Release Notes
 
+## Version: v1.6.4 - 2026-03-10
+
+### 🎉 What's New
+- **Multilingual Consistency Refinement**: Fixed critical translation errors in the Landing Page. English, Japanese, and Traditional Chinese labels for "Login" and "Dashboard" are now correctly aligned with their respective locales.
+- **CTA Alignment (UX Improvement)**: The "Web Demo" CTA on the hero section now correctly directs non-authenticated users to the public demo path (`/judge`) instead of the login page, matching user expectations for a "Demo" experience.
+
+### 🛠 Technical Changes
+- Version bump to `v1.6.4`.
+- Refactored `LandingPage.tsx` translations for better semantic accuracy.
+- Established a roadmap and design for unified i18n management (to be implemented in future phases).
+
+---
+
 ## Version: v1.6.1
 
 ### 🎉 What's New
