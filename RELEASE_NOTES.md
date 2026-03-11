@@ -1,5 +1,22 @@
 # AirVent DePIN Release Notes
 
+## Version: v1.6.5 - 2026-03-11
+
+### 🎉 What's New
+- **Welcome Toast Notification**: After login, a personalized greeting toast ("OOO님, 환영합니다! 👋") now appears at the top of the page for 4 seconds, confirming successful authentication and enhancing the user experience.
+- **Email Sign-Up with Nickname**: Users can now register with email + nickname directly from the login page, with email verification flow.
+- **Social Login Onboarding**: Google and X (Twitter) users are redirected to a nickname setup page on first login, ensuring all users have a personalized identity.
+- **Global Login Page Refresh**: Removed Naver and Kakao login buttons to align with the global launch strategy. Login now supports Google, X (Twitter), and Email.
+
+### 🛠 Technical Changes
+- Version bump to `v1.6.5`.
+- New `OnboardingPage.tsx` for first-time social login nickname registration.
+- `auth.ts` updated with `signUpWithEmail`, `getNickname`, `saveNickname` helpers.
+- `App.tsx` re-routes unauthenticated or no-nickname users appropriately.
+- Supabase `profiles` table required for nickname persistence.
+
+---
+
 ## Version: v1.6.4 - 2026-03-10
 
 ### 🎉 What's New

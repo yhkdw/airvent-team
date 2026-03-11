@@ -615,6 +615,7 @@ export default function LandingPage() {
   const [authenticated, setAuthenticated] = useState(false);
   const [nickname, setNickname] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [showToast, setShowToast] = useState(false);
   const tx = t[lang];
 
   useEffect(() => {
@@ -625,6 +626,10 @@ export default function LandingPage() {
         if (session) {
           const nick = await getNickname(session.user.id);
           setNickname(nick);
+          if (nick) {
+            setShowToast(true);
+            setTimeout(() => setShowToast(false), 4000);
+          }
         }
       }
     });
@@ -639,6 +644,21 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100">
+
+      {/* ── Welcome Toast ── */}
+      {showToast && nickname && (
+        <div style={{position:'fixed',top:'20px',left:'50%',transform:'translateX(-50%)',zIndex:9999,animation:'slideDown 0.4s ease-out'}}>
+          <div style={{display:'flex',alignItems:'center',gap:'12px',background:'rgba(15,23,42,0.95)',border:'1px solid rgba(16,185,129,0.4)',borderRadius:'16px',boxShadow:'0 20px 60px rgba(0,0,0,0.5),0 0 40px rgba(16,185,129,0.1)',padding:'16px 24px',backdropFilter:'blur(16px)'}}>
+            <span style={{fontSize:'24px'}}>👋</span>
+            <div>
+              <div style={{color:'#34d399',fontWeight:900,fontSize:'16px'}}>{nickname}님, 환영합니다!</div>
+              <div style={{color:'#94a3b8',fontSize:'12px',marginTop:'2px'}}>AirVent에 오신 것을 환영해요</div>
+            </div>
+            <button onClick={() => setShowToast(false)} style={{marginLeft:'8px',color:'#475569',background:'none',border:'none',cursor:'pointer',fontSize:'18px',lineHeight:'1'}} onMouseOver={e=>(e.currentTarget.style.color='#94a3b8')} onMouseOut={e=>(e.currentTarget.style.color='#475569')}>✕</button>
+          </div>
+        </div>
+      )}
+      <style>{`@keyframes slideDown{from{opacity:0;transform:translate(-50%,-16px)}to{opacity:1;transform:translate(-50%,0)}}`}</style>
 
       {/* ── Header ── */}
       <header className="sticky top-0 z-50 border-b border-slate-800 bg-slate-950/90 backdrop-blur-md">
