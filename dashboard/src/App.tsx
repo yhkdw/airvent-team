@@ -1,6 +1,7 @@
 import { useNavigate, Routes, Route, Navigate } from "react-router-dom";
 import { useEffect } from "react";
 import { supabase } from "./lib/supabaseClient";
+import { getNickname } from "./auth";
 import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/LoginPage";
 import DashboardPage from "./pages/DashboardPage";
@@ -8,6 +9,7 @@ import PrivacyPage from "./pages/PrivacyPage";
 import TermsPage from "./pages/TermsPage";
 import JudgeDemo from "./pages/JudgeDemo";
 import NodeDetailPage from "./pages/NodeDetailPage";
+import OnboardingPage from "./pages/OnboardingPage";
 import RequireAuth from "./components/RequireAuth";
 
 // Dashboard tabs
@@ -20,25 +22,30 @@ export default function App() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log(`[App] Auth event: ${event}`);
 
-      // Act on explicit sign-in events OR initial sessions that are actually OAuth callbacks
       const hasAccessToken = window.location.hash.includes("access_token");
       if ((event === "SIGNED_IN" || event === "INITIAL_SESSION") && session) {
-        if (event === "INITIAL_SESSION" && !hasAccessToken) return; // Ignore normal page loads
+        if (event === "INITIAL_SESSION" && !hasAccessToken) return; // 일반 페이지 로드 무시
 
         const currentPath = window.location.pathname;
         const params = new URLSearchParams(window.location.search);
         const next = params.get("next");
 
-        console.log(`[App] ${event} event at ${currentPath}, next: ${next}, hasToken: ${hasAccessToken}`);
+        console.log(`[App] ${event} at ${currentPath}, next: ${next}, hasToken: ${hasAccessToken}`);
+
+        // 닉네임 확인 — 없으면 온보딩으로
+        const nickname = await getNickname(session.user.id);
+        if (!nickname) {
+          console.log("[App] No nickname found, redirecting to /onboarding");
+          navigate("/onboarding", { replace: true });
+          return;
+        }
 
         if (next) {
-          console.log("[App] Redirecting to next:", next);
           navigate(next, { replace: true });
         } else if (currentPath === "/login" || currentPath === "/dashboard" || currentPath.startsWith("/auth/") || hasAccessToken) {
-          console.log(`[App] Auto-redirecting to /`);
           navigate("/", { replace: true });
         }
       }
@@ -51,6 +58,7 @@ export default function App() {
     <Routes>
       <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/onboarding" element={<OnboardingPage />} />
       <Route path="/node" element={<NodeDetailPage />} />
       <Route path="/privacy" element={<PrivacyPage />} />
       <Route path="/terms" element={<TermsPage />} />
@@ -65,13 +73,11 @@ export default function App() {
       </Route>
 
       <Route path="/judge" element={<JudgeDemo />} />
-
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }
 
-// Wrapper to pass context to RewardsTab
 import { useOutletContext } from "react-router-dom";
 function RewardsTabWrapper() {
   const { onReward } = useOutletContext<{ onReward: (amt: number) => void }>();

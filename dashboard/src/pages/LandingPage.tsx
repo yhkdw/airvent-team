@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Container from "../components/Container";
-import { isAuthed, logout } from "../auth";
+import { isAuthed, logout, getNickname } from "../auth";
 
 const isLocal: boolean =
   window.location.hostname === "localhost" ||
@@ -613,11 +613,21 @@ export default function LandingPage() {
   const navigate = useNavigate();
   const [lang, setLang] = useState<Lang>("ko");
   const [authenticated, setAuthenticated] = useState(false);
+  const [nickname, setNickname] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const tx = t[lang];
 
   useEffect(() => {
-    isAuthed().then(setAuthenticated);
+    isAuthed().then(async (authed) => {
+      setAuthenticated(authed);
+      if (authed) {
+        const { data: { session } } = await (await import('../lib/supabaseClient')).supabase.auth.getSession();
+        if (session) {
+          const nick = await getNickname(session.user.id);
+          setNickname(nick);
+        }
+      }
+    });
   }, []);
 
   const handleLogout = async () => {
