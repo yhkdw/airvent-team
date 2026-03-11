@@ -35,9 +35,10 @@ const t = {
       faq: "자주 묻는 질문",
     },
     problems: [
-      "기존 공기질 측정기는 가격과 활용성이 아쉬워 대중화가 어렵습니다.",
-      "실내 공기 상태를 지속적으로 이해하고 이상을 빠르게 파악하기 어렵습니다.",
-      "데이터는 쌓여도 사용자에게 장기적인 가치나 참여 경험으로 연결되지 않습니다.",
+      { icon: "📱", title: "터치스크린으로 더 쉬운 설치", desc: "에어벤트 노드는 기기 자체의 터치스크린에서 직접 와이파이를 연결할 수 있어, 복잡한 초기 설정 없이 누구나 쉽게 사용할 수 있습니다." },
+      { icon: "🔋", title: "USB-C 전원으로 자유로운 이동", desc: "USB-C 전원 방식을 지원해 보조배터리만 있으면 원하는 공간으로 손쉽게 옮겨 사용할 수 있습니다. 거실, 침실, 아이방, 사무실 등 필요한 곳에서 바로 공기질을 확인할 수 있습니다." },
+      { icon: "✨", title: "콤팩트한 사이즈, 감각적인 디자인", desc: "작고 세련된 디자인으로 공간을 해치지 않으며, 인테리어 소품처럼 자연스럽게 어우러집니다. 측정기 이상의 존재감으로, 기능성과 디자인을 동시에 만족시킵니다." },
+      { icon: "🏅", title: "인증으로 검증된 신뢰성", desc: "KC 인증과 초미세먼지 성능인증을 통해 기기의 안전성과 측정 신뢰성을 높였습니다. 눈에 보이는 디자인뿐 아니라, 믿고 사용할 수 있는 품질까지 갖춘 공기질 노드입니다." },
     ],
     whyNowItems: [
       {
@@ -182,9 +183,10 @@ const t = {
       faq: "Frequently Asked Questions",
     },
     problems: [
-      "Existing air quality monitors are hard to popularize due to cost and limited utility.",
-      "It is difficult to consistently understand indoor air conditions and quickly identify anomalies.",
-      "Even when data is collected, it often fails to connect users with long-term value or engagement.",
+      { icon: "📱", title: "Easier Setup with Touchscreen", desc: "AirVent Node lets you connect to Wi-Fi directly from the device's built-in touchscreen — no complex setup, easy for anyone." },
+      { icon: "��", title: "Freedom to Move with USB-C Power", desc: "USB-C power support means all you need is a power bank. Move it to your living room, bedroom, kids' room, or office anytime." },
+      { icon: "✨", title: "Compact Size, Stylish Design", desc: "Its sleek, compact design blends naturally into any space — functional and beautiful at the same time." },
+      { icon: "🏅", title: "Reliability Backed by Certification", desc: "KC Certification and fine dust performance certification ensure the device's safety and measurement accuracy you can trust." },
     ],
     whyNowItems: [
       {
@@ -329,9 +331,10 @@ const t = {
       faq: "Frequently Asked Questions",
     },
     problems: [
-      "Existing air quality monitors are hard to popularize due to cost and limited utility.",
-      "It is difficult to consistently understand indoor air conditions and quickly identify anomalies.",
-      "Even when data is collected, it often fails to connect users with long-term value or engagement.",
+      { icon: "📱", title: "Easier Setup with Touchscreen", desc: "AirVent Node lets you connect to Wi-Fi directly from the device's built-in touchscreen — no complex setup, easy for anyone." },
+      { icon: "��", title: "Freedom to Move with USB-C Power", desc: "USB-C power support means all you need is a power bank. Move it to your living room, bedroom, kids' room, or office anytime." },
+      { icon: "✨", title: "Compact Size, Stylish Design", desc: "Its sleek, compact design blends naturally into any space — functional and beautiful at the same time." },
+      { icon: "🏅", title: "Reliability Backed by Certification", desc: "KC Certification and fine dust performance certification ensure the device's safety and measurement accuracy you can trust." },
     ],
     whyNowItems: [
       {
@@ -476,9 +479,10 @@ const t = {
       faq: "Frequently Asked Questions",
     },
     problems: [
-      "Existing air quality monitors are hard to popularize due to cost and limited utility.",
-      "It is difficult to consistently understand indoor air conditions and quickly identify anomalies.",
-      "Even when data is collected, it often fails to connect users with long-term value or engagement.",
+      { icon: "📱", title: "Easier Setup with Touchscreen", desc: "AirVent Node lets you connect to Wi-Fi directly from the device's built-in touchscreen — no complex setup, easy for anyone." },
+      { icon: "��", title: "Freedom to Move with USB-C Power", desc: "USB-C power support means all you need is a power bank. Move it to your living room, bedroom, kids' room, or office anytime." },
+      { icon: "✨", title: "Compact Size, Stylish Design", desc: "Its sleek, compact design blends naturally into any space — functional and beautiful at the same time." },
+      { icon: "🏅", title: "Reliability Backed by Certification", desc: "KC Certification and fine dust performance certification ensure the device's safety and measurement accuracy you can trust." },
     ],
     whyNowItems: [
       {
@@ -802,11 +806,21 @@ export default function LandingPage() {
             <div className="max-w-3xl mx-auto text-center mb-16">
               <h2 className="text-2xl md:text-3xl font-bold text-white mb-6">{tx.sections.problems}</h2>
               <div className="grid gap-4">
-                {tx.problems.map((p, i) => (
-                  <div key={i} className="p-6 rounded-2xl bg-slate-900 border border-slate-800 text-slate-300 text-left flex gap-4 items-start">
-                    <span className="text-emerald-500 font-bold">Q.</span>
-                    <p>{p}</p>
-                  </div>
+                {tx.problems.map((item, i) => (
+                  typeof item === "string" ? (
+                    <div key={i} className="p-6 rounded-2xl bg-slate-900 border border-slate-800 text-slate-300 text-left flex gap-4 items-start">
+                      <span className="text-emerald-500 font-bold">Q.</span>
+                      <p>{item}</p>
+                    </div>
+                  ) : (
+                    <div key={i} className="p-6 rounded-2xl bg-slate-900 border border-slate-800 text-left flex gap-5 items-start hover:border-emerald-500/30 transition-colors">
+                      <span className="text-4xl shrink-0 mt-1">{item.icon}</span>
+                      <div>
+                        <h3 className="text-white font-bold text-lg mb-2">{item.title}</h3>
+                        <p className="text-slate-400 text-sm leading-relaxed">{item.desc}</p>
+                      </div>
+                    </div>
+                  )
                 ))}
               </div>
             </div>
