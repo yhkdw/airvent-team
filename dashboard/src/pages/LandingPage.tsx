@@ -619,19 +619,37 @@ export default function LandingPage() {
   const tx = t[lang];
 
   useEffect(() => {
-    isAuthed().then(async (authed) => {
-      setAuthenticated(authed);
-      if (authed) {
-        const { data: { session } } = await (await import('../lib/supabaseClient')).supabase.auth.getSession();
-        if (session) {
-          const nick = await getNickname(session.user.id);
-          setNickname(nick);
-          if (nick) {
-            setShowToast(true);
-            setTimeout(() => setShowToast(false), 4000);
-          }
+    let toastTimer: ReturnType<typeof setTimeout>;
+
+    const loadUser = async (session: import('@supabase/supabase-js').Session | null) => {
+      if (session) {
+        setAuthenticated(true);
+        const { supabase: sb } = await import('../lib/supabaseClient');
+        const nick = await getNickname(session.user.id);
+        setNickname(nick);
+        if (nick) {
+          setShowToast(true);
+          toastTimer = setTimeout(() => setShowToast(false), 4000);
         }
+      } else {
+        setAuthenticated(false);
+        setNickname(null);
       }
+    };
+
+    // Initial load
+    import('../lib/supabaseClient').then(({ supabase: sb }) => {
+      sb.auth.getSession().then(({ data: { session } }) => loadUser(session));
+
+      // Reactive — updates whenever auth state changes
+      const { data: { subscription } } = sb.auth.onAuthStateChange((_event, session) => {
+        loadUser(session);
+      });
+
+      return () => {
+        subscription.unsubscribe();
+        clearTimeout(toastTimer);
+      };
     });
   }, []);
 
