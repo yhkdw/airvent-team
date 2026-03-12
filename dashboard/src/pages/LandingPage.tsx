@@ -804,7 +804,7 @@ export default function LandingPage() {
         <section id="problems" className="py-24 bg-slate-900/20">
           <Container>
             <div className="max-w-3xl mx-auto text-center mb-16">
-              <h2 className="text-2xl md:text-3xl font-bold text-white mb-6">{tx.sections.problems}</h2>
+              <h2 className="text-2xl md:text-3xl font-bold text-white mb-6 underline decoration-emerald-500/30 decoration-4 underline-offset-8">{tx.sections.problems}</h2>
               <div className="grid gap-4">
                 {tx.problems.map((item, i) => (
                   typeof item === "string" ? (
