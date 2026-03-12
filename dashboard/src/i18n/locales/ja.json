@@ -88,6 +88,24 @@
         "sign_in": "サインイン",
         "signing_in": "サインイン中...",
         "back_to_home": "ホームへ戻る",
-        "error_unauthorized": "認証に失敗しました。認証情報またはサーバー設定をご確認ください。"
+        "error_unauthorized": "認証に失敗しました。認証情報またはサーバー設定をご確認ください。",
+        "google_login": "Googleで続行",
+        "twitter_login": "Xで続行",
+        "or_email": "またはメールで続行",
+        "verify_email_title": "メールをご確認ください",
+        "verify_email_sent": "認証メールを送信しました。メール内のリンクをクリックして登録を完了してください。",
+        "verify_email_spam": "メールが届かない場合は、迷惑メールフォルダをご確認ください。",
+        "to_login_screen": "ログイン画面へ",
+        "login_tab": "ログイン",
+        "signup_tab": "新規登録",
+        "nickname_label": "ニックネーム",
+        "nickname_placeholder": "使用するニックネームを入力してください",
+        "confirm_password_label": "パスワード（確認）",
+        "sign_up_button": "登録する",
+        "processing": "処理中...",
+        "nickname_required": "ニックネームを入力してください。",
+        "nickname_too_short": "ニックネームは2文字以上で入力してください。",
+        "password_mismatch": "パスワードが一致しません。",
+        "password_too_short": "パスワードは6文字以上で入力してください。"
     }
 }

@@ -49,10 +49,10 @@ export default function LoginPage() {
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    if (!nickname.trim()) { setError("닉네임을 입력해주세요."); return; }
-    if (nickname.trim().length < 2) { setError("닉네임은 2자 이상이어야 합니다."); return; }
-    if (password !== confirmPassword) { setError("비밀번호가 일치하지 않습니다."); return; }
-    if (password.length < 6) { setError("비밀번호는 6자 이상이어야 합니다."); return; }
+    if (!nickname.trim()) { setError(t("login.nickname_required")); return; }
+    if (nickname.trim().length < 2) { setError(t("login.nickname_too_short")); return; }
+    if (password !== confirmPassword) { setError(t("login.password_mismatch")); return; }
+    if (password.length < 6) { setError(t("login.password_too_short")); return; }
     setLoading(true);
     const { error: signUpErr } = await signUpWithEmail(email, password, nickname.trim());
     setLoading(false);
@@ -73,7 +73,7 @@ export default function LoginPage() {
           <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
           <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
         </svg>
-        Google로 계속하기
+        {t("login.google_login")}
       </button>
       <button
         type="button"
@@ -83,11 +83,11 @@ export default function LoginPage() {
         <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
           <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
         </svg>
-        X로 계속하기
+        {t("login.twitter_login")}
       </button>
       <div className="relative flex items-center py-2">
         <div className="flex-grow border-t border-slate-800"></div>
-        <span className="flex-shrink mx-4 text-[10px] font-black text-slate-600 uppercase tracking-[0.2em]">또는 이메일로</span>
+        <span className="flex-shrink mx-4 text-[10px] font-black text-slate-600 uppercase tracking-[0.2em]">{t("login.or_email")}</span>
         <div className="flex-grow border-t border-slate-800"></div>
       </div>
     </div>
@@ -99,24 +99,24 @@ export default function LoginPage() {
       <div className="min-h-screen flex items-center justify-center bg-slate-950 text-slate-100 p-4">
         <div className="w-full max-w-md rounded-2xl bg-slate-900/60 border border-slate-800 p-8 shadow-xl backdrop-blur-sm text-center">
           <div className="text-5xl mb-6">📧</div>
-          <h1 className="text-2xl font-bold text-slate-100 mb-3">이메일을 확인해주세요</h1>
+          <h1 className="text-2xl font-bold text-slate-100 mb-3">{t("login.verify_email_title")}</h1>
           <p className="text-slate-400 text-sm leading-relaxed mb-2">
-            <span className="text-emerald-400 font-semibold">{email}</span>로
+            <span className="text-emerald-400 font-semibold">{email}</span>
           </p>
           <p className="text-slate-400 text-sm leading-relaxed mb-8">
-            인증 메일을 보냈습니다. 메일의 링크를 클릭하면 가입이 완료됩니다.
+            {t("login.verify_email_sent")}
           </p>
           <div className="p-4 rounded-xl bg-slate-800/50 border border-slate-700 text-xs text-slate-500 mb-6">
-            메일이 보이지 않으면 스팸함을 확인해주세요.
+            {t("login.verify_email_spam")}
           </div>
           <button
             onClick={() => setMode("login")}
             className="w-full rounded-xl bg-emerald-500 text-slate-950 font-extrabold py-3 hover:bg-emerald-400 transition"
           >
-            로그인 화면으로
+            {t("login.to_login_screen")}
           </button>
           <Link to="/" className="block mt-4 text-xs font-bold text-slate-500 hover:text-slate-300 transition uppercase tracking-widest underline underline-offset-4">
-            ← 홈으로 돌아가기
+            ← {t("login.back_to_home")}
           </Link>
         </div>
       </div>
@@ -133,13 +133,13 @@ export default function LoginPage() {
             onClick={() => { setMode("login"); setError(""); }}
             className={`flex-1 py-2 rounded-lg text-sm font-bold transition ${mode === "login" ? "bg-emerald-500 text-slate-950" : "text-slate-400 hover:text-white"}`}
           >
-            로그인
+            {t("login.login_tab")}
           </button>
           <button
             onClick={() => { setMode("signup"); setError(""); }}
             className={`flex-1 py-2 rounded-lg text-sm font-bold transition ${mode === "signup" ? "bg-emerald-500 text-slate-950" : "text-slate-400 hover:text-white"}`}
           >
-            회원가입
+            {t("login.signup_tab")}
           </button>
         </div>
 
@@ -149,7 +149,7 @@ export default function LoginPage() {
         {mode === "login" && (
           <form className="space-y-4" onSubmit={handleLogin}>
             <label className="block">
-              <div className="text-sm text-slate-300 mb-1.5 font-medium">이메일</div>
+              <div className="text-sm text-slate-300 mb-1.5 font-medium">{t("login.email_label")}</div>
               <input
                 className="w-full rounded-xl bg-slate-950 border border-slate-800 px-4 py-3 outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 transition-all font-mono text-sm"
                 type="email"
@@ -161,7 +161,7 @@ export default function LoginPage() {
               />
             </label>
             <label className="block">
-              <div className="text-sm text-slate-300 mb-1.5 font-medium">비밀번호</div>
+              <div className="text-sm text-slate-300 mb-1.5 font-medium">{t("login.password_label")}</div>
               <input
                 className="w-full rounded-xl bg-slate-950 border border-slate-800 px-4 py-3 outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 transition-all font-mono text-sm"
                 type="password"
@@ -178,7 +178,7 @@ export default function LoginPage() {
               disabled={loading}
               className="w-full rounded-xl bg-emerald-500 text-slate-950 font-extrabold py-3.5 mt-2 hover:bg-emerald-400 transition shadow-lg shadow-emerald-500/10 hover:shadow-emerald-500/20 transform hover:-translate-y-0.5 disabled:opacity-50 disabled:transform-none"
             >
-              {loading ? "로그인 중..." : "로그인"}
+              {loading ? t("login.signing_in") : t("login.sign_in")}
             </button>
           </form>
         )}
@@ -187,20 +187,20 @@ export default function LoginPage() {
         {mode === "signup" && (
           <form className="space-y-4" onSubmit={handleSignUp}>
             <label className="block">
-              <div className="text-sm text-slate-300 mb-1.5 font-medium">닉네임</div>
+              <div className="text-sm text-slate-300 mb-1.5 font-medium">{t("login.nickname_label")}</div>
               <input
                 className="w-full rounded-xl bg-slate-950 border border-slate-800 px-4 py-3 outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 transition-all text-sm"
                 type="text"
                 value={nickname}
                 onChange={e => setNickname(e.target.value)}
-                placeholder="사용할 닉네임을 입력하세요"
+                placeholder={t("login.nickname_placeholder")}
                 maxLength={20}
                 disabled={loading}
               />
               <div className="text-right text-xs text-slate-600 mt-1">{nickname.length}/20</div>
             </label>
             <label className="block">
-              <div className="text-sm text-slate-300 mb-1.5 font-medium">이메일</div>
+              <div className="text-sm text-slate-300 mb-1.5 font-medium">{t("login.email_label")}</div>
               <input
                 className="w-full rounded-xl bg-slate-950 border border-slate-800 px-4 py-3 outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 transition-all font-mono text-sm"
                 type="email"
@@ -212,7 +212,7 @@ export default function LoginPage() {
               />
             </label>
             <label className="block">
-              <div className="text-sm text-slate-300 mb-1.5 font-medium">비밀번호</div>
+              <div className="text-sm text-slate-300 mb-1.5 font-medium">{t("login.password_label")}</div>
               <input
                 className="w-full rounded-xl bg-slate-950 border border-slate-800 px-4 py-3 outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 transition-all font-mono text-sm"
                 type="password"
@@ -224,7 +224,7 @@ export default function LoginPage() {
               />
             </label>
             <label className="block">
-              <div className="text-sm text-slate-300 mb-1.5 font-medium">비밀번호 확인</div>
+              <div className="text-sm text-slate-300 mb-1.5 font-medium">{t("login.confirm_password_label")}</div>
               <input
                 className="w-full rounded-xl bg-slate-950 border border-slate-800 px-4 py-3 outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 transition-all font-mono text-sm"
                 type="password"
@@ -241,14 +241,14 @@ export default function LoginPage() {
               disabled={loading}
               className="w-full rounded-xl bg-emerald-500 text-slate-950 font-extrabold py-3.5 mt-2 hover:bg-emerald-400 transition shadow-lg shadow-emerald-500/10 hover:shadow-emerald-500/20 transform hover:-translate-y-0.5 disabled:opacity-50 disabled:transform-none"
             >
-              {loading ? "처리 중..." : "가입하기"}
+              {loading ? t("login.processing") : t("login.sign_up_button")}
             </button>
           </form>
         )}
 
         <div className="flex items-center justify-center mt-6">
           <Link to="/" className="text-xs font-bold text-slate-500 hover:text-slate-300 transition uppercase tracking-widest underline underline-offset-4">
-            ← 홈으로 돌아가기
+            ← {t("login.back_to_home")}
           </Link>
         </div>
       </div>

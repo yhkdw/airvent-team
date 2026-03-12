@@ -88,6 +88,24 @@
         "sign_in": "Sign In",
         "signing_in": "Signing In...",
         "back_to_home": "Back to Home",
-        "error_unauthorized": "Invalid credentials or incorrect server configuration."
+        "error_unauthorized": "Invalid credentials or incorrect server configuration.",
+        "google_login": "Continue with Google",
+        "twitter_login": "Continue with X",
+        "or_email": "or with email",
+        "verify_email_title": "Please check your email",
+        "verify_email_sent": "An authentication email has been sent. Click the link in the email to complete your registration.",
+        "verify_email_spam": "If you don't see the email, please check your spam folder.",
+        "to_login_screen": "To Login Screen",
+        "login_tab": "Login",
+        "signup_tab": "Sign Up",
+        "nickname_label": "Nickname",
+        "nickname_placeholder": "Enter the nickname you want to use",
+        "confirm_password_label": "Confirm Password",
+        "sign_up_button": "Sign Up",
+        "processing": "Processing...",
+        "nickname_required": "Please enter a nickname.",
+        "nickname_too_short": "Nickname must be at least 2 characters.",
+        "password_mismatch": "Passwords do not match.",
+        "password_too_short": "Password must be at least 6 characters."
     }
 }
