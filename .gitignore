@@ -17,3 +17,9 @@ Thumbs.db
 
 # Env
 .env
+
+# Env
+.env
+.next/
+dist/
+build/
