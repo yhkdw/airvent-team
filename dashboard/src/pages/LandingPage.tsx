@@ -156,7 +156,7 @@ const t = {
       },
     ],
     footerTagline: "Hyperlocal Air Quality Network — Powered by Solana",
-    footerLinks: { docs: "문서", github: "GitHub", blog: "블로그", privacy: "개인정보처리방침", terms: "이용약관" },
+    footerLinks: { docs: "문서", github: "GitHub", blog: "블로그", privacy: "개인정보처리방침", terms: "이용약관", warranty: "보증정책" },
   },
   en: {
     nav: { about: "About", node: "Buy Node", demo: "Dashboard Demo" },
@@ -304,7 +304,7 @@ const t = {
       },
     ],
     footerTagline: "Hyperlocal Air Quality Network — Powered by Solana",
-    footerLinks: { docs: "Docs", github: "GitHub", blog: "Blog", privacy: "Privacy Policy", terms: "Terms of Service" },
+    footerLinks: { docs: "Docs", github: "GitHub", blog: "Blog", privacy: "Privacy Policy", terms: "Terms of Service", warranty: "Warranty Policy" },
   },
   ja: {
     nav: { about: "紹介", node: "ノード購入", demo: "ダッシュボードDemo" },
@@ -452,7 +452,7 @@ const t = {
       },
     ],
     footerTagline: "Hyperlocal Air Quality Network — Powered by Solana",
-    footerLinks: { docs: "文書", github: "GitHub", blog: "ブログ", privacy: "個人情報保護方針", terms: "利用規約" },
+    footerLinks: { docs: "文書", github: "GitHub", blog: "ブログ", privacy: "個人情報保護方針", terms: "利用規約", warranty: "保証政策" },
   },
   'zh-TW': {
     nav: { about: "關於", node: "購買節點", demo: "儀表板 Demo" },
@@ -600,7 +600,7 @@ const t = {
       },
     ],
     footerTagline: "Hyperlocal Air Quality Network — Powered by Solana",
-    footerLinks: { docs: "文檔", github: "GitHub", blog: "部落格", privacy: "隱私權政策", terms: "使用條款" },
+    footerLinks: { docs: "文檔", github: "GitHub", blog: "部落格", privacy: "隱私權政策", terms: "使用條款", warranty: "保固政策" },
   },
 };
 
@@ -957,6 +957,7 @@ export default function LandingPage() {
                 <ul className="space-y-2.5 text-sm text-slate-500">
                   <li><a href="/privacy" className="hover:text-emerald-400 transition-colors">{tx.footerLinks.privacy}</a></li>
                   <li><a href="/terms" className="hover:text-emerald-400 transition-colors">{tx.footerLinks.terms}</a></li>
+                  <li><a href="/warranty" className="hover:text-emerald-400 transition-colors">{tx.footerLinks.warranty}</a></li>
                 </ul>
               </div>
               <div>

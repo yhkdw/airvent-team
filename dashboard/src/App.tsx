@@ -7,6 +7,7 @@ import LoginPage from "./pages/LoginPage";
 import DashboardPage from "./pages/DashboardPage";
 import PrivacyPage from "./pages/PrivacyPage";
 import TermsPage from "./pages/TermsPage";
+import WarrantyPage from "./pages/WarrantyPage";
 import JudgeDemo from "./pages/JudgeDemo";
 import NodeDetailPage from "./pages/NodeDetailPage";
 import OnboardingPage from "./pages/OnboardingPage";
@@ -62,6 +63,7 @@ export default function App() {
       <Route path="/node" element={<NodeDetailPage />} />
       <Route path="/privacy" element={<PrivacyPage />} />
       <Route path="/terms" element={<TermsPage />} />
+      <Route path="/warranty" element={<WarrantyPage />} />
 
       <Route element={<RequireAuth />}>
         <Route path="/dashboard" element={<DashboardPage />}>
