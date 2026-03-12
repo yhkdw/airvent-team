@@ -319,7 +319,7 @@ const translations: Record<string, any> = {
 
 export default function PrivacyPage() {
   const { i18n } = useTranslation();
-  const lang = (i18n.language || "ko") as string;
+  const currentLang = i18n.language || "ko"; const lang = currentLang.startsWith("ko") ? "ko" : currentLang.startsWith("ja") ? "ja" : currentLang.startsWith("zh") ? "zh-TW" : "en";
   const t = translations[lang] || translations.ko;
 
   return (
