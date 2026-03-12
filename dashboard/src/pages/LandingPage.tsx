@@ -2,12 +2,12 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Container from "../components/Container";
 import { isAuthed, logout, getNickname } from "../auth";
+import i18n from "../i18n/config";
 
 const isLocal: boolean =
   window.location.hostname === "localhost" ||
   window.location.hostname === "127.0.0.1";
 
-/* ─────────────── i18n ─────────────── */
 /* ─────────────── i18n ─────────────── */
 const t = {
   ko: {
@@ -174,7 +174,7 @@ const t = {
     sections: {
       problems: "Why AirVent?",
       whyNow: "Current Phase & Key Messages",
-      whyNowSub: "AirVent is passing through its most crucial milestone.",
+      why NowSub: "AirVent is passing through its most crucial milestone.",
       howItWorks: "How It Works",
       howItWorksSub: "From measurement to contribution",
       timeline: "Network Timeline",
@@ -184,7 +184,7 @@ const t = {
     },
     problems: [
       { icon: "📱", title: "Easier Setup with Touchscreen", desc: "AirVent Node lets you connect to Wi-Fi directly from the device's built-in touchscreen — no complex setup, easy for anyone." },
-      { icon: "��", title: "Freedom to Move with USB-C Power", desc: "USB-C power support means all you need is a power bank. Move it to your living room, bedroom, kids' room, or office anytime." },
+      { icon: "🔋", title: "Freedom to Move with USB-C Power", desc: "USB-C power support means all you need is a power bank. Move it to your living room, bedroom, kids' room, or office anytime." },
       { icon: "✨", title: "Compact Size, Stylish Design", desc: "Its sleek, compact design blends naturally into any space — functional and beautiful at the same time." },
       { icon: "🏅", title: "Reliability Backed by Certification", desc: "KC Certification and fine dust performance certification ensure the device's safety and measurement accuracy you can trust." },
     ],
@@ -313,296 +313,296 @@ const t = {
     heroEyebrow: "DEPIN AIR QUALITY NETWORK",
     heroTitle: "室内空気質を測定するノード、\nTestnetの最初の貢献者を募集しています",
     heroSub:
-      "AirVent is a smart node that measures air quality in homes, offices, and indoor spaces. Following our Devnet verification, we are now recruiting the first users to join as product users and early network contributors.",
-    heroCta: "Apply for Node",
-    heroMore: "App DEMO",
-    heroCtaAuthed: "Apply for Node",
-    heroDash: "Enter Dashboard",
+      "AirVentは家、オフィス、屋内空間の空気質を測定するスマートノードです。ノードの発売とDevnetの検証を終えた今、製品ユーザーであり初期ネットワーク貢献者として共に歩む最初のユーザーを募集しています。",
+    heroCta: "ノードを購入する",
+    heroMore: "アプリDEMO",
+    heroCtaAuthed: "ノードを購入する",
+    heroDash: "ダッシュボードへ",
     heroWebDemo: "Web Demo",
     sections: {
-      problems: "Why AirVent?",
-      whyNow: "Current Phase & Key Messages",
-      whyNowSub: "AirVent is passing through its most crucial milestone.",
-      howItWorks: "How It Works",
-      howItWorksSub: "From measurement to contribution",
-      timeline: "Network Timeline",
-      benefits: "Participation Benefits",
+      problems: "なぜAirVentが必要なのですか？",
+      whyNow: "現在のフェーズと主要メッセージ",
+      whyNowSub: "AirVentは今、最も重要なマイルストーンを通過しています。",
+      howItWorks: "仕組み",
+      howItWorksSub: "測定から貢献までのプロセス",
+      timeline: "ネットワークタイムライン",
+      benefits: "参加特典",
       proof: "Proof Coming Soon",
-      faq: "Frequently Asked Questions",
+      faq: "よくある質問",
     },
     problems: [
-      { icon: "📱", title: "Easier Setup with Touchscreen", desc: "AirVent Node lets you connect to Wi-Fi directly from the device's built-in touchscreen — no complex setup, easy for anyone." },
-      { icon: "��", title: "Freedom to Move with USB-C Power", desc: "USB-C power support means all you need is a power bank. Move it to your living room, bedroom, kids' room, or office anytime." },
-      { icon: "✨", title: "Compact Size, Stylish Design", desc: "Its sleek, compact design blends naturally into any space — functional and beautiful at the same time." },
-      { icon: "🏅", title: "Reliability Backed by Certification", desc: "KC Certification and fine dust performance certification ensure the device's safety and measurement accuracy you can trust." },
+      { icon: "📱", title: "タッチスクリーンでより簡単な設置", desc: "AirVentノードは機器自体のタッチスクリーンから直接Wi-Fiに接続できるため、複雑な初期設定なしで誰でも簡単に使用できます。" },
+      { icon: "🔋", title: "USB-C電源で自由な移動", desc: "USB-C電源方式をサポートし、モバイルバッテリーがあればお好みの場所に簡単に持ち運んで使用できます。リビング、寝室、子供部屋、オフィスなど、必要な場所ですぐに空気質を確認できます。" },
+      { icon: "✨", title: "コンパクトなサイズ、洗練されたデザイン", desc: "小さく洗練されたデザインで空間を損なわず、インテリア小物のように自然に馴染みます。測定器以上の存在感で、機能性とデザインを同時に満足させます。" },
+      { icon: "🏅", title: "認証で証明された信頼性", desc: "KC認証と超微粒子性能認証を通じて、機器の安全性と測定の信頼性を高めました。目に見えるデザインだけでなく、安心して使用できる品質まで備えた空気質ノードです。" },
     ],
     whyNowItems: [
       {
-        title: "Node Launch Complete",
-        desc: "We are at a stage where early user onboarding can begin based on actual, usable physical nodes.",
+        title: "ノードの発売完了",
+        desc: "実際に使用可能な物理ノードを基準に、初期ユーザーのオンボーディングを開始できる段階です。",
         icon: "radar",
       },
       {
-        title: "Devnet Verified",
-        desc: "Highlights the completion of core verification for basic operations, data flow, and network integration.",
+        title: "Devnet検証完了",
+        desc: "基本動作、データフロー、ネットワーク連動の核心的な検証を終えた状態です。",
         icon: "shield",
       },
       {
-        title: "Initial Testnet Recruitment",
-        desc: "Currently, we focus on building early contributions and real-world validation rather than mass sales.",
+        title: "初期Testnet募集",
+        desc: "現在は大規模な販売よりも、初期貢献者と共に実使用の検証を積み上げていく時期です。",
         icon: "flask",
       },
     ],
     howItWorksItems: [
       {
         step: "01",
-        title: "Install the Node",
-        desc: "Easily install in indoor spaces like homes, offices, or stores.",
+        title: "ノードを設置します",
+        desc: "家、オフィス、店舗などの屋内環境に簡単に設置します。",
         icon: "home",
       },
       {
         step: "02",
-        title: "Collect Environment Data",
-        desc: "Measure indoor air quality signals such as Temperature, Humidity, PM, and CO₂.",
+        title: "環境データを収集します",
+        desc: "温度、湿度、PM、CO₂などの室内空気質シグナルを測定します。",
         icon: "activity",
       },
       {
         step: "03",
-        title: "Verify Data Quality",
-        desc: "Review measurement data from a network perspective to enhance reliability.",
+        title: "データ品質を検証します",
+        desc: "測定データをネットワークの観点から検討し、信頼性を高めていきます。",
         icon: "shield",
       },
       {
         step: "04",
-        title: "Join as Early Contributor",
-        desc: "Join as a real-world user and early network contributor during the Testnet phase.",
+        title: "初期貢献者として参加します",
+        desc: "Testnet段階で実際のユーザーであり初期ネットワーク貢献者として合流します。",
         icon: "wallet",
       },
     ],
     audienceItems: [
       {
-        title: "General Users / Early Adopters",
+        title: "一般ユーザー / アーリーアダプター",
         icon: "wind",
         points: [
-          "Users who want to visually monitor air quality in their homes and spaces.",
-          "Users who want to detect anomalies more quickly.",
-          "Users who want to be the first to try new smart devices.",
+          "自宅や空間の空気質を目で確認したい方",
+          "異常な兆候をより迅速に検知したい方",
+          "新しいスマートデバイスをいち早く使ってみたい方",
         ],
       },
       {
-        title: "Blockchain / DePIN Users",
+        title: "ブロックチェーン / DePINユーザー",
         icon: "layers",
         points: [
-          "Users who want to participate from the start of a physical-based data network.",
-          "Users who want to grow with the project from the Testnet stage.",
-          "Users who want to secure an early contributor position.",
+          "実物ベースのデータネットワークの出発点に参加したい方",
+          "Testnet段階からプロジェクトの成長を共にしたい方",
+          "初期の貢献ポジションを先取りしたい方",
         ],
       },
     ],
     timelineItems: [
-      "Product Design & Node Preparation",
-      "Devnet Verification Complete",
-      "Initial Testnet User Recruitment",
-      "Sequential release of usage data, reviews, and operational proofs",
-      "Network expansion and advanced participation structures",
+      "製品設計およびノードの準備",
+      "Devnet検証完了",
+      "Testnet初期ユーザー募集",
+      "実使用データ・レビュー・運営証明を順次公開",
+      "ネットワーク拡張と参加構造の高度化",
     ],
     benefitItems: [
-      "Early Testnet participation experience",
-      "Priority access to updates and community",
-      "Accumulation of node operation experience",
-      "Preemptive effect for upcoming contribution structures",
-      "Securing an early user position",
-      "Direct involvement in product and network evolution",
+      "初期Testnet参加経験",
+      "アップデートとコミュニティへの優先アクセス",
+      "ノード運用の経験蓄積",
+      "今後公開される貢献構造の先行メリット",
+      "初期ユーザーポジションの確保",
+      "製品とネットワークの発展過程への直接関与",
     ],
     nodeCards: [
       {
         name: "AirVent Node",
-        desc: "A smart node designed for indoor air quality sensing and network participation.",
+        desc: "室内空気質の測定とネットワークへの参加を同時に考慮したスマートノード",
         specs: ["Indoor IAQ sensing", "Dashboard connected", "Early user ready"],
       },
       {
         name: "AirVent Dashboard",
-        desc: "The starting point for monitoring measurement flows and node status.",
+        desc: "測定フローとノードの状態を確認する運営画面の出発点",
         specs: ["Node overview", "Status monitoring", "Proof-ready structure"],
       },
     ],
     proofItems: [
-      "Early operator reviews coming soon",
-      "Indoor installation photos and usage cases coming soon",
-      "Dashboard measurement snapshots coming soon",
-      "Testnet operational/contribution data coming soon",
-      "Sequential updates of additional verification reports",
+      "初期運営者のレビューを公開予定",
+      "屋内の設置写真と使用事例を公開予定",
+      "ダッシュボードの測定スナップショットを公開予定",
+      "Testnet運営/貢献データを公開予定",
+      "追加の検証レポートを順次アップデート予定",
     ],
     faqs: [
       {
-        q: "What kind of product is AirVent?",
-        a: "AirVent is a smart node that measures indoor air quality and serves as an entry point for early participation in a verifiable environmental data network.",
+        q: "AirVentはどのような製品ですか？",
+        a: "AirVentは室内空気質を測定するスマートノードであり、検証可能な環境データネットワークへの初期参加のためのエントリーポイントとして設計された製品です。",
       },
       {
-        q: "Is it a commercial launch or a Testnet stage?",
-        a: "Currently, we are at the stage of recruiting initial Testnet users after completing node launch and Devnet verification.",
+        q: "今は商用リリースですか、それともTestnet段階ですか？",
+        a: "現在はノードの発売とDevnetの検証を終えた後、Testnetの初期ユーザーを募集している段階です。",
       },
       {
-        q: "Can general users participate?",
-        a: "Yes. It is designed so that even users without blockchain knowledge can participate from an air quality monitoring and product usage perspective.",
+        q: "一般ユーザーも参加できますか？",
+        a: "可能です。ブロックチェーンの知識がないユーザーでも空気質の測定と製品の使用の観点から参加できるように設計されています。",
       },
       {
-        q: "When will reviews and operational data be released?",
-        a: "We plan to sequentially release real-world cases and operational data after the initial user recruitment.",
+        q: "レビューと運営データはいつ公開されますか？",
+        a: "初期ユーザーの募集後、実使用の事例と運営データを順次公開する構造を計画しています。",
       },
     ],
     footerTagline: "Hyperlocal Air Quality Network — Powered by Solana",
-    footerLinks: { docs: "Docs", github: "GitHub", blog: "Blog", privacy: "Privacy Policy", terms: "Terms of Service" },
+    footerLinks: { docs: "文書", github: "GitHub", blog: "ブログ", privacy: "個人情報保護方針", terms: "利用規約" },
   },
   'zh-TW': {
-    nav: { about: "介紹", node: "購買節點", demo: "控制面板Demo" },
+    nav: { about: "關於", node: "購買節點", demo: "儀表板 Demo" },
     login: "登錄",
-    dashboard: "控制面板",
+    dashboard: "儀表板",
     heroEyebrow: "DEPIN AIR QUALITY NETWORK",
-    heroTitle: "測量室內空氣質量的節點、\n現正招募Testnet的首批貢獻者",
+    heroTitle: "測量室內空氣質量的節點，\n現正招募 Testnet 首批貢獻者",
     heroSub:
-      "AirVent is a smart node that measures air quality in homes, offices, and indoor spaces. Following our Devnet verification, we are now recruiting the first users to join as product users and early network contributors.",
-    heroCta: "Apply for Node",
+      "AirVent 是測量家庭、辦公室及室內空間空氣質量的智能節點。隨着節點發布和 Devnet 驗證的完成，我們現正招募首批以產品用戶及初期網絡貢獻者身份加入的成員。",
+    heroCta: "申請節點",
     heroMore: "App DEMO",
-    heroCtaAuthed: "Apply for Node",
-    heroDash: "Enter Dashboard",
-    heroWebDemo: "Web Demo",
+    heroCtaAuthed: "申請節點",
+    heroDash: "進入儀表板",
+    heroWebDemo: "網頁 Demo",
     sections: {
-      problems: "Why AirVent?",
-      whyNow: "Current Phase & Key Messages",
-      whyNowSub: "AirVent is passing through its most crucial milestone.",
-      howItWorks: "How It Works",
-      howItWorksSub: "From measurement to contribution",
-      timeline: "Network Timeline",
-      benefits: "Participation Benefits",
+      problems: "爲什麼需要 AirVent？",
+      whyNow: "目前階段與核心信息",
+      whyNowSub: "AirVent 正處於其最重要的里程碑。",
+      howItWorks: "運作方式",
+      howItWorksSub: "從測量到貢獻的過程",
+      timeline: "網絡時間線",
+      benefits: "參與福利",
       proof: "Proof Coming Soon",
-      faq: "Frequently Asked Questions",
+      faq: "常見問題",
     },
     problems: [
-      { icon: "📱", title: "Easier Setup with Touchscreen", desc: "AirVent Node lets you connect to Wi-Fi directly from the device's built-in touchscreen — no complex setup, easy for anyone." },
-      { icon: "��", title: "Freedom to Move with USB-C Power", desc: "USB-C power support means all you need is a power bank. Move it to your living room, bedroom, kids' room, or office anytime." },
-      { icon: "✨", title: "Compact Size, Stylish Design", desc: "Its sleek, compact design blends naturally into any space — functional and beautiful at the same time." },
-      { icon: "🏅", title: "Reliability Backed by Certification", desc: "KC Certification and fine dust performance certification ensure the device's safety and measurement accuracy you can trust." },
+      { icon: "📱", title: "觸控螢幕讓安裝更簡單", desc: "AirVent 節點可直接在設備觸控螢幕上連接 Wi-Fi，無需複雜的初期設置，任何人都能輕鬆使用。" },
+      { icon: "🔋", title: "USB-C 供電，隨心移動", desc: "支持 USB-C 供電，只要有行動電源就能輕鬆移動到任何空間。客廳、臥室、小孩房或辦公室，隨處都能即時查看空氣質量。" },
+      { icon: "✨", title: "尺寸精巧，設計感十足", desc: "精巧時尚的設計不佔空間，能像裝飾品般自然融入環境。它不僅是測量儀器，更兼具功能性與美感。" },
+      { icon: "🏅", title: "認證保障，值得信賴", desc: "通過 KC 認證和超細懸浮微粒性能認證，提升了設備的安全性和測量可靠性。不僅外觀出衆，品質更值得信賴。" },
     ],
     whyNowItems: [
       {
-        title: "Node Launch Complete",
-        desc: "We are at a stage where early user onboarding can begin based on actual, usable physical nodes.",
+        title: "節點發布完成",
+        desc: "目前已可基於實際可用的物理節點開始初階用戶入駐。",
         icon: "radar",
       },
       {
-        title: "Devnet Verified",
-        desc: "Highlights the completion of core verification for basic operations, data flow, and network integration.",
+        title: "Devnet 驗證完成",
+        desc: "強調已完成基礎運作、數據流和網絡聯動的核心驗證。",
         icon: "shield",
       },
       {
-        title: "Initial Testnet Recruitment",
-        desc: "Currently, we focus on building early contributions and real-world validation rather than mass sales.",
+        title: "初期 Testnet 招募",
+        desc: "目前是與初期貢獻者共同積累實際使用驗證的時期，而非大規模銷售。",
         icon: "flask",
       },
     ],
     howItWorksItems: [
       {
         step: "01",
-        title: "Install the Node",
-        desc: "Easily install in indoor spaces like homes, offices, or stores.",
+        title: "安裝節點",
+        desc: "在家庭、辦公室、商店等室內空間輕鬆完成安裝。",
         icon: "home",
       },
       {
         step: "02",
-        title: "Collect Environment Data",
-        desc: "Measure indoor air quality signals such as Temperature, Humidity, PM, and CO₂.",
+        title: "收集環境數據",
+        desc: "測量室內空氣質量信號，如溫度、濕度、PM、CO₂ 等。",
         icon: "activity",
       },
       {
         step: "03",
-        title: "Verify Data Quality",
-        desc: "Review measurement data from a network perspective to enhance reliability.",
+        title: "驗證數據質量",
+        desc: "從網絡角度審核測量數據，提升可信度。",
         icon: "shield",
       },
       {
         step: "04",
-        title: "Join as Early Contributor",
-        desc: "Join as a real-world user and early network contributor during the Testnet phase.",
+        title: "加入成爲初期貢獻者",
+        desc: "在 Testnet 階段以真實用戶及初期網絡貢獻者身份加入。",
         icon: "wallet",
       },
     ],
     audienceItems: [
       {
-        title: "General Users / Early Adopters",
+        title: "一般用戶 / 早期採用者",
         icon: "wind",
         points: [
-          "Users who want to visually monitor air quality in their homes and spaces.",
-          "Users who want to detect anomalies more quickly.",
-          "Users who want to be the first to try new smart devices.",
+          "想親眼確認家中和空間空氣質量的用戶",
+          "想更快速偵測異常徵兆的用戶",
+          "想率先嘗試新型智能設備的用戶",
         ],
       },
       {
-        title: "Blockchain / DePIN Users",
+        title: "區塊鏈 / DePIN 用戶",
         icon: "layers",
         points: [
-          "Users who want to participate from the start of a physical-based data network.",
-          "Users who want to grow with the project from the Testnet stage.",
-          "Users who want to secure an early contributor position.",
+          "想參與實體數據網絡起點的用戶",
+          "想從 Testnet 階段起與項目共同成長的用戶",
+          "想搶佔初期貢獻位置的用戶",
         ],
       },
     ],
     timelineItems: [
-      "Product Design & Node Preparation",
-      "Devnet Verification Complete",
-      "Initial Testnet User Recruitment",
-      "Sequential release of usage data, reviews, and operational proofs",
-      "Network expansion and advanced participation structures",
+      "產品設計與節點準備",
+      "Devnet 驗證完成",
+      "Testnet 初期用戶招募",
+      "依次公開實際使用數據、評論及運營證明",
+      "網絡擴展與參與結構優化",
     ],
     benefitItems: [
-      "Early Testnet participation experience",
-      "Priority access to updates and community",
-      "Accumulation of node operation experience",
-      "Preemptive effect for upcoming contribution structures",
-      "Securing an early user position",
-      "Direct involvement in product and network evolution",
+      "初期 Testnet 參與經驗",
+      "優先獲得更新信息與加入社區",
+      "累積節點運營經驗",
+      "即將公開的貢獻結構優先權",
+      "佔據初期用戶位置",
+      "直接參與產品與網絡的演進過程",
     ],
     nodeCards: [
       {
         name: "AirVent Node",
-        desc: "A smart node designed for indoor air quality sensing and network participation.",
+        desc: "兼顧室內空氣質量測量與網絡參與的智能節點",
         specs: ["Indoor IAQ sensing", "Dashboard connected", "Early user ready"],
       },
       {
         name: "AirVent Dashboard",
-        desc: "The starting point for monitoring measurement flows and node status.",
+        desc: "確認測量流程與節點狀態的運營頁面起點",
         specs: ["Node overview", "Status monitoring", "Proof-ready structure"],
       },
     ],
     proofItems: [
-      "Early operator reviews coming soon",
-      "Indoor installation photos and usage cases coming soon",
-      "Dashboard measurement snapshots coming soon",
-      "Testnet operational/contribution data coming soon",
-      "Sequential updates of additional verification reports",
+      "即將公開初期運營者評論",
+      "即將公開室內安裝照片與使用案例",
+      "即將公開儀表板測量快照",
+      "即將公開 Testnet 運營/貢獻數據",
+      "依次更新額外的驗證報告",
     ],
     faqs: [
       {
-        q: "What kind of product is AirVent?",
-        a: "AirVent is a smart node that measures indoor air quality and serves as an entry point for early participation in a verifiable environmental data network.",
+        q: "AirVent 是什麼樣的產品？",
+        a: "AirVent 是一個測量室內空氣質量的智能節點，也是爲參與可驗證環境數據網絡而設計的初期入口點。",
       },
       {
-        q: "Is it a commercial launch or a Testnet stage?",
-        a: "Currently, we are at the stage of recruiting initial Testnet users after completing node launch and Devnet verification.",
+        q: "目前是商業發布，還是 Testnet 階段？",
+        a: "目前是在完成節點發布與 Devnet 驗證後，招募 Testnet 初期用戶的階段。",
       },
       {
-        q: "Can general users participate?",
-        a: "Yes. It is designed so that even users without blockchain knowledge can participate from an air quality monitoring and product usage perspective.",
+        q: "一般用戶也可以參與嗎？",
+        a: "可以。即使是沒有區塊鏈知識的用戶，也能從空氣質量測量與產品使用的角度參與其中。",
       },
       {
-        q: "When will reviews and operational data be released?",
-        a: "We plan to sequentially release real-world cases and operational data after the initial user recruitment.",
+        q: "什麼時候會公開評論和運營數據？",
+        a: "我們計劃在初階用戶招募後，依次公開實際使用案例與運營數據。",
       },
     ],
     footerTagline: "Hyperlocal Air Quality Network — Powered by Solana",
-    footerLinks: { docs: "Docs", github: "GitHub", blog: "Blog", privacy: "Privacy Policy", terms: "Terms of Service" },
+    footerLinks: { docs: "文檔", github: "GitHub", blog: "部落格", privacy: "隱私權政策", terms: "使用條款" },
   },
-} as const;
+};
 
 export const heroBadges = [
   "Devnet Verified",
@@ -612,7 +612,6 @@ export const heroBadges = [
 
 type Lang = keyof typeof t;
 
-/* ─────────────── Component ─────────────── */
 export default function LandingPage() {
   const navigate = useNavigate();
   const [lang, setLang] = useState<Lang>("ko");
@@ -624,7 +623,10 @@ export default function LandingPage() {
 
   useEffect(() => {
     let toastTimer: ReturnType<typeof setTimeout>;
-
+    const currentLang = i18n.language as Lang;
+    if (t[currentLang]) {
+      setLang(currentLang);
+    }
     const loadUser = async (session: import('@supabase/supabase-js').Session | null) => {
       if (session) {
         setAuthenticated(true);
@@ -640,16 +642,11 @@ export default function LandingPage() {
         setNickname(null);
       }
     };
-
-    // Initial load
     import('../lib/supabaseClient').then(({ supabase: sb }) => {
       sb.auth.getSession().then(({ data: { session } }) => loadUser(session));
-
-      // Reactive — updates whenever auth state changes
       const { data: { subscription } } = sb.auth.onAuthStateChange((_event, session) => {
         loadUser(session);
       });
-
       return () => {
         subscription.unsubscribe();
         clearTimeout(toastTimer);
@@ -664,10 +661,12 @@ export default function LandingPage() {
     navigate("/");
   };
 
+  const changeLanguage = (l: Lang) => {
+    setLang(l);
+    i18n.changeLanguage(l);
+  };
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100">
-
-      {/* ── Welcome Toast ── */}
       {showToast && nickname && (
         <div style={{position:'fixed',top:'20px',left:'50%',transform:'translateX(-50%)',zIndex:9999,animation:'slideDown 0.4s ease-out'}}>
           <div style={{display:'flex',alignItems:'center',gap:'12px',background:'rgba(15,23,42,0.95)',border:'1px solid rgba(16,185,129,0.4)',borderRadius:'16px',boxShadow:'0 20px 60px rgba(0,0,0,0.5),0 0 40px rgba(16,185,129,0.1)',padding:'16px 24px',backdropFilter:'blur(16px)'}}>
@@ -681,12 +680,9 @@ export default function LandingPage() {
         </div>
       )}
       <style>{`@keyframes slideDown{from{opacity:0;transform:translate(-50%,-16px)}to{opacity:1;transform:translate(-50%,0)}}`}</style>
-
-      {/* ── Header ── */}
       <header className="sticky top-0 z-50 border-b border-slate-800 bg-slate-950/90 backdrop-blur-md">
         <Container>
           <div className="py-3 flex items-center justify-between gap-4">
-            {/* Logo */}
             <div className="flex items-center gap-4">
               <div className="h-12 flex items-center">
                 <img src="/airvent-logo-v3.png" alt="Airvent" className="h-full w-auto object-contain" />
@@ -695,19 +691,14 @@ export default function LandingPage() {
                 <div className="text-sm font-black uppercase tracking-widest text-slate-400">Airvent DePIN</div>
               </div>
             </div>
-
-            {/* Nav */}
             <nav className="hidden md:flex items-center gap-6">
               <a href="#problems" className="text-sm text-slate-400 hover:text-emerald-400 transition-colors">{tx.nav.about}</a>
               <Link to="/node" className="text-sm text-slate-400 hover:text-emerald-400 transition-colors">{tx.nav.node}</Link>
-              
             </nav>
-
-            {/* Right controls */}
             <div className="flex items-center gap-3">
               <div className="flex gap-1 bg-slate-900 rounded-full p-1 border border-slate-800">
                 {(["ko", "en", "ja", "zh-TW"] as Lang[]).map((l) => (
-                  <button key={l} onClick={() => setLang(l)}
+                  <button key={l} onClick={() => changeLanguage(l)}
                     className={`px-3 py-1 rounded-full text-xs font-bold transition-colors ${lang === l ? "bg-emerald-500 text-slate-950" : "text-slate-400 hover:text-slate-200"}`}>
                     {l.toUpperCase() === "ZH-TW" ? "ZH" : l.toUpperCase()}
                   </button>
@@ -738,9 +729,7 @@ export default function LandingPage() {
           </div>
         </Container>
       </header>
-
       <main>
-        {/* ── Hero ── */}
         <section className="relative overflow-hidden border-b border-slate-800/50">
           <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/20 via-slate-950 to-slate-950 pointer-events-none" />
           <Container>
@@ -789,7 +778,6 @@ export default function LandingPage() {
                   )}
                 </div>
               </div>
-
               <div className="flex justify-center md:justify-end">
                 <div className="relative w-full max-w-md aspect-square rounded-3xl bg-slate-900/50 border border-slate-800 flex items-center justify-center overflow-hidden">
                   <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent" />
@@ -799,35 +787,24 @@ export default function LandingPage() {
             </div>
           </Container>
         </section>
-
-        {/* ── Problems Section ── */}
         <section id="problems" className="py-24 bg-slate-900/20">
           <Container>
             <div className="max-w-3xl mx-auto text-center mb-16">
               <h2 className="text-2xl md:text-3xl font-bold text-white mb-6 underline decoration-emerald-500/30 decoration-4 underline-offset-8">{tx.sections.problems}</h2>
               <div className="grid gap-4">
                 {tx.problems.map((item, i) => (
-                  typeof item === "string" ? (
-                    <div key={i} className="p-6 rounded-2xl bg-slate-900 border border-slate-800 text-slate-300 text-left flex gap-4 items-start">
-                      <span className="text-emerald-500 font-bold">Q.</span>
-                      <p>{item}</p>
+                  <div key={i} className="p-6 rounded-2xl bg-slate-900 border border-slate-800 text-left flex gap-5 items-start hover:border-emerald-500/30 transition-colors">
+                    <span className="text-4xl shrink-0 mt-1">{item.icon}</span>
+                    <div>
+                      <h3 className="text-white font-bold text-lg mb-2">{item.title}</h3>
+                      <p className="text-slate-400 text-sm leading-relaxed">{item.desc}</p>
                     </div>
-                  ) : (
-                    <div key={i} className="p-6 rounded-2xl bg-slate-900 border border-slate-800 text-left flex gap-5 items-start hover:border-emerald-500/30 transition-colors">
-                      <span className="text-4xl shrink-0 mt-1">{item.icon}</span>
-                      <div>
-                        <h3 className="text-white font-bold text-lg mb-2">{item.title}</h3>
-                        <p className="text-slate-400 text-sm leading-relaxed">{item.desc}</p>
-                      </div>
-                    </div>
-                  )
+                  </div>
                 ))}
               </div>
             </div>
           </Container>
         </section>
-
-        {/* ── Why Now Section (Positioning) ── */}
         <section className="py-24 border-t border-slate-800/50">
           <Container>
             <div className="text-center mb-16">
@@ -849,8 +826,6 @@ export default function LandingPage() {
             </div>
           </Container>
         </section>
-
-        {/* ── How It Works ── */}
         <section className="py-24 bg-slate-900/10 border-t border-slate-800/50">
           <Container>
             <div className="text-center mb-16">
@@ -874,8 +849,6 @@ export default function LandingPage() {
             </div>
           </Container>
         </section>
-
-        {/* ── Audience ── */}
         <section className="py-24 border-t border-slate-800/50">
           <Container>
             <div className="grid md:grid-cols-2 gap-12">
@@ -896,8 +869,6 @@ export default function LandingPage() {
             </div>
           </Container>
         </section>
-
-        {/* ── Timeline & Benefits ── */}
         <section className="py-24 bg-slate-900/20 border-t border-slate-800/50">
           <Container>
             <div className="grid md:grid-cols-2 gap-16">
@@ -925,11 +896,6 @@ export default function LandingPage() {
             </div>
           </Container>
         </section>
-
-
-
-
-        {/* ── Proof & FAQ ── */}
         <section className="py-24 border-t border-slate-800/50">
           <Container>
             <div className="grid md:grid-cols-2 gap-16">
@@ -958,16 +924,12 @@ export default function LandingPage() {
           </Container>
         </section>
       </main>
-
-      {/* ── Footer ── */}
       <footer className="border-t border-slate-800 bg-slate-950 py-14">
         <Container>
           <div className="flex flex-col md:flex-row justify-between gap-10 mb-10">
-            {/* Brand */}
             <div className="max-w-xs">
               <div className="text-base font-black text-white mb-2">Airvent-AI</div>
               <p className="text-sm text-slate-500 leading-relaxed">{tx.footerTagline}</p>
-              {/* Social icons */}
               <div className="flex items-center gap-3 mt-5">
                 {[
                   { label: "X", href: "https://x.com/airventdepin", icon: "𝕏" },
@@ -981,8 +943,6 @@ export default function LandingPage() {
                 ))}
               </div>
             </div>
-
-            {/* Links */}
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-10">
               <div>
                 <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Resources</h4>
@@ -1008,7 +968,6 @@ export default function LandingPage() {
               </div>
             </div>
           </div>
-
           <div className="pt-6 border-t border-slate-900 flex flex-col md:flex-row justify-between items-center gap-3">
             <div className="text-[10px] text-slate-600 font-bold uppercase tracking-widest">
               © {new Date().getFullYear()} Airvent-AI. All rights reserved.
