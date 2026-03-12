@@ -174,7 +174,7 @@ const t = {
     sections: {
       problems: "Why AirVent?",
       whyNow: "Current Phase & Key Messages",
-      why NowSub: "AirVent is passing through its most crucial milestone.",
+      whyNowSub: "AirVent is passing through its most crucial milestone.",
       howItWorks: "How It Works",
       howItWorksSub: "From measurement to contribution",
       timeline: "Network Timeline",
