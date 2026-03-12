@@ -17,8 +17,8 @@ i18n
             ja: { translation: ja },
             "zh-TW": { translation: zhTW }
         },
-        lng: 'en', // Force English as default
-        fallbackLng: 'en',
+        // lng: "en", // Removed to allow detector to work
+        fallbackLng: 'ko',
         interpolation: {
             escapeValue: false
         }
