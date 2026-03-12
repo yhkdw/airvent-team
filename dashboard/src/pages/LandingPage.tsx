@@ -614,7 +614,20 @@ type Lang = keyof typeof t;
 
 export default function LandingPage() {
   const navigate = useNavigate();
-  const [lang, setLang] = useState<Lang>("ko");
+  // Detect initial language correctly from i18n or URL params
+  const initialLang = (() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlLang = urlParams.get("lang");
+    if (urlLang && ["ko", "en", "ja", "zh-TW"].includes(urlLang)) return urlLang as Lang;
+    
+    const i18nLang = i18n.language || "ko";
+    if (i18nLang.startsWith("ko")) return "ko";
+    if (i18nLang.startsWith("ja")) return "ja";
+    if (i18nLang.startsWith("zh")) return "zh-TW";
+    return "en";
+  })() as Lang;
+
+  const [lang, setLang] = useState<Lang>(initialLang);
   const [authenticated, setAuthenticated] = useState(false);
   const [nickname, setNickname] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);

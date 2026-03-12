@@ -7,7 +7,7 @@ type SocialProvider = "google" | "twitter";
 type Mode = "login" | "signup" | "verify";
 
 export default function LoginPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const nav = useNavigate();
   const location = useLocation();
   const nextPath = new URLSearchParams(location.search).get("next") || "/";
@@ -28,7 +28,11 @@ export default function LoginPage() {
 
   const handleSocialLogin = async (provider: SocialProvider) => {
     setError("");
-    const { error } = await loginWithSocial(provider, nextPath !== "/" ? nextPath : undefined);
+    // Pass current i18n language to persist through social auth
+    const currentLang = i18n.language || "ko";
+    const langParam = currentLang.startsWith("ko") ? "ko" : currentLang.startsWith("ja") ? "ja" : currentLang.startsWith("zh") ? "zh-TW" : "en";
+    
+    const { error } = await loginWithSocial(provider, nextPath !== "/" ? nextPath : undefined, langParam);
     if (error) setError(error.message);
   };
 

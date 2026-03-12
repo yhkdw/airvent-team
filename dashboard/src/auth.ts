@@ -22,9 +22,16 @@ export async function signUpWithEmail(email: string, password: string, nickname:
   });
 }
 
-export async function loginWithSocial(provider: 'google' | 'twitter', next?: string) {
+export async function loginWithSocial(provider: 'google' | 'twitter', next?: string, lang?: string) {
   const providerKey = provider === 'twitter' ? 'x' : provider;
-  const redirectPath = next ? `/?next=${encodeURIComponent(next)}` : '/';
+  
+  // Include language in redirect to maintain state after social login
+  let redirectParams = next ? `next=${encodeURIComponent(next)}` : '';
+  if (lang) {
+    redirectParams += (redirectParams ? '&' : '') + `lang=${lang}`;
+  }
+  
+  const redirectPath = redirectParams ? `/?${redirectParams}` : '/';
   const redirectTo = window.location.origin.endsWith('/')
     ? window.location.origin.slice(0, -1) + redirectPath
     : window.location.origin + redirectPath;
