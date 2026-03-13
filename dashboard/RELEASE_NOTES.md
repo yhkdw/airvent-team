@@ -1,5 +1,20 @@
 # Release Notes
 
+## [v1.8.0] - 2026-03-13
+
+### Added
+- **Intelligent Language Detection**: Restored automatic browser language detection (KO, EN, JA, ZH-TW) while maintaining English as the smart fallback for unsupported languages.
+- **Multi-Domain Language Persistence**: Enhanced redirection logic to preserve language parameters across different deployment domains (airvent.ai, vercel.app, etc.).
+- **Global Auth Redirection Sync**: Ensured seamless language transition during all authentication events and automatic redirections.
+- **Localized UI Feedback**: Fully localized the welcome toast messages and removed remaining hardcoded Korean snippets in the login and landing pages.
+
+### Fixed
+- **OAuth Parameter Loss**: Resolved an issue where social logins (Google, X) would occasionally lose the selected language state post-authentication.
+- **Cross-Domain "Domain Jumps"**: Fixed a bug where redirections between authorized domains would reset the interface to Korean.
+- **Initial Load Reset**: Eliminated the flicker/reset to default language during the initial mount of the Landing Page.
+
+---
+
 ## [v1.6.6] - 2026-03-12
 
 ### Added
