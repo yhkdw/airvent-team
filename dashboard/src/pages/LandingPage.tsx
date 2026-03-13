@@ -157,6 +157,10 @@ const t = {
     ],
     footerTagline: "Hyperlocal Air Quality Network — Powered by Solana",
     footerLinks: { docs: "문서", github: "GitHub", blog: "블로그", privacy: "개인정보처리방침", terms: "이용약관", warranty: "보증정책" },
+    toast: {
+      welcome: "님, 환영합니다!",
+      sub: "AirVent에 오신 것을 환영해요"
+    },
   },
   en: {
     nav: { about: "About", node: "Buy Node", demo: "Dashboard Demo" },
