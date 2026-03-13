@@ -642,6 +642,7 @@ export default function LandingPage() {
   const tx = t[lang];
 
   useEffect(() => {
+    console.log("[LandingPage] lang state:", lang, "i18n.language:", i18n.language, "window.location.search:", window.location.search);
     let toastTimer: ReturnType<typeof setTimeout>;
     
     // Sync i18n with URL param if present (critical for redirection after login)
@@ -650,9 +651,11 @@ export default function LandingPage() {
     if (urlLang && ["ko", "en", "ja", "zh-TW"].includes(urlLang)) {
       i18n.changeLanguage(urlLang);
     }
-    const currentLang = i18n.language as Lang;
+    const currentLang = (i18n.language || "en").split("-")[0] as Lang;
     if (t[currentLang]) {
       setLang(currentLang);
+    } else {
+      setLang("en");
     }
     const loadUser = async (session: import('@supabase/supabase-js').Session | null) => {
       if (session) {

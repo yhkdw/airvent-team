@@ -21,6 +21,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    console.log("[LoginPage] i18n.language:", i18n.language, "search:", location.search);
     const params = new URLSearchParams(location.search);
     const langParam = params.get("lang");
     if (langParam && ["ko", "en", "ja", "zh-TW"].includes(langParam)) {
