@@ -44,10 +44,16 @@ export default function App() {
           return;
         }
 
+        const lang = params.get("lang");
+        const getRedirectPath = (path: string) => {
+          if (!lang) return path;
+          return path.includes("?") ? `${path}&lang=${lang}` : `${path}?lang=${lang}`;
+        };
+
         if (next) {
-          navigate(next, { replace: true });
+          navigate(getRedirectPath(next), { replace: true });
         } else if (currentPath === "/login" || currentPath === "/dashboard" || currentPath.startsWith("/auth/") || hasAccessToken) {
-          navigate("/", { replace: true });
+          navigate(getRedirectPath("/"), { replace: true });
         }
       }
     });
