@@ -685,10 +685,19 @@ export default function LandingPage() {
   }, []);
 
   const handleLogout = async () => {
-    console.log("[LandingPage] logout called"); await logout();
-    console.log("[LandingPage] setAuthenticated(false)"); setAuthenticated(false);
-    setMenuOpen(false);
-    navigate("/");
+    console.log("[LandingPage] handleLogout called");
+    try {
+      await logout();
+      console.log("[LandingPage] logout() success");
+    } catch (err) {
+      console.error("[LandingPage] logout() error:", err);
+    } finally {
+      setAuthenticated(false);
+      setNickname(null);
+      setMenuOpen(false);
+      navigate("/");
+      console.log("[LandingPage] handleLogout finally complete");
+    }
   };
 
   const changeLanguage = (l: Lang) => {
