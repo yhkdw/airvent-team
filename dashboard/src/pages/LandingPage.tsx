@@ -640,6 +640,13 @@ export default function LandingPage() {
 
   useEffect(() => {
     let toastTimer: ReturnType<typeof setTimeout>;
+    
+    // Sync i18n with URL param if present (critical for redirection after login)
+    const params = new URLSearchParams(window.location.search);
+    const urlLang = params.get("lang");
+    if (urlLang && ["ko", "en", "ja", "zh-TW"].includes(urlLang)) {
+      i18n.changeLanguage(urlLang);
+    }
     const currentLang = i18n.language as Lang;
     if (t[currentLang]) {
       setLang(currentLang);
