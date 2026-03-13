@@ -21,6 +21,11 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const langParam = params.get("lang");
+    if (langParam && ["ko", "en", "ja", "zh-TW"].includes(langParam)) {
+      i18n.changeLanguage(langParam);
+    }
     isAuthed().then(authed => {
       if (authed) nav(nextPath);
     });
@@ -218,7 +223,7 @@ export default function LoginPage() {
                 type="password"
                 value={password}
                 onChange={e => setPassword(e.target.value)}
-                placeholder="6자 이상"
+                placeholder={t("login.password_too_short")}
                 autoComplete="new-password"
                 disabled={loading}
               />

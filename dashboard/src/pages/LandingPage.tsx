@@ -738,7 +738,7 @@ export default function LandingPage() {
                   )}
                 </div>
               ) : (
-                <Link to="/login" className="rounded-xl bg-emerald-500 text-slate-950 font-bold px-4 py-2 text-sm hover:bg-emerald-400 transition">
+                <Link to={`/login?lang=${lang}`} className="rounded-xl bg-emerald-500 text-slate-950 font-bold px-4 py-2 text-sm hover:bg-emerald-400 transition">
                   {tx.login}
                 </Link>
               )}
@@ -788,7 +788,7 @@ export default function LandingPage() {
                       <a href="/demo/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-xl border border-slate-700 text-slate-400 font-semibold px-8 py-4 text-base hover:border-slate-500 hover:text-white transition">
                         {tx.heroMore}
                       </a>
-                      <Link to="/login" className="inline-flex items-center gap-2 rounded-xl border border-emerald-500/50 text-emerald-400 font-semibold px-8 py-4 text-base hover:border-emerald-400 hover:text-white transition">
+                      <Link to={`/login?lang=${lang}`} className="inline-flex items-center gap-2 rounded-xl border border-emerald-500/50 text-emerald-400 font-semibold px-8 py-4 text-base hover:border-emerald-400 hover:text-white transition">
                         {lang === "ko" ? "로그인" : lang === "ja" ? "ログイン" : lang === "zh-TW" ? "登錄" : "Login"}
                       </Link>
                     </>
@@ -981,7 +981,7 @@ export default function LandingPage() {
                 <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Product</h4>
                 <ul className="space-y-2.5 text-sm text-slate-500">
                   <li><Link to="/node" className="hover:text-emerald-400 transition-colors">{tx.nav.node}</Link></li>
-                  <li><Link to="/login" className="hover:text-emerald-400 transition-colors">{tx.dashboard}</Link></li>
+                  <li><Link to={`/login?lang=${lang}`} className="hover:text-emerald-400 transition-colors">{tx.dashboard}</Link></li>
                 </ul>
               </div>
             </div>
