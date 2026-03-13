@@ -627,7 +627,7 @@ export default function LandingPage() {
     const urlLang = urlParams.get("lang");
     if (urlLang && ["ko", "en", "ja", "zh-TW"].includes(urlLang)) return urlLang as Lang;
     
-    const i18nLang = "en"; // Force English as default regardless of i18n detect
+    const i18nLang = i18n.language || "en";
     if (i18nLang.startsWith("ko")) return "ko";
     if (i18nLang.startsWith("ja")) return "ja";
     if (i18nLang.startsWith("zh")) return "zh-TW";
