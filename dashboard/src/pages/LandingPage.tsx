@@ -159,7 +159,7 @@ const t = {
     footerLinks: { docs: "문서", github: "GitHub", blog: "블로그", privacy: "개인정보처리방침", terms: "이용약관", warranty: "보증정책" },
     toast: {
       welcome: "님, 환영합니다!",
-      sub: "AirVent에 오신 것을 환영해요"
+      sub: "{tx.toast.sub}"
     },
   },
   en: {
@@ -309,6 +309,7 @@ const t = {
     ],
     footerTagline: "Hyperlocal Air Quality Network — Powered by Solana",
     footerLinks: { docs: "Docs", github: "GitHub", blog: "Blog", privacy: "Privacy Policy", terms: "Terms of Service", warranty: "Warranty Policy" },
+    toast: { welcome: ", welcome back!", sub: "Welcome to AirVent" },
   },
   ja: {
     nav: { about: "紹介", node: "ノード購入", demo: "ダッシュボードDemo" },
@@ -457,6 +458,7 @@ const t = {
     ],
     footerTagline: "Hyperlocal Air Quality Network — Powered by Solana",
     footerLinks: { docs: "文書", github: "GitHub", blog: "ブログ", privacy: "個人情報保護方針", terms: "利用規約", warranty: "保証政策" },
+    toast: { welcome: "さん、おかえりなさい！", sub: "AirVentへようこそ" },
   },
   'zh-TW': {
     nav: { about: "關於", node: "購買節點", demo: "儀表板 Demo" },
@@ -605,6 +607,7 @@ const t = {
     ],
     footerTagline: "Hyperlocal Air Quality Network — Powered by Solana",
     footerLinks: { docs: "文檔", github: "GitHub", blog: "部落格", privacy: "隱私權政策", terms: "使用條款", warranty: "保固政策" },
+    toast: { welcome: "，歡迎回來！", sub: "歡迎來到 AirVent" },
   },
 };
 
@@ -624,7 +627,7 @@ export default function LandingPage() {
     const urlLang = urlParams.get("lang");
     if (urlLang && ["ko", "en", "ja", "zh-TW"].includes(urlLang)) return urlLang as Lang;
     
-    const i18nLang = i18n.language || "en";
+    const i18nLang = "en"; // Force English as default regardless of i18n detect
     if (i18nLang.startsWith("ko")) return "ko";
     if (i18nLang.startsWith("ja")) return "ja";
     if (i18nLang.startsWith("zh")) return "zh-TW";
@@ -696,8 +699,8 @@ export default function LandingPage() {
           <div style={{display:'flex',alignItems:'center',gap:'12px',background:'rgba(15,23,42,0.95)',border:'1px solid rgba(16,185,129,0.4)',borderRadius:'16px',boxShadow:'0 20px 60px rgba(0,0,0,0.5),0 0 40px rgba(16,185,129,0.1)',padding:'16px 24px',backdropFilter:'blur(16px)'}}>
             <span style={{fontSize:'24px'}}>👋</span>
             <div>
-              <div style={{color:'#34d399',fontWeight:900,fontSize:'16px'}}>{nickname}님, 환영합니다!</div>
-              <div style={{color:'#94a3b8',fontSize:'12px',marginTop:'2px'}}>AirVent에 오신 것을 환영해요</div>
+              <div style={{color:'#34d399',fontWeight:900,fontSize:'16px'}}>{`${nickname}${tx.toast.welcome}`}</div>
+              <div style={{color:'#94a3b8',fontSize:'12px',marginTop:'2px'}}>{tx.toast.sub}</div>
             </div>
             <button onClick={() => setShowToast(false)} style={{marginLeft:'8px',color:'#475569',background:'none',border:'none',cursor:'pointer',fontSize:'18px',lineHeight:'1'}} onMouseOver={e=>(e.currentTarget.style.color='#94a3b8')} onMouseOut={e=>(e.currentTarget.style.color='#475569')}>✕</button>
           </div>
