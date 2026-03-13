@@ -657,10 +657,10 @@ export default function LandingPage() {
     } else {
       setLang("en");
     }
-    const loadUser = async (session: import('@supabase/supabase-js').Session | null) => {
+    const loadUser = async (session: any) => {
+      console.log("[LandingPage] loadUser session check:", !!session);
       if (session) {
-        console.log("[LandingPage] setAuthenticated(true)"); setAuthenticated(true);
-        const { supabase: sb } = await import('../lib/supabaseClient');
+        setAuthenticated(true);
         const nick = await getNickname(session.user.id);
         setNickname(nick);
         if (nick) {
