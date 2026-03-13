@@ -29,7 +29,7 @@ export default function LoginPage() {
   const handleSocialLogin = async (provider: SocialProvider) => {
     setError("");
     // Pass current i18n language to persist through social auth
-    const currentLang = i18n.language || "ko";
+    const currentLang = i18n.language || "en";
     const langParam = currentLang.startsWith("ko") ? "ko" : currentLang.startsWith("ja") ? "ja" : currentLang.startsWith("zh") ? "zh-TW" : "en";
     
     const { error } = await loginWithSocial(provider, nextPath !== "/" ? nextPath : undefined, langParam);
