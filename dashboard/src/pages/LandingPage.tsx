@@ -659,7 +659,7 @@ export default function LandingPage() {
     }
     const loadUser = async (session: import('@supabase/supabase-js').Session | null) => {
       if (session) {
-        setAuthenticated(true);
+        console.log("[LandingPage] setAuthenticated(true)"); setAuthenticated(true);
         const { supabase: sb } = await import('../lib/supabaseClient');
         const nick = await getNickname(session.user.id);
         setNickname(nick);
@@ -668,7 +668,7 @@ export default function LandingPage() {
           toastTimer = setTimeout(() => setShowToast(false), 4000);
         }
       } else {
-        setAuthenticated(false);
+        console.log("[LandingPage] setAuthenticated(false)"); setAuthenticated(false);
         setNickname(null);
       }
     };
@@ -685,8 +685,8 @@ export default function LandingPage() {
   }, []);
 
   const handleLogout = async () => {
-    await logout();
-    setAuthenticated(false);
+    console.log("[LandingPage] logout called"); await logout();
+    console.log("[LandingPage] setAuthenticated(false)"); setAuthenticated(false);
     setMenuOpen(false);
     navigate("/");
   };
