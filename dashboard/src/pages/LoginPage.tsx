@@ -27,7 +27,7 @@ export default function LoginPage() {
       i18n.changeLanguage(langParam);
     }
     isAuthed().then(authed => {
-      if (authed) nav(nextPath);
+      if (authed) nav(nextPath.includes("?") ? `${nextPath}&lang=${i18n.language}` : `${nextPath}?lang=${i18n.language}`);
     });
   }, [nav]);
 
@@ -48,7 +48,7 @@ export default function LoginPage() {
     const { error: loginErr } = await loginWithEmail(email, password);
     setLoading(false);
     if (loginErr) setError(loginErr.message || t("login.error_unauthorized"));
-    else nav(nextPath);
+    else nav(nextPath.includes("?") ? `${nextPath}&lang=${i18n.language}` : `${nextPath}?lang=${i18n.language}`);
   };
 
   const handleSignUp = async (e: React.FormEvent) => {
