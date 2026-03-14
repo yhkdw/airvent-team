@@ -16,7 +16,48 @@
         "connecting": "接続中..."
     },
     "overview": {
+         "metrics": {
+            "pm25": "超微小粒子状物質",
+            "pm1": "極微小粒子状物質",
+            "pm10": "微小粒子状物質",
+            "co2": "二酸化炭素",
+            "voc": "有害化合物",
+            "comfort": "室内環境の快適さ"
+        },
         "global_status": "グローバルネットワークの状況",
+        "mode_home": "ホームモード",
+        "mode_office": "オフィスモード",
+        "loading": "データを読み込み中...",
+        "spaces": {
+            "living-room": "リビング",
+            "kitchen": "キッチン",
+            "bedroom": "寝室",
+            "kids-room": "子供部屋",
+            "meeting-a": "大会議室",
+            "office-area": "共有オフィススペース",
+            "lounge": "休憩室",
+            "entrance": "玄関",
+            "bathroom": "浴室",
+            "veranda": "ベランダ",
+            "hallway": "廊下 / エレベーターエリア"
+        },
+        "status_labels": {
+            "perfect": "Perfect",
+            "good": "Good",
+            "needs_vent": "Needs Vent"
+        },
+        "alerts": {
+            "co2_title": "{{name}} CO2警告",
+            "co2_desc": "現在{{name}}の二酸化炭素数値が{{val}}ppmと高くなっています。空調システムを稼働させてください。",
+            "pm25_title": "{{name}} 微小粒子状物質警告",
+            "pm25_desc": "現在{{name}}のPM2.5数値が{{val}}µg/m³と高くなっています。",
+            "voc_title": "{{name}} VOC警告",
+            "voc_desc": "揮発性有機化合物(VOC)数値が{{val}}ppbと高くなっています。外部換気が必要です。",
+            "action_hvac": "空調稼働",
+            "action_hood": "換気扇稼働",
+            "action_purifier": "空気清浄機稼働",
+            "action_vent": "換気モード"
+        },
         "audit_engine": "DePIN AI監査エンジン",
         "integrity_title": "リアルタイムのデータ整合性",
         "integrity_desc": "すべてのセンサーデータは、分散型AIレイヤーを通じてゼロ知識証明で自動的に監査され、プライバシーを損なうことなく100％の真正性を保証いたします。",

@@ -33,12 +33,12 @@ export default function KpiCards({ latest, spaceId }: { latest: AirPoint, spaceI
     const pm1Tone = latest.pm1 <= 10 ? "ok" : latest.pm1 <= 25 ? "warn" : "bad";
 
     const baseItems = [
-      { k: "PM2.5", v: latest.pm25, u: "µg/m³", t: tone(latest.pm25, THRESHOLDS.pm25), desc: "초미세먼지", priority: 1 },
-      { k: "PM1.0", v: latest.pm1, u: "µg/m³", t: pm1Tone, desc: "극초미세먼지", priority: 2 },
-      { k: "PM10", v: latest.pm10, u: "µg/m³", t: tone(latest.pm10, THRESHOLDS.pm10), desc: "미세먼지", priority: 5 },
-      { k: "CO2", v: latest.co2, u: "ppm", t: tone(latest.co2, THRESHOLDS.co2), desc: "이산화탄소", priority: 10 },
-      { k: "VOC", v: latest.voc, u: "ppb", t: tone(latest.voc, THRESHOLDS.voc), desc: "유해화합물", priority: 15 },
-      { k: "Temp / Hum", v: 0, u: "", t: "ok" as const, extra: `${fmt(latest.temp, 1)}°C / ${latest.hum}%`, desc: "실내 쾌적도", priority: 20 },
+      { k: "PM2.5", v: latest.pm25, u: "µg/m³", t: tone(latest.pm25, THRESHOLDS.pm25), desc: t("overview.metrics.pm25"), priority: 1 },
+      { k: "PM1.0", v: latest.pm1, u: "µg/m³", t: pm1Tone, desc: t("overview.metrics.pm1"), priority: 2 },
+      { k: "PM10", v: latest.pm10, u: "µg/m³", t: tone(latest.pm10, THRESHOLDS.pm10), desc: t("overview.metrics.pm10"), priority: 5 },
+      { k: "CO2", v: latest.co2, u: "ppm", t: tone(latest.co2, THRESHOLDS.co2), desc: t("overview.metrics.co2"), priority: 10 },
+      { k: "VOC", v: latest.voc, u: "ppb", t: tone(latest.voc, THRESHOLDS.voc), desc: t("overview.metrics.voc"), priority: 15 },
+      { k: "Temp / Hum", v: 0, u: "", t: "ok" as const, extra: `${fmt(latest.temp, 1)}°C / ${latest.hum}%`, desc: t("overview.metrics.comfort"), priority: 20 },
     ];
 
     // Contextual Sorting based on spaceId
@@ -60,7 +60,7 @@ export default function KpiCards({ latest, spaceId }: { latest: AirPoint, spaceI
 
     // Default: PM2.5, PM1.0 First
     return [...baseItems].sort((a, b) => a.priority - b.priority);
-  }, [latest, spaceId]);
+  }, [latest, spaceId, t]);
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">

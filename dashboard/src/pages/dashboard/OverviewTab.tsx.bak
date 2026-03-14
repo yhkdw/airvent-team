@@ -95,16 +95,16 @@ export default function OverviewTab() {
     const activeStatus = getAirStatus(latest);
 
     const homeSpaces = [
-        { id: 'living-room', nameKey: 'overview.spaces.living-room', icon: <Home size={14} /> },
-        { id: 'kitchen', nameKey: 'overview.spaces.kitchen', icon: <Wind size={14} /> },
-        { id: 'bedroom', nameKey: 'overview.spaces.bedroom', icon: <Home size={14} /> },
-        { id: 'kids-room', nameKey: 'overview.spaces.kids-room', icon: <Home size={14} /> },
+        { id: 'living-room', name: '거실', icon: <Home size={14} /> },
+        { id: 'kitchen', name: '주방', icon: <Wind size={14} /> },
+        { id: 'bedroom', name: '안방', icon: <Home size={14} /> },
+        { id: 'kids-room', name: '아이방', icon: <Home size={14} /> },
     ];
 
     const officeSpaces = [
-        { id: 'meeting-a', nameKey: 'overview.spaces.meeting-a', icon: <Briefcase size={14} /> },
-        { id: 'office-area', nameKey: 'overview.spaces.office-area', icon: <Users size={14} /> },
-        { id: 'lounge', nameKey: 'overview.spaces.lounge', icon: <Coffee size={14} /> },
+        { id: 'meeting-a', name: '대회의실', icon: <Briefcase size={14} /> },
+        { id: 'office-area', name: '공용 사무공간', icon: <Users size={14} /> },
+        { id: 'lounge', name: '휴게실', icon: <Coffee size={14} /> },
     ];
 
     const currentSpaces = mode === 'home' ? homeSpaces : officeSpaces;
@@ -124,33 +124,33 @@ export default function OverviewTab() {
 
             if (isCO2Issue) {
                 return {
-                    title: t("overview.alerts.co2_title", { name: t((activeSpaceInfo as any).nameKey) }),
-                    desc: t("overview.alerts.co2_desc", { name: t((activeSpaceInfo as any).nameKey), val: latest.co2 }),
-                    action: t("overview.alerts.action_hvac"),
+                    title: `${activeSpaceInfo.name} CO2 경고`,
+                    desc: `현재 ${activeSpaceInfo.name}의 이산화탄소 수치가 ${latest.co2}ppm으로 높습니다. 공조 시스템을 가동하세요.`,
+                    action: "공조기 가동",
                     icon: <Wind className="text-rose-400" />
                 };
             }
             if (isPM25Issue) {
                 return {
-                    title: t("overview.alerts.pm25_title", { name: t((activeSpaceInfo as any).nameKey) }),
-                    desc: t("overview.alerts.pm25_desc", { name: t((activeSpaceInfo as any).nameKey), val: latest.pm25 }),
-                    action: mode === "home" && activeSpace === "kitchen" ? t("overview.alerts.action_hood") : t("overview.alerts.action_purifier"),
+                    title: `${activeSpaceInfo.name} 미세먼지 경고`,
+                    desc: `현재 ${activeSpaceInfo.name}의 초미세먼지 수치가 ${latest.pm25}µg/m³ 로 높습니다.`,
+                    action: mode === 'home' && activeSpace === 'kitchen' ? "후드 가동" : "공기청정기 가동",
                     icon: <Fan className="text-amber-400" />
                 };
             }
             if (isVOCIssue) {
                 return {
-                    title: t("overview.alerts.voc_title", { name: t((activeSpaceInfo as any).nameKey) }),
-                    desc: t("overview.alerts.voc_desc", { name: t((activeSpaceInfo as any).nameKey), val: latest.voc }),
-                    action: t("overview.alerts.action_vent"),
+                    title: `${activeSpaceInfo.name} VOC 경고`,
+                    desc: `유해화합물(VOC) 수치가 ${latest.voc}ppb로 높습니다. 외부 환기가 필요합니다.`,
+                    action: "환기 모드",
                     icon: <Wind className="text-amber-400" />
                 };
             }
         }
         return null;
-    }, [mode, activeSpace, latest, activeStatus, activeSpaceInfo, t]);
+    }, [mode, activeSpace, latest, activeStatus, activeSpaceInfo]);
 
-    if (!rawLatest) return <div className="p-8 text-center text-slate-500">t("overview.loading")</div>;
+    if (!rawLatest) return <div className="p-8 text-center text-slate-500">데이터를 불러오는 중...</div>;
 
     return (
         <div className="space-y-6">
@@ -160,13 +160,13 @@ export default function OverviewTab() {
                         onClick={() => { setMode('home'); setActiveSpace('living-room'); }}
                         className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${mode === 'home' ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20' : 'text-slate-400 hover:text-slate-200'}`}
                     >
-                        <Home size={16} /> {t("overview.mode_home")}
+                        <Home size={16} /> 홈 모드
                     </button>
                     <button 
                         onClick={() => { setMode('office'); setActiveSpace('meeting-a'); }}
                         className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${mode === 'office' ? 'bg-cyan-500 text-white shadow-lg shadow-cyan-500/20' : 'text-slate-400 hover:text-slate-200'}`}
                     >
-                        <Briefcase size={16} /> {t("overview.mode_office")}
+                        <Briefcase size={16} /> 오피스 모드
                     </button>
                 </div>
 
@@ -183,7 +183,7 @@ export default function OverviewTab() {
                                     className: `transition-colors duration-500 ${getStatusColorCls(status, 'text')}`,
                                     size: 14 
                                 })}
-                                <span>{t((space as any).nameKey)}</span>
+                                <span>{space.name}</span>
                                 <div className={`w-2 h-2 rounded-full ${getStatusColorCls(status, 'bg')} ${getStatusColorCls(status, 'shadow')} animate-pulse`} />
                             </button>
                         );
@@ -216,7 +216,7 @@ export default function OverviewTab() {
                         <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-widest flex items-center gap-2">
                             <MapPin size={16} className={getStatusColorCls(activeStatus, 'text')} />
                             {t("overview.global_status")}
-                            <span className="text-xs text-slate-600 font-normal normal-case">/ {t((activeSpaceInfo as any).nameKey)}</span>
+                            <span className="text-xs text-slate-600 font-normal normal-case">/ {activeSpaceInfo.name}</span>
                         </h3>
                     </div>
                     <KpiCards latest={latest} spaceId={activeSpace} />
@@ -230,35 +230,35 @@ export default function OverviewTab() {
                             <div className="grid grid-cols-4 grid-rows-3 w-full h-full gap-2 transition-all duration-500">
                                 <button onClick={() => setActiveSpace('living-room')} className={`col-span-2 row-span-2 rounded-xl border-2 flex flex-col items-center justify-center transition-all duration-300 ${activeSpace === 'living-room' ? `${getStatusColorCls(activeStatus, 'border')} bg-slate-800 shadow-[0_0_20px_rgba(0,0,0,0.5)] scale-[1.02]` : 'border-slate-800 bg-slate-900/50 hover:bg-slate-800'}`}>
                                     <Home size={24} className={activeSpace === 'living-room' ? getStatusColorCls(activeStatus, 'text') : 'text-slate-600'} />
-                                    <span className={`text-xs mt-2 ${activeSpace === 'living-room' ? 'text-slate-100 font-bold' : 'text-slate-500'}`}>{t("overview.spaces.living-room")}</span>
+                                    <span className={`text-xs mt-2 ${activeSpace === 'living-room' ? 'text-slate-100 font-bold' : 'text-slate-500'}`}>거실</span>
                                 </button>
                                 <button onClick={() => setActiveSpace('kitchen')} className={`col-span-1 row-span-1 rounded-xl border-2 flex flex-col items-center justify-center transition-all duration-300 ${activeSpace === 'kitchen' ? `${getStatusColorCls(activeStatus, 'border')} bg-slate-800 shadow-[0_0_20px_rgba(0,0,0,0.5)] scale-[1.02]` : 'border-slate-800 bg-slate-900/50 hover:bg-slate-800'}`}>
                                     <Wind size={20} className={activeSpace === 'kitchen' ? getStatusColorCls(activeStatus, 'text') : 'text-slate-600'} />
-                                    <span className={`text-xs mt-1 ${activeSpace === 'kitchen' ? 'text-slate-100 font-bold' : 'text-slate-500'}`}>{t("overview.spaces.kitchen")}</span>
+                                    <span className={`text-xs mt-1 ${activeSpace === 'kitchen' ? 'text-slate-100 font-bold' : 'text-slate-500'}`}>주방</span>
                                 </button>
-                                <div className="col-span-1 row-span-1 rounded-xl border border-slate-800 bg-slate-900/20 flex items-center justify-center text-[10px] text-slate-700">{t("overview.spaces.entrance")}</div>
-                                <div className="col-start-3 row-start-2 rounded-xl border border-slate-800 bg-slate-900/20 flex items-center justify-center text-[10px] text-slate-700">{t("overview.spaces.bathroom")}</div>
+                                <div className="col-span-1 row-span-1 rounded-xl border border-slate-800 bg-slate-900/20 flex items-center justify-center text-[10px] text-slate-700">현관</div>
+                                <div className="col-start-3 row-start-2 rounded-xl border border-slate-800 bg-slate-900/20 flex items-center justify-center text-[10px] text-slate-700">욕실</div>
                                 <button onClick={() => setActiveSpace('bedroom')} className={`col-span-1 row-span-1 rounded-xl border-2 flex flex-col items-center justify-center transition-all duration-300 ${activeSpace === 'bedroom' ? `${getStatusColorCls(activeStatus, 'border')} bg-slate-800 shadow-[0_0_20px_rgba(0,0,0,0.5)] scale-[1.02]` : 'border-slate-800 bg-slate-900/50 hover:bg-slate-800'}`}>
-                                    <span className={`text-xs ${activeSpace === 'bedroom' ? 'text-slate-100 font-bold' : 'text-slate-500'}`}>{t("overview.spaces.bedroom")}</span>
+                                    <span className={`text-xs ${activeSpace === 'bedroom' ? 'text-slate-100 font-bold' : 'text-slate-500'}`}>안방</span>
                                 </button>
                                 <button onClick={() => setActiveSpace('kids-room')} className={`col-start-1 row-start-3 col-span-1 rounded-xl border-2 flex flex-col items-center justify-center transition-all duration-300 ${activeSpace === 'kids-room' ? `${getStatusColorCls(activeStatus, 'border')} bg-slate-800 shadow-[0_0_20px_rgba(0,0,0,0.5)] scale-[1.02]` : 'border-slate-800 bg-slate-900/50 hover:bg-slate-800'}`}>
-                                    <span className={`text-xs ${activeSpace === 'kids-room' ? 'text-slate-100 font-bold' : 'text-slate-500'}`}>{t("overview.spaces.kids-room")}</span>
+                                    <span className={`text-xs ${activeSpace === 'kids-room' ? 'text-slate-100 font-bold' : 'text-slate-500'}`}>아이방</span>
                                 </button>
-                                <div className="col-start-2 row-start-3 col-span-3 rounded-xl border border-slate-800 bg-slate-900/10 flex items-center justify-center text-[10px] text-slate-700 uppercase tracking-widest">{t("overview.spaces.veranda")}</div>
+                                <div className="col-start-2 row-start-3 col-span-3 rounded-xl border border-slate-800 bg-slate-900/10 flex items-center justify-center text-[10px] text-slate-700 uppercase tracking-widest">Veranda</div>
                             </div>
                         ) : (
                             <div className="grid grid-cols-4 grid-rows-3 w-full h-full gap-2 transition-all duration-500">
                                 <button onClick={() => setActiveSpace('office-area')} className={`col-span-3 row-span-2 rounded-xl border-2 flex flex-col items-center justify-center transition-all duration-300 ${activeSpace === 'office-area' ? `${getStatusColorCls(activeStatus, 'border')} bg-slate-800 shadow-[0_0_20px_rgba(0,0,0,0.5)] scale-[1.02]` : 'border-slate-800 bg-slate-900/50 hover:bg-slate-800'}`}>
                                     <Users size={32} className={activeSpace === 'office-area' ? getStatusColorCls(activeStatus, 'text') : 'text-slate-600'} />
-                                    <span className={`text-sm mt-3 ${activeSpace === 'office-area' ? 'text-slate-100 font-bold' : 'text-slate-500'}`}>{t("overview.spaces.office-area")}</span>
+                                    <span className={`text-sm mt-3 ${activeSpace === 'office-area' ? 'text-slate-100 font-bold' : 'text-slate-500'}`}>공용 사무 공간</span>
                                 </button>
                                 <button onClick={() => setActiveSpace('meeting-a')} className={`col-span-1 row-span-1 rounded-xl border-2 flex flex-col items-center justify-center transition-all duration-300 ${activeSpace === 'meeting-a' ? `${getStatusColorCls(activeStatus, 'border')} bg-slate-800 shadow-[0_0_20px_rgba(0,0,0,0.5)] scale-[1.02]` : 'border-slate-800 bg-slate-900/50 hover:bg-slate-800'}`}>
                                     <Briefcase size={20} className={activeSpace === 'meeting-a' ? getStatusColorCls(activeStatus, 'text') : 'text-slate-600'} />
-                                    <span className={`text-xs mt-1 ${activeSpace === 'meeting-a' ? 'text-slate-100 font-bold' : 'text-slate-500'}`}>{t("overview.spaces.meeting-a")}</span>
+                                    <span className={`text-xs mt-1 ${activeSpace === 'meeting-a' ? 'text-slate-100 font-bold' : 'text-slate-500'}`}>대회의실</span>
                                 </button>
                                 <button onClick={() => setActiveSpace('lounge')} className={`col-start-4 row-start-2 rounded-xl border-2 flex flex-col items-center justify-center transition-all duration-300 ${activeSpace === 'lounge' ? `${getStatusColorCls(activeStatus, 'border')} bg-slate-800 shadow-[0_0_20px_rgba(0,0,0,0.5)] scale-[1.02]` : 'border-slate-800 bg-slate-900/50 hover:bg-slate-800'}`}>
                                     <Coffee size={20} className={activeSpace === 'lounge' ? getStatusColorCls(activeStatus, 'text') : 'text-slate-600'} />
-                                    <span className={`text-xs mt-1 ${activeSpace === 'lounge' ? 'text-slate-100 font-bold' : 'text-slate-500'}`}>{t("overview.spaces.lounge")}</span>
+                                    <span className={`text-xs mt-1 ${activeSpace === 'lounge' ? 'text-slate-100 font-bold' : 'text-slate-500'}`}>휴게실</span>
                                 </button>
                                 <div className="col-start-1 row-start-3 col-span-4 rounded-xl border border-slate-800 bg-slate-900/10 flex items-center justify-center text-[10px] text-slate-700 uppercase tracking-widest italic">Hallway / Elevator Area</div>
                             </div>
@@ -267,7 +267,7 @@ export default function OverviewTab() {
                         <div className="absolute top-4 right-4 flex items-center gap-2 bg-slate-900/80 backdrop-blur border border-slate-800 px-3 py-1.5 rounded-full shadow-xl">
                             <div className={`w-2 h-2 rounded-full ${getStatusColorCls(activeStatus, 'bg')} ${getStatusColorCls(activeStatus, 'shadow')} animate-pulse`} />
                             <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">
-                                {t((activeSpaceInfo as any).nameKey)} : {activeStatus === 'good' ? t('overview.status_labels.perfect') : activeStatus === 'normal' ? t('overview.status_labels.good') : t('overview.status_labels.needs_vent')}
+                                {activeSpaceInfo.name} : {activeStatus === 'good' ? 'Perfect' : activeStatus === 'normal' ? 'Good' : 'Needs Vent'}
                             </span>
                         </div>
                     </div>

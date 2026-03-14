@@ -16,7 +16,48 @@
         "connecting": "Connecting..."
     },
     "overview": {
+         "metrics": {
+            "pm25": "PM2.5 (Fine Dust)",
+            "pm1": "PM1.0 (Ultra-Fine)",
+            "pm10": "PM10 (Dust)",
+            "co2": "Carbon Dioxide",
+            "voc": "Total VOCs",
+            "comfort": "Indoor Comfort"
+        },
         "global_status": "Global Network Status",
+        "mode_home": "Home Mode",
+        "mode_office": "Office Mode",
+        "loading": "Loading data...",
+        "spaces": {
+            "living-room": "Living Room",
+            "kitchen": "Kitchen",
+            "bedroom": "Bedroom",
+            "kids-room": "Kids Room",
+            "meeting-a": "Conference Room",
+            "office-area": "Common Office Space",
+            "lounge": "Lounge",
+            "entrance": "Entrance",
+            "bathroom": "Bathroom",
+            "veranda": "Veranda",
+            "hallway": "Hallway / Elevator Area"
+        },
+        "status_labels": {
+            "perfect": "Perfect",
+            "good": "Good",
+            "needs_vent": "Needs Vent"
+        },
+        "alerts": {
+            "co2_title": "{{name}} CO2 Warning",
+            "co2_desc": "Current CO2 level in {{name}} is high at {{val}}ppm. Please activate the HVAC system.",
+            "pm25_title": "{{name}} Fine Dust Warning",
+            "pm25_desc": "Current PM2.5 level in {{name}} is high at {{val}}µg/m³.",
+            "voc_title": "{{name}} VOC Warning",
+            "voc_desc": "VOC level is high at {{val}}ppb. Outdoor ventilation is required.",
+            "action_hvac": "Start HVAC",
+            "action_hood": "Start Hood",
+            "action_purifier": "Start Purifier",
+            "action_vent": "Ventilation Mode"
+        },
         "audit_engine": "DePIN AI Audit Engine",
         "integrity_title": "Real-time Data Integrity",
         "integrity_desc": "All sensor data is automatically audited through our decentralized AI layer using Zero-Knowledge proofs to ensure 100% authenticity without compromising privacy.",

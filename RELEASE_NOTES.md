@@ -1,6 +1,21 @@
 # AirVent DePIN Release Notes
 
 
+## Version: v1.9.1 - 2026-03-14
+
+### 🎉 Whats New
+- **Full Dashboard Internationalization**: Extended multi-language support to the "Global Network Status" section, including localized room names (Living Room, Kitchen, etc.) and real-time air quality alerts.
+- **Translated Air Quality Metrics**: All metric labels (PM2.5, PM1.0, PM10, CO2, VOC, and Indoor Comfort) now dynamically switch between English, Korean, Japanese, and Traditional Chinese based on the users selection.
+- **Instant UI Language Sync**: Optimized React `useMemo` dependency tracking to ensure the entire dashboard UI updates immediately when the language is changed, without requiring a page refresh.
+
+### 🛠 Technical Changes
+- Version bump to `v1.9.1`.
+- Refactored `KpiCards.tsx` and `OverviewTab.tsx` to use `i18next` for all remaining hardcoded strings.
+- Updated `ko.json`, `en.json`, `ja.json`, and `zh-TW.json` with new translation keys for spaces, metrics, and alerts.
+
+---
+
+
 ## Version: v1.9.0 - 2026-03-14
 
 ### 🎉 What's New

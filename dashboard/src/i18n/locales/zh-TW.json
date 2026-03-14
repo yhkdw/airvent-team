@@ -16,7 +16,48 @@
         "connecting": "連接中..."
     },
     "overview": {
+         "metrics": {
+            "pm25": "超細懸浮微粒",
+            "pm1": "極細懸浮微粒",
+            "pm10": "細懸浮微粒",
+            "co2": "二氧化碳",
+            "voc": "總揮發性有機化合物",
+            "comfort": "室內舒適度"
+        },
         "global_status": "全球網路狀態",
+        "mode_home": "家庭模式",
+        "mode_office": "辦公室模式",
+        "loading": "讀取資料中...",
+        "spaces": {
+            "living-room": "客廳",
+            "kitchen": "廚房",
+            "bedroom": "臥室",
+            "kids-room": "兒童房",
+            "meeting-a": "大會議室",
+            "office-area": "辦公區域",
+            "lounge": "休息室",
+            "entrance": "玄關",
+            "bathroom": "浴室",
+            "veranda": "陽台",
+            "hallway": "走廊 / 電梯區域"
+        },
+        "status_labels": {
+            "perfect": "Perfect",
+            "good": "Good",
+            "needs_vent": "Needs Vent"
+        },
+        "alerts": {
+            "co2_title": "{{name}} CO2 警告",
+            "co2_desc": "目前 {{name}} 的二氧化碳數值為 {{val}}ppm，處於較高水平。請開啟空調系統。",
+            "pm25_title": "{{name}} 細懸浮微粒警告",
+            "pm25_desc": "目前 {{name}} 的 PM2.5 數值為 {{val}}µg/m³，處於較高水平。",
+            "voc_title": "{{name}} VOC 警告",
+            "voc_desc": "揮發性有機化合物（VOC）數值為 {{val}}ppb，處於較高水平。需要外部通風。",
+            "action_hvac": "開啟空調",
+            "action_hood": "開啟抽油煙機",
+            "action_purifier": "開啟空氣清淨機",
+            "action_vent": "換氣模式"
+        },
         "audit_engine": "DePIN AI審計引擎",
         "integrity_title": "即時資料完整性",
         "integrity_desc": "所有的感測器資料均會自動透過我們的去中心化人工智慧層，以零知識證明進行審計，確保在不損害隱私的前提下提供100％的真實性。",

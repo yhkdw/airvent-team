@@ -16,7 +16,48 @@
         "connecting": "연결 중..."
     },
     "overview": {
+         "metrics": {
+            "pm25": "초미세먼지",
+            "pm1": "극초미세먼지",
+            "pm10": "미세먼지",
+            "co2": "이산화탄소",
+            "voc": "유해화합물",
+            "comfort": "실내 쾌적도"
+        },
         "global_status": "글로벌 네트워크 상태",
+        "mode_home": "홈 모드",
+        "mode_office": "오피스 모드",
+        "loading": "데이터를 불러오는 중...",
+        "spaces": {
+            "living-room": "거실",
+            "kitchen": "주방",
+            "bedroom": "안방",
+            "kids-room": "아이방",
+            "meeting-a": "대회의실",
+            "office-area": "공용 사무공간",
+            "lounge": "휴게실",
+            "entrance": "현관",
+            "bathroom": "욕실",
+            "veranda": "베란다",
+            "hallway": "복도 / 엘리베이터 구역"
+        },
+        "status_labels": {
+            "perfect": "Perfect",
+            "good": "Good",
+            "needs_vent": "Needs Vent"
+        },
+        "alerts": {
+            "co2_title": "{{name}} CO2 경고",
+            "co2_desc": "현재 {{name}}의 이산화탄소 수치가 {{val}}ppm으로 높습니다. 공조 시스템을 가동하세요.",
+            "pm25_title": "{{name}} 미세먼지 경고",
+            "pm25_desc": "현재 {{name}}의 초미세먼지 수치가 {{val}}µg/m³ 로 높습니다.",
+            "voc_title": "{{name}} VOC 경고",
+            "voc_desc": "유해화합물(VOC) 수치가 {{val}}ppb로 높습니다. 외부 환기가 필요합니다.",
+            "action_hvac": "공조기 가동",
+            "action_hood": "후드 가동",
+            "action_purifier": "공기청정기 가동",
+            "action_vent": "환기 모드"
+        },
         "audit_engine": "DePIN AI 감사 엔진",
         "integrity_title": "실시간 데이터 무결성",
         "integrity_desc": "모든 센서 데이터는 개인 정보를 침해하지 않으면서 100% 신뢰성을 보장하기 위해 영지식 증명을 사용하는 탈중앙화 AI 레이어를 통해 자동으로 감사됩니다.",
