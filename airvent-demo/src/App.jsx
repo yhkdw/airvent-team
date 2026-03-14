@@ -50,7 +50,7 @@ const roomData = [
   {
     room: '거실',
     score: 91,
-    pm25: 7,
+    pm25: 7, pm1: 5,
     co2: 612,
     tvoc: 112,
     temp: 23.4,
@@ -60,7 +60,7 @@ const roomData = [
   {
     room: '안방',
     score: 87,
-    pm25: 10,
+    pm25: 10, pm1: 8,
     co2: 694,
     tvoc: 138,
     temp: 23.1,
@@ -70,7 +70,7 @@ const roomData = [
   {
     room: '아이방',
     score: 84,
-    pm25: 12,
+    pm25: 12, pm1: 9,
     co2: 731,
     tvoc: 151,
     temp: 22.8,
@@ -331,20 +331,25 @@ function DashboardCard({ item, index }) {
         </div>
         <div className="rounded-full bg-emerald-500/10 px-3 py-1 text-[11px] font-bold text-emerald-400 tracking-wide border border-emerald-500/20">{item.state}</div>
       </div>
-      <div className="grid grid-cols-4 gap-2 text-[13px]">
-        <div className="rounded-[16px] bg-black/40 p-2.5 flex flex-col items-center justify-center relative overflow-hidden col-span-1">
+      <div className="grid grid-cols-5 gap-2 text-[13px]">
+        <div className="rounded-[16px] bg-black/40 p-2.5 flex flex-col items-center justify-center relative overflow-hidden ">
+          <div className="flex items-center gap-1 text-[10px] text-white/50 mb-1"><Leaf className="h-3 w-3" />PM1.0</div>
+          <p className="text-[16px] font-bold text-white">{item.pm1}</p>
+        </div>
+        <div className="rounded-[16px] bg-black/40 p-2.5 flex flex-col items-center justify-center relative ">
           <div className="flex items-center gap-1 text-[10px] text-white/50 mb-1"><Leaf className="h-3 w-3" />PM2.5</div>
           <p className="text-[16px] font-bold text-white">{item.pm25}</p>
+
         </div>
-        <div className="rounded-[16px] bg-black/40 p-2.5 flex flex-col items-center justify-center relative col-span-1">
+        <div className="rounded-[16px] bg-black/40 p-2.5 flex flex-col items-center justify-center relative ">
           <div className="flex items-center gap-1 text-[10px] text-white/50 mb-1"><Wind className="h-3 w-3" />CO₂</div>
           <p className="text-[16px] font-bold text-white">{item.co2}</p>
         </div>
-        <div className="rounded-[16px] bg-black/40 p-2.5 flex flex-col items-center justify-center col-span-1">
+        <div className="rounded-[16px] bg-black/40 p-2.5 flex flex-col items-center justify-center ">
           <div className="flex items-center gap-1 text-[10px] text-white/50 mb-1"><Thermometer className="h-3 w-3" />온도</div>
           <p className="text-[16px] font-bold text-white">{item.temp}°</p>
         </div>
-        <div className="rounded-[16px] bg-black/40 p-2.5 flex flex-col items-center justify-center col-span-1">
+        <div className="rounded-[16px] bg-black/40 p-2.5 flex flex-col items-center justify-center ">
           <div className="flex items-center gap-1 text-[10px] text-white/50 mb-1"><Droplets className="h-3 w-3" />습도</div>
           <p className="text-[16px] font-bold text-white">{item.humi}%</p>
         </div>

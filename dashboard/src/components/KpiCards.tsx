@@ -65,7 +65,7 @@ export default function KpiCards({ latest, spaceId }: { latest: AirPoint, spaceI
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
       {items.map((it) => {
-        const styles = cardToneCls(it.t);
+        const styles = cardToneCls(it.t as "ok" | "warn" | "bad" as "ok" | "warn" | "bad");
         return (
           <div
             key={it.k}
