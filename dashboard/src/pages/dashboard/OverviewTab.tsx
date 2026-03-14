@@ -1,8 +1,9 @@
-import { useMemo, useState, useEffect } from "react";
+import React, { useMemo, useState, cloneElement, ReactElement } from "react";
 import { useTranslation } from "react-i18next";
-import { ShieldCheck, Activity, FileSearch, ShieldAlert, CheckCircle2, Cpu, Newspaper, ExternalLink } from "lucide-react";
+import { Newspaper, ExternalLink, Home, Briefcase, MapPin, AlertTriangle, Fan, Wind, Coffee, Users } from "lucide-react";
 import KpiCards from "../../components/KpiCards";
 import { getMockAirQualitySeries } from "../../mock/airquality";
+import { AirPoint } from "../../types/air";
 
 function getFormattedDate(offsetDays = 0) {
     const d = new Date();
@@ -14,142 +15,265 @@ function getFormattedDate(offsetDays = 0) {
     }).replace(/\. /g, '.').replace(/\.$/, '');
 }
 
+type DashboardMode = 'home' | 'office';
+
+// Centralized Status Logic: Worst-case wins
+export const getAirStatus = (p: AirPoint) => {
+    if (!p) return 'good';
+    // Bad
+    if (p.pm25 > 75 || p.pm1 > 25 || p.pm10 > 150 || p.co2 > 1500 || p.voc > 2000) return 'bad';
+    // Warn
+    if (p.pm25 > 35 || p.pm1 > 15 || p.pm10 > 80 || p.co2 > 1000 || p.voc > 1000) return 'warn';
+    // Normal
+    if (p.pm25 > 15 || p.pm1 > 8 || p.pm10 > 30 || p.co2 > 800 || p.voc > 500) return 'normal';
+    // Good
+    return 'good';
+};
+
+export const getStatusColorCls = (status: string, type: 'bg' | 'border' | 'shadow' | 'text') => {
+    if (status === 'good') {
+        if (type === 'bg') return 'bg-emerald-500';
+        if (type === 'border') return 'border-emerald-500';
+        if (type === 'shadow') return 'shadow-emerald-500/50';
+        return 'text-emerald-400';
+    }
+    if (status === 'normal') {
+        if (type === 'bg') return 'bg-blue-500';
+        if (type === 'border') return 'border-blue-500';
+        if (type === 'shadow') return 'shadow-blue-500/50';
+        return 'text-blue-400';
+    }
+    if (status === 'warn') {
+        if (type === 'bg') return 'bg-amber-500';
+        if (type === 'border') return 'border-amber-500';
+        if (type === 'shadow') return 'shadow-amber-500/50';
+        return 'text-amber-400';
+    }
+    if (type === 'bg') return 'bg-rose-500';
+    if (type === 'border') return 'border-rose-500';
+    if (type === 'shadow') return 'shadow-rose-500/50';
+    return 'text-rose-400';
+};
+
+const news = [
+    { id: 1, tag: "Update", date: getFormattedDate(), titleKey: "overview.news1_title", descKey: "overview.news1_desc", highlight: true },
+    { id: 2, tag: "Tech", date: getFormattedDate(2), titleKey: "overview.news2_title", descKey: "overview.news2_desc" },
+    { id: 3, tag: "Event", date: getFormattedDate(5), titleKey: "overview.news3_title", descKey: "overview.news3_desc" },
+];
+
 export default function OverviewTab() {
     const { t } = useTranslation();
+    const [mode, setMode] = useState<DashboardMode>('home');
+    const [activeSpace, setActiveSpace] = useState('living-room');
+
     const series = useMemo(() => getMockAirQualitySeries(), []);
-    const latest = series[series.length - 1];
+    const rawLatest = series[series.length - 1];
 
-    const [news, setNews] = useState([
-        {
-            id: 1,
-            tag: "Forecast",
-            titleKey: "overview.news.forecast_title",
-            descKey: "overview.news.forecast_desc",
-            date: getFormattedDate(0),
-            highlight: true
-        },
-        {
-            id: 2,
-            tag: "Policy",
-            titleKey: "overview.news.policy_title",
-            descKey: "overview.news.policy_desc",
-            date: getFormattedDate(0),
-            highlight: false
-        },
-        {
-            id: 3,
-            tag: "Network",
-            titleKey: "overview.news.network_title",
-            descKey: "overview.news.network_desc",
-            date: getFormattedDate(0),
-            highlight: false
+    const getSpaceSpecificData = (base: AirPoint, spaceId: string): AirPoint => {
+        if (!base) return {} as AirPoint;
+        const factors: Record<string, { pm25: number, co2: number, voc: number }> = {
+            'living-room': { pm25: 1.0, co2: 1.0, voc: 1.0 },
+            'kitchen': { pm25: 2.8, co2: 1.1, voc: 2.1 }, 
+            'bedroom': { pm25: 0.9, co2: 1.3, voc: 0.9 }, 
+            'kids-room': { pm25: 1.1, co2: 1.1, voc: 1.0 },
+            'meeting-a': { pm25: 1.4, co2: 2.2, voc: 1.2 }, 
+            'office-area': { pm25: 1.1, co2: 1.2, voc: 1.1 },
+            'lounge': { pm25: 1.2, co2: 1.1, voc: 1.4 }
+        };
+        const f = factors[spaceId] || { pm25: 1.0, co2: 1.0, voc: 1.0 };
+        return {
+            ...base,
+            pm25: Math.round(base.pm25 * f.pm25),
+            pm1: Math.round(base.pm1 * f.pm25),
+            pm10: Math.round(base.pm10 * f.pm25),
+            co2: Math.round(base.co2 * f.co2),
+            voc: Math.round(base.voc * f.voc)
+        };
+    };
+
+    const latest = useMemo(() => getSpaceSpecificData(rawLatest, activeSpace), [rawLatest, activeSpace]);
+    const activeStatus = getAirStatus(latest);
+
+    const homeSpaces = [
+        { id: 'living-room', name: '거실', icon: <Home size={14} /> },
+        { id: 'kitchen', name: '주방', icon: <Wind size={14} /> },
+        { id: 'bedroom', name: '안방', icon: <Home size={14} /> },
+        { id: 'kids-room', name: '아이방', icon: <Home size={14} /> },
+    ];
+
+    const officeSpaces = [
+        { id: 'meeting-a', name: '대회의실', icon: <Briefcase size={14} /> },
+        { id: 'office-area', name: '공용 사무공간', icon: <Users size={14} /> },
+        { id: 'lounge', name: '휴게실', icon: <Coffee size={14} /> },
+    ];
+
+    const currentSpaces = mode === 'home' ? homeSpaces : officeSpaces;
+    const activeSpaceInfo = currentSpaces.find(s => s.id === activeSpace) || currentSpaces[0];
+
+    const getSpaceStatus = (spaceId: string) => {
+        const data = getSpaceSpecificData(rawLatest, spaceId);
+        return getAirStatus(data);
+    };
+
+    const alertMessage = useMemo(() => {
+        if (!latest) return null;
+        if (activeStatus === 'warn' || activeStatus === 'bad') {
+            const isCO2Issue = latest.co2 > 1000;
+            const isPM25Issue = latest.pm25 > 35;
+            const isVOCIssue = latest.voc > 1000;
+
+            if (isCO2Issue) {
+                return {
+                    title: `${activeSpaceInfo.name} CO2 경고`,
+                    desc: `현재 ${activeSpaceInfo.name}의 이산화탄소 수치가 ${latest.co2}ppm으로 높습니다. 공조 시스템을 가동하세요.`,
+                    action: "공조기 가동",
+                    icon: <Wind className="text-rose-400" />
+                };
+            }
+            if (isPM25Issue) {
+                return {
+                    title: `${activeSpaceInfo.name} 미세먼지 경고`,
+                    desc: `현재 ${activeSpaceInfo.name}의 초미세먼지 수치가 ${latest.pm25}µg/m³ 로 높습니다.`,
+                    action: mode === 'home' && activeSpace === 'kitchen' ? "후드 가동" : "공기청정기 가동",
+                    icon: <Fan className="text-amber-400" />
+                };
+            }
+            if (isVOCIssue) {
+                return {
+                    title: `${activeSpaceInfo.name} VOC 경고`,
+                    desc: `유해화합물(VOC) 수치가 ${latest.voc}ppb로 높습니다. 외부 환기가 필요합니다.`,
+                    action: "환기 모드",
+                    icon: <Wind className="text-amber-400" />
+                };
+            }
         }
-    ]);
+        return null;
+    }, [mode, activeSpace, latest, activeStatus, activeSpaceInfo]);
 
-    // Daily News Update Simulation (Refreshes dates every 24 hours)
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setNews(prev => prev.map(item => {
-                if (item.tag === "Forecast" || item.tag === "Policy") {
-                    return { ...item, date: getFormattedDate(0) };
-                }
-                return item;
-            }));
-        }, 1000 * 60 * 60 * 24); // 24 Hours
-        return () => clearInterval(interval);
-    }, []);
-
-    const [logs, setLogs] = useState([
-        { id: 1, time: "14:20:01", node: "Node-0X82", status: "Verified", score: 0.99, type: "Data Integrity" },
-        { id: 2, time: "14:19:45", node: "Node-0X12", status: "Verified", score: 0.98, type: "Zero Knowledge" },
-        { id: 3, time: "14:19:32", node: "Node-0XFF", status: "Processing", score: 0, type: "Data Integrity" },
-        { id: 4, time: "14:18:10", node: "Node-0XAB", status: "Verified", score: 0.99, type: "Cross Check" },
-    ]);
-
-    // Simulate live audit logs
-    useEffect(() => {
-        const interval = setInterval(() => {
-            const time = new Date().toLocaleTimeString();
-            const node = `Node-0X${Math.floor(Math.random() * 256).toString(16).toUpperCase().padStart(2, '0')}`;
-            const newLog = {
-                id: Date.now(),
-                time,
-                node,
-                status: Math.random() > 0.1 ? "Verified" : "Processing",
-                score: 0.95 + Math.random() * 0.05,
-                type: ["Data Integrity", "Zero Knowledge", "Cross Check"][Math.floor(Math.random() * 3)]
-            };
-            setLogs(prev => [newLog, ...prev.slice(0, 5)]);
-        }, 5000);
-        return () => clearInterval(interval);
-    }, []);
+    if (!rawLatest) return <div className="p-8 text-center text-slate-500">데이터를 불러오는 중...</div>;
 
     return (
         <div className="space-y-6">
-            <div>
-                <h3 className="text-sm font-semibold text-slate-400 mb-4 uppercase tracking-widest">{t("overview.global_status")}</h3>
-                <KpiCards latest={latest} />
+            <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between bg-slate-900/50 p-4 rounded-2xl border border-slate-800">
+                <div className="flex items-center gap-2 bg-slate-950 p-1 rounded-xl border border-slate-800">
+                    <button 
+                        onClick={() => { setMode('home'); setActiveSpace('living-room'); }}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${mode === 'home' ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20' : 'text-slate-400 hover:text-slate-200'}`}
+                    >
+                        <Home size={16} /> 홈 모드
+                    </button>
+                    <button 
+                        onClick={() => { setMode('office'); setActiveSpace('meeting-a'); }}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${mode === 'office' ? 'bg-cyan-500 text-white shadow-lg shadow-cyan-500/20' : 'text-slate-400 hover:text-slate-200'}`}
+                    >
+                        <Briefcase size={16} /> 오피스 모드
+                    </button>
+                </div>
+
+                <div className="flex gap-2 overflow-x-auto pb-2 md:pb-0 scrollbar-hide">
+                    {currentSpaces.map(space => {
+                        const status = getSpaceStatus(space.id);
+                        return (
+                            <button
+                                key={space.id}
+                                onClick={() => setActiveSpace(space.id)}
+                                className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs transition-all whitespace-nowrap ${activeSpace === space.id ? 'bg-slate-800 border-slate-600 text-slate-100 shadow-[0_0_10px_rgba(0,0,0,0.3)]' : 'bg-transparent border-slate-800 text-slate-500 hover:border-slate-700'}`}
+                            >
+                                {cloneElement(space.icon as ReactElement, { 
+                                    className: `transition-colors duration-500 ${getStatusColorCls(status, 'text')}`,
+                                    size: 14 
+                                })}
+                                <span>{space.name}</span>
+                                <div className={`w-2 h-2 rounded-full ${getStatusColorCls(status, 'bg')} ${getStatusColorCls(status, 'shadow')} animate-pulse`} />
+                            </button>
+                        );
+                    })}
+                </div>
             </div>
 
-            <div className="border-t border-slate-800 pt-6">
-                {/* AI Audit Hero Section */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div className="lg:col-span-2 bg-gradient-to-br from-emerald-900/20 to-slate-900 border border-emerald-500/20 rounded-2xl p-6 relative overflow-hidden">
-                        <div className="absolute top-0 right-0 p-8 opacity-10">
-                            <ShieldCheck size={120} className="text-emerald-400" />
+            {alertMessage && (
+                <div className="flex items-center justify-between gap-4 bg-slate-900 border border-amber-500/30 p-4 rounded-2xl animate-pulse">
+                    <div className="flex items-center gap-4">
+                        <div className="p-3 bg-amber-500/10 rounded-xl">
+                            {alertMessage.icon}
                         </div>
-                        <div className="relative z-10">
-                            <div className="flex items-center gap-2 text-emerald-400 mb-2">
-                                <Cpu size={18} />
-                                <span className="text-xs font-bold uppercase tracking-wider">{t("overview.audit_engine")}</span>
+                        <div>
+                            <div className="text-sm font-bold text-amber-500 flex items-center gap-1">
+                                <AlertTriangle size={14} /> {alertMessage.title}
                             </div>
-                            <h1 className="text-3xl font-bold mb-2">{t("overview.integrity_title")}</h1>
-                            <p className="text-slate-400 max-w-lg mb-6">
-                                {t("overview.integrity_desc")}
-                            </p>
-                            <div className="flex gap-4">
-                                <div className="bg-slate-950/50 border border-slate-800 rounded-xl px-4 py-3">
-                                    <div className="text-xs text-slate-500 uppercase">{t("overview.network_score")}</div>
-                                    <div className="text-2xl font-bold text-emerald-400">99.8%</div>
-                                </div>
-                                <div className="bg-slate-950/50 border border-slate-800 rounded-xl px-4 py-3">
-                                    <div className="text-xs text-slate-500 uppercase">{t("overview.total_audits")}</div>
-                                    <div className="text-2xl font-bold text-cyan-400">1.2M+</div>
-                                </div>
-                            </div>
+                            <div className="text-xs text-slate-400">{alertMessage.desc}</div>
                         </div>
                     </div>
+                    <button className="px-4 py-2 bg-amber-500/20 hover:bg-amber-500/30 text-amber-500 border border-amber-500/50 rounded-xl text-xs font-bold transition-all">
+                        {alertMessage.action}
+                    </button>
+                </div>
+            )}
 
-                    <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
-                        <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                            <Activity size={18} className="text-emerald-400" />
-                            {t("overview.live_audit")}
-                        </h2>
-                        <div className="space-y-3">
-                            {logs.map((log) => (
-                                <div key={log.id} className="flex items-center justify-between p-3 bg-slate-950 rounded-lg border border-slate-800 text-sm">
-                                    <div className="flex items-center gap-3">
-                                        <div className={`p-1.5 rounded-md ${log.status === "Verified" ? "bg-emerald-500/10 text-emerald-500" : "bg-cyan-500/10 text-cyan-500 animate-pulse"}`}>
-                                            {log.status === "Verified" ? <CheckCircle2 size={14} /> : <FileSearch size={14} />}
-                                        </div>
-                                        <div>
-                                            <div className="font-medium text-slate-200">{log.node}</div>
-                                            <div className="text-[10px] text-slate-500">{log.type} • {log.time}</div>
-                                        </div>
-                                    </div>
-                                    <div className="text-right">
-                                        <div className={`font-mono text-xs ${log.status === "Verified" ? "text-emerald-400" : "text-slate-500"}`}>
-                                            {log.status === "Verified" ? `${(log.score * 100).toFixed(1)}%` : "..."}
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
+            <div className="space-y-6">
+                <div>
+                    <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                            <MapPin size={16} className={getStatusColorCls(activeStatus, 'text')} />
+                            {t("overview.global_status")}
+                            <span className="text-xs text-slate-600 font-normal normal-case">/ {activeSpaceInfo.name}</span>
+                        </h3>
+                    </div>
+                    <KpiCards latest={latest} spaceId={activeSpace} />
+                </div>
+
+                <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 flex flex-col items-center justify-center relative overflow-hidden group min-h-[400px]">
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-slate-800/20 via-transparent to-transparent" />
+                    
+                    <div className="relative w-full max-w-2xl aspect-[16/9] bg-slate-950/50 rounded-2xl border border-slate-800 p-6 flex items-center justify-center">
+                        {mode === 'home' ? (
+                            <div className="grid grid-cols-4 grid-rows-3 w-full h-full gap-2 transition-all duration-500">
+                                <button onClick={() => setActiveSpace('living-room')} className={`col-span-2 row-span-2 rounded-xl border-2 flex flex-col items-center justify-center transition-all duration-300 ${activeSpace === 'living-room' ? `${getStatusColorCls(activeStatus, 'border')} bg-slate-800 shadow-[0_0_20px_rgba(0,0,0,0.5)] scale-[1.02]` : 'border-slate-800 bg-slate-900/50 hover:bg-slate-800'}`}>
+                                    <Home size={24} className={activeSpace === 'living-room' ? getStatusColorCls(activeStatus, 'text') : 'text-slate-600'} />
+                                    <span className={`text-xs mt-2 ${activeSpace === 'living-room' ? 'text-slate-100 font-bold' : 'text-slate-500'}`}>거실</span>
+                                </button>
+                                <button onClick={() => setActiveSpace('kitchen')} className={`col-span-1 row-span-1 rounded-xl border-2 flex flex-col items-center justify-center transition-all duration-300 ${activeSpace === 'kitchen' ? `${getStatusColorCls(activeStatus, 'border')} bg-slate-800 shadow-[0_0_20px_rgba(0,0,0,0.5)] scale-[1.02]` : 'border-slate-800 bg-slate-900/50 hover:bg-slate-800'}`}>
+                                    <Wind size={20} className={activeSpace === 'kitchen' ? getStatusColorCls(activeStatus, 'text') : 'text-slate-600'} />
+                                    <span className={`text-xs mt-1 ${activeSpace === 'kitchen' ? 'text-slate-100 font-bold' : 'text-slate-500'}`}>주방</span>
+                                </button>
+                                <div className="col-span-1 row-span-1 rounded-xl border border-slate-800 bg-slate-900/20 flex items-center justify-center text-[10px] text-slate-700">현관</div>
+                                <div className="col-start-3 row-start-2 rounded-xl border border-slate-800 bg-slate-900/20 flex items-center justify-center text-[10px] text-slate-700">욕실</div>
+                                <button onClick={() => setActiveSpace('bedroom')} className={`col-span-1 row-span-1 rounded-xl border-2 flex flex-col items-center justify-center transition-all duration-300 ${activeSpace === 'bedroom' ? `${getStatusColorCls(activeStatus, 'border')} bg-slate-800 shadow-[0_0_20px_rgba(0,0,0,0.5)] scale-[1.02]` : 'border-slate-800 bg-slate-900/50 hover:bg-slate-800'}`}>
+                                    <span className={`text-xs ${activeSpace === 'bedroom' ? 'text-slate-100 font-bold' : 'text-slate-500'}`}>안방</span>
+                                </button>
+                                <button onClick={() => setActiveSpace('kids-room')} className={`col-start-1 row-start-3 col-span-1 rounded-xl border-2 flex flex-col items-center justify-center transition-all duration-300 ${activeSpace === 'kids-room' ? `${getStatusColorCls(activeStatus, 'border')} bg-slate-800 shadow-[0_0_20px_rgba(0,0,0,0.5)] scale-[1.02]` : 'border-slate-800 bg-slate-900/50 hover:bg-slate-800'}`}>
+                                    <span className={`text-xs ${activeSpace === 'kids-room' ? 'text-slate-100 font-bold' : 'text-slate-500'}`}>아이방</span>
+                                </button>
+                                <div className="col-start-2 row-start-3 col-span-3 rounded-xl border border-slate-800 bg-slate-900/10 flex items-center justify-center text-[10px] text-slate-700 uppercase tracking-widest">Veranda</div>
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-4 grid-rows-3 w-full h-full gap-2 transition-all duration-500">
+                                <button onClick={() => setActiveSpace('office-area')} className={`col-span-3 row-span-2 rounded-xl border-2 flex flex-col items-center justify-center transition-all duration-300 ${activeSpace === 'office-area' ? `${getStatusColorCls(activeStatus, 'border')} bg-slate-800 shadow-[0_0_20px_rgba(0,0,0,0.5)] scale-[1.02]` : 'border-slate-800 bg-slate-900/50 hover:bg-slate-800'}`}>
+                                    <Users size={32} className={activeSpace === 'office-area' ? getStatusColorCls(activeStatus, 'text') : 'text-slate-600'} />
+                                    <span className={`text-sm mt-3 ${activeSpace === 'office-area' ? 'text-slate-100 font-bold' : 'text-slate-500'}`}>공용 사무 공간</span>
+                                </button>
+                                <button onClick={() => setActiveSpace('meeting-a')} className={`col-span-1 row-span-1 rounded-xl border-2 flex flex-col items-center justify-center transition-all duration-300 ${activeSpace === 'meeting-a' ? `${getStatusColorCls(activeStatus, 'border')} bg-slate-800 shadow-[0_0_20px_rgba(0,0,0,0.5)] scale-[1.02]` : 'border-slate-800 bg-slate-900/50 hover:bg-slate-800'}`}>
+                                    <Briefcase size={20} className={activeSpace === 'meeting-a' ? getStatusColorCls(activeStatus, 'text') : 'text-slate-600'} />
+                                    <span className={`text-xs mt-1 ${activeSpace === 'meeting-a' ? 'text-slate-100 font-bold' : 'text-slate-500'}`}>대회의실</span>
+                                </button>
+                                <button onClick={() => setActiveSpace('lounge')} className={`col-start-4 row-start-2 rounded-xl border-2 flex flex-col items-center justify-center transition-all duration-300 ${activeSpace === 'lounge' ? `${getStatusColorCls(activeStatus, 'border')} bg-slate-800 shadow-[0_0_20px_rgba(0,0,0,0.5)] scale-[1.02]` : 'border-slate-800 bg-slate-900/50 hover:bg-slate-800'}`}>
+                                    <Coffee size={20} className={activeSpace === 'lounge' ? getStatusColorCls(activeStatus, 'text') : 'text-slate-600'} />
+                                    <span className={`text-xs mt-1 ${activeSpace === 'lounge' ? 'text-slate-100 font-bold' : 'text-slate-500'}`}>휴게실</span>
+                                </button>
+                                <div className="col-start-1 row-start-3 col-span-4 rounded-xl border border-slate-800 bg-slate-900/10 flex items-center justify-center text-[10px] text-slate-700 uppercase tracking-widest italic">Hallway / Elevator Area</div>
+                            </div>
+                        )}
+
+                        <div className="absolute top-4 right-4 flex items-center gap-2 bg-slate-900/80 backdrop-blur border border-slate-800 px-3 py-1.5 rounded-full shadow-xl">
+                            <div className={`w-2 h-2 rounded-full ${getStatusColorCls(activeStatus, 'bg')} ${getStatusColorCls(activeStatus, 'shadow')} animate-pulse`} />
+                            <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">
+                                {activeSpaceInfo.name} : {activeStatus === 'good' ? 'Perfect' : activeStatus === 'normal' ? 'Good' : 'Needs Vent'}
+                            </span>
                         </div>
                     </div>
                 </div>
             </div>
 
-            {/* Network News Section at the Bottom */}
             <div className="border-t border-slate-800 pt-8">
                 <div className="flex items-center justify-between mb-6">
                     <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-widest flex items-center gap-2">
@@ -157,25 +281,16 @@ export default function OverviewTab() {
                         {t("overview.news_title")}
                     </h3>
                 </div>
-
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {news.map((item) => (
                         <div key={item.id} className={`bg-slate-900/40 border border-slate-800 rounded-2xl p-6 hover:bg-slate-800/40 transition-all group ${item.highlight ? 'border-emerald-500/30' : ''}`}>
-                            <div className="flex items-center justify-between mb-3">
-                                <span className="text-[10px] font-bold uppercase tracking-tighter bg-slate-800 px-2 py-0.5 rounded text-slate-400 group-hover:bg-emerald-500/10 group-hover:text-emerald-500 transition-colors">
-                                    {item.tag}
-                                </span>
-                                <span className="text-[10px] text-slate-600">{item.date}</span>
+                            <div className="flex items-center justify-between mb-3 text-[10px] font-bold uppercase tracking-tighter">
+                                <span className="bg-slate-800 px-2 py-0.5 rounded text-slate-400 group-hover:bg-emerald-500/10 group-hover:text-emerald-500 transition-colors">{item.tag}</span>
+                                <span className="text-slate-600">{item.date}</span>
                             </div>
-                            <h4 className="text-sm font-bold text-slate-200 mb-2 group-hover:text-emerald-400 transition-colors line-clamp-1">
-                                {t(item.titleKey)}
-                            </h4>
-                            <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed mb-4">
-                                {t(item.descKey)}
-                            </p>
-                            <div className="flex items-center gap-1 text-[10px] text-slate-500 font-bold opacity-0 group-hover:opacity-100 transition-opacity">
-                                {t("overview.read_more")} <ExternalLink size={10} />
-                            </div>
+                            <h4 className="text-sm font-bold text-slate-200 mb-2 group-hover:text-emerald-400 transition-colors line-clamp-1">{t(item.titleKey)}</h4>
+                            <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed mb-4">{t(item.descKey)}</p>
+                            <div className="flex items-center gap-1 text-[10px] text-slate-500 font-bold opacity-0 group-hover:opacity-100 transition-all">{t("overview.read_more")} <ExternalLink size={10} /></div>
                         </div>
                     ))}
                 </div>

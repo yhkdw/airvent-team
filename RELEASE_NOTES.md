@@ -1,5 +1,23 @@
 # AirVent DePIN Release Notes
 
+
+## Version: v1.9.0 - 2026-03-14
+
+### 🎉 What's New
+- **Unified Air Quality Status Visualization**: The colors of tab icons, KPI value fonts, and floor plan borders are now synchronized to reflect the current air quality status (Good, Normal, Warn, Bad) for a cohesive UI experience.
+- **Enhanced Dashboard Layout**: Removed the "Live Audit Feed" to provide more screen real estate for the main map and overview metrics.
+- **PM1.0 Metric Integration**: Added real-time tracking for PM1.0 alongside existing PM2.5 and CO2 metrics.
+- **Interactive Floor Plan**: Clicking on a room within the floor plan now instantly updates the top banner and KPI cards with that specific room's data.
+- **Multilingual Support (JA/ZH-TW)**: Added Japanese and Traditional Chinese localization with polite terminology across the entire dashboard.
+
+### 🛠 Technical Changes
+- Version bump to `v1.9.0`.
+- Implemented global theme synchronization logic in `KpiCards.tsx` and `OverviewTab.tsx`.
+- Optimized `LandingPage.tsx` authentication flow with static imports and improved cleanup.
+- Refactored `RequireAuth.tsx` for more robust session persistence.
+
+---
+
 ## Version: v1.6.5 - 2026-03-11
 
 ### 🎉 What's New
