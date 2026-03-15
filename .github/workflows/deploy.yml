@@ -18,16 +18,33 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y pkg-config build-essential libudev-dev
+          sudo apt-get install -y pkg-config build-essential libudev-dev wget
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
 
-      - name: Install Solana CLI
+      - name: Install Solana CLI (Robust)
         run: |
-          # Robust install
-          curl -sSfL https://release.solana.com/v1.18.12/install | sh
+          # Use GitHub mirror instead of release.solana.com
+          VERSION="v1.18.12"
+          URL="https://github.com/solana-labs/solana/releases/download/${VERSION}/solana-release-x86_64-unknown-linux-gnu.tar.bz2"
+          
+          mkdir -p ~/.local/share/solana/install
+          cd ~/.local/share/solana/install
+          
+          echo "Downloading Solana ${VERSION} from GitHub..."
+          wget --no-check-certificate --quiet --timeout=60 --tries=5 -O solana.tar.bz2 "${URL}"
+          
+          echo "Extracting..."
+          tar jxf solana.tar.bz2
+          rm -rf active_release
+          mv solana-release active_release
+          
           echo "/home/runner/.local/share/solana/install/active_release/bin" >> $GITHUB_PATH
+          export PATH="/home/runner/.local/share/solana/install/active_release/bin:$PATH"
+          
+          echo "Verifying installation..."
+          solana --version
 
       - name: Install Anchor CLI
         run: |
@@ -39,24 +56,20 @@ jobs:
           KEY_DATA: ${{ secrets.SOLANA_DEPLOY_KEY }}
         run: |
           mkdir -p ~/.config/solana
-          # Debug: check if secret is passed (masked by default in GHA)
           if [ -z "$KEY_DATA" ]; then
             echo "❌ ERROR: SOLANA_DEPLOY_KEY secret is not found or empty."
             exit 1
           fi
           
-          # Write secret safely
           echo "$KEY_DATA" > ~/.config/solana/id.json
           chmod 600 ~/.config/solana/id.json
           
-          # Force export path for this step to ensure solana is found
           export PATH="/home/runner/.local/share/solana/install/active_release/bin:$PATH"
           solana config set --url devnet --keypair ~/.config/solana/id.json
           echo "✅ Solana config ready. Address: $(solana address)"
 
       - name: Build and Deploy
         run: |
-          # Force export paths for build step
           export PATH="/home/runner/.local/share/solana/install/active_release/bin:$(npm config get prefix)/bin:$PATH"
           echo "Building..."
           anchor build
