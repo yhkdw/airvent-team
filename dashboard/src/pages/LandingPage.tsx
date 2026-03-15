@@ -974,6 +974,7 @@ export default function LandingPage() {
                   { label: "X", href: "https://x.com/airventdepin", icon: "𝕏" },
                   { label: "Discord", href: "https://discord.gg/airvent", icon: "💬" },
                   { label: "Telegram", href: "https://t.me/airventdepin", icon: "✈️" },
+                  { label: "GitHub", href: "https://github.com/yhkdw/airvent-team", icon: "📁" },
                 ].map((s) => (
                   <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer"
                     className="w-9 h-9 flex items-center justify-center rounded-lg border border-slate-700 bg-slate-900 text-slate-400 hover:border-emerald-500/50 hover:text-emerald-400 transition-all text-sm">
@@ -987,7 +988,7 @@ export default function LandingPage() {
                 <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Resources</h4>
                 <ul className="space-y-2.5 text-sm text-slate-500">
                   <li><a href="#" className="hover:text-emerald-400 transition-colors">{tx.footerLinks.docs}</a></li>
-                  <li><a href="#" className="hover:text-emerald-400 transition-colors">{tx.footerLinks.github}</a></li>
+                  <li><a href="https://github.com/yhkdw/airvent-team" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400 transition-colors">{tx.footerLinks.github}</a></li>
                   <li><a href="#" className="hover:text-emerald-400 transition-colors">{tx.footerLinks.blog}</a></li>
                 </ul>
               </div>

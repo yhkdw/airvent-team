@@ -1,6 +1,18 @@
 # AirVent DePIN Release Notes
 
 
+## Version: v1.9.3 - 2026-03-15
+
+### 🎉 Whats New
+- **GitHub Repository Integration**: Linked the GitHub button and Resources link in the footer to the official project repository (`https://github.com/yhkdw/airvent-team`).
+
+### 🛠 Technical Changes
+- Version bump to `v1.9.3`.
+- Updated `LandingPage.tsx` to include the GitHub URL and a new social icon link for easier accessibility.
+
+---
+
+
 ## Version: v1.9.2 - 2026-03-15
 
 ### 🎉 Whats New
