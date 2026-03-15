@@ -35,7 +35,6 @@ jobs:
           mv solana-release active_release
           echo "/home/runner/.local/share/solana/install/active_release/bin" >> $GITHUB_PATH
           export PATH="/home/runner/.local/share/solana/install/active_release/bin:$PATH"
-          solana --version
 
       - name: Install Anchor CLI
         run: |
@@ -51,13 +50,11 @@ jobs:
           chmod 600 ~/.config/solana/id.json
           export PATH="/home/runner/.local/share/solana/install/active_release/bin:$PATH"
           solana config set --url devnet --keypair ~/.config/solana/id.json
-          solana airdrop 2 || true
-          solana balance
 
       - name: Build Program
         run: |
           export PATH="/home/runner/.local/share/solana/install/active_release/bin:$(npm config get prefix)/bin:$PATH"
-          anchor build --verbose
+          anchor build
 
       - name: Deploy Program
         run: |
