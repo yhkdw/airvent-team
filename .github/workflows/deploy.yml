@@ -25,25 +25,16 @@ jobs:
 
       - name: Install Solana CLI (Robust)
         run: |
-          # Use GitHub mirror instead of release.solana.com
           VERSION="v1.18.12"
           URL="https://github.com/solana-labs/solana/releases/download/${VERSION}/solana-release-x86_64-unknown-linux-gnu.tar.bz2"
-          
           mkdir -p ~/.local/share/solana/install
           cd ~/.local/share/solana/install
-          
-          echo "Downloading Solana ${VERSION} from GitHub..."
           wget --no-check-certificate --quiet --timeout=60 --tries=5 -O solana.tar.bz2 "${URL}"
-          
-          echo "Extracting..."
           tar jxf solana.tar.bz2
           rm -rf active_release
           mv solana-release active_release
-          
           echo "/home/runner/.local/share/solana/install/active_release/bin" >> $GITHUB_PATH
           export PATH="/home/runner/.local/share/solana/install/active_release/bin:$PATH"
-          
-          echo "Verifying installation..."
           solana --version
 
       - name: Install Anchor CLI
@@ -60,18 +51,25 @@ jobs:
             echo "❌ ERROR: SOLANA_DEPLOY_KEY secret is not found or empty."
             exit 1
           fi
-          
           echo "$KEY_DATA" > ~/.config/solana/id.json
           chmod 600 ~/.config/solana/id.json
-          
           export PATH="/home/runner/.local/share/solana/install/active_release/bin:$PATH"
           solana config set --url devnet --keypair ~/.config/solana/id.json
-          echo "✅ Solana config ready. Address: $(solana address)"
+          
+          echo "💰 Requesting airdrop..."
+          solana airdrop 2 || true
+          echo "✅ Wallet Address: $(solana address)"
+          echo "✅ Current Balance: $(solana balance)"
 
-      - name: Build and Deploy
+      - name: Build Program
         run: |
           export PATH="/home/runner/.local/share/solana/install/active_release/bin:$(npm config get prefix)/bin:$PATH"
-          echo "Building..."
+          echo "🔨 Starting Build..."
           anchor build
-          echo "Deploying..."
-          anchor deploy --provider.cluster devnet
+
+      - name: Deploy Program
+        run: |
+          export PATH="/home/runner/.local/share/solana/install/active_release/bin:$(npm config get prefix)/bin:$PATH"
+          echo "🚀 Starting Deployment..."
+          # Use --provider.cluster instead of cluster name for clarity
+          anchor deploy --provider.cluster https://api.devnet.solana.com
