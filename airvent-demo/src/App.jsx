@@ -48,34 +48,34 @@ const aqTrend = [
 
 const roomData = [
   {
-    room: '거실',
+    room: 'Living Room',
     score: 91,
     pm25: 7, pm1: 5,
     co2: 612,
     tvoc: 112,
     temp: 23.4,
     humi: 46,
-    state: '좋음',
+    state: 'Excellent',
   },
   {
-    room: '안방',
+    room: 'Bedroom',
     score: 87,
     pm25: 10, pm1: 8,
     co2: 694,
     tvoc: 138,
     temp: 23.1,
     humi: 48,
-    state: '양호',
+    state: 'Good',
   },
   {
-    room: '아이방',
+    room: 'Kids Room',
     score: 84,
     pm25: 12, pm1: 9,
     co2: 731,
     tvoc: 151,
     temp: 22.8,
     humi: 47,
-    state: '양호',
+    state: 'Good',
   },
 ];
 
@@ -87,11 +87,11 @@ const wifiList = [
 ];
 
 const navItems = [
-  { key: 'login', label: '로그인', icon: User },
-  { key: 'pair', label: '노드', icon: Wifi },
-  { key: 'dashboard', label: '대시보드', icon: Gauge },
-  { key: 'wallet', label: '지갑', icon: Wallet },
-  { key: 'reward', label: '리워드', icon: Gift },
+  { key: 'login', label: 'Login', icon: User },
+  { key: 'pair', label: 'Node', icon: Wifi },
+  { key: 'dashboard', label: 'Dashboard', icon: Gauge },
+  { key: 'wallet', label: 'Wallet', icon: Wallet },
+  { key: 'reward', label: 'Reward', icon: Gift },
 ];
 
 const chip = 'rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] text-white/80';
@@ -144,9 +144,9 @@ function ScoreRing({ value }) {
       />
       <div className="absolute inset-[14px] rounded-full bg-slate-950 flex flex-col items-center justify-center p-2 shadow-inner" />
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-[12px] font-medium text-white/50">실내 공기 점수</span>
+        <span className="text-[12px] font-medium text-white/50">Indoor Air Score</span>
         <span className="mt-0.5 text-[54px] font-bold text-white tracking-tighter">{value}</span>
-        <span className="mt-1 rounded-full bg-emerald-400/20 px-3 py-1 text-[11px] font-semibold text-emerald-300">매우 좋음</span>
+        <span className="mt-1 rounded-full bg-emerald-400/20 px-3 py-1 text-[11px] font-semibold text-emerald-300">Excellent</span>
       </div>
     </div>
   );
@@ -156,8 +156,8 @@ function LoginScreen({ onContinue }) {
   return (
     <div className="flex h-full flex-col relative pb-8">
       <TopHeader
-        title="앱 로그인"
-        subtitle="AirVent 계정으로 노드와 리워드를 안전하게 관리하세요"
+        title="App Login"
+        subtitle="Manage your nodes and rewards securely with your AirVent account"
       />
 
       <div className="px-5 pt-4">
@@ -174,9 +174,9 @@ function LoginScreen({ onContinue }) {
               </div>
             </div>
             <div className="mt-5 grid grid-cols-3 gap-3 text-center text-[12px] font-medium text-white/80 relative z-10">
-              <div className="rounded-xl bg-black/30 px-2 py-3 ring-1 ring-white/5">실시간 IAQ</div>
-              <div className="rounded-xl bg-black/30 px-2 py-3 ring-1 ring-white/5">노드 연결</div>
-              <div className="rounded-xl bg-black/30 px-2 py-3 ring-1 ring-white/5">AIVT 리워드</div>
+              <div className="rounded-xl bg-black/30 px-2 py-3 ring-1 ring-white/5">Real-time IAQ</div>
+              <div className="rounded-xl bg-black/30 px-2 py-3 ring-1 ring-white/5">Node Connection</div>
+              <div className="rounded-xl bg-black/30 px-2 py-3 ring-1 ring-white/5">AIVT Rewards</div>
             </div>
           </div>
         </motion.div>
@@ -184,21 +184,21 @@ function LoginScreen({ onContinue }) {
 
       <div className="px-5 pt-4">
         <div className={`${card} p-5`}>
-          <label className="mb-2 block text-[12px] font-medium text-white/60 pl-1">이메일</label>
+          <label className="mb-2 block text-[12px] font-medium text-white/60 pl-1">Email</label>
           <div className="mb-4 flex items-center gap-3 rounded-[20px] border border-white/5 bg-black/40 px-5 py-4 transition-colors focus-within:border-cyan-400/50 focus-within:bg-black/60">
             <User className="h-5 w-5 text-white/40" />
             <input type="email" value="ceo@airvent.ai" readOnly className="bg-transparent w-full text-[15px] text-white outline-none" />
           </div>
           
-          <label className="mb-2 block text-[12px] font-medium text-white/60 pl-1">비밀번호</label>
+          <label className="mb-2 block text-[12px] font-medium text-white/60 pl-1">Password</label>
           <div className="flex items-center gap-3 rounded-[20px] border border-white/5 bg-black/40 px-5 py-4 transition-colors focus-within:border-cyan-400/50 focus-within:bg-black/60">
             <Lock className="h-5 w-5 text-white/40" />
             <input type="password" value="password" readOnly className="bg-transparent w-full text-[15px] tracking-[0.2em] text-white outline-none" />
           </div>
 
           <div className="mt-5 grid grid-cols-2 gap-3 text-[11px] font-medium text-white/60 text-center">
-            <div className="rounded-xl bg-white/5 py-3 transition hover:bg-white/10">카카오 / 구글 연동</div>
-            <div className="rounded-xl bg-white/5 py-3 transition hover:bg-white/10">Face ID 로그인</div>
+            <div className="rounded-xl bg-white/5 py-3 transition hover:bg-white/10">Kakao / Google Sync</div>
+            <div className="rounded-xl bg-white/5 py-3 transition hover:bg-white/10">Face ID Login</div>
           </div>
 
           <motion.button
@@ -206,7 +206,7 @@ function LoginScreen({ onContinue }) {
             onClick={onContinue}
             className="mt-5 flex w-full items-center justify-center gap-2 rounded-[20px] bg-gradient-to-r from-cyan-400 to-emerald-400 px-4 py-4 text-[15px] font-bold text-slate-950 shadow-[0_4px_20px_rgba(52,211,153,0.3)] transition-all hover:shadow-[0_4px_25px_rgba(52,211,153,0.4)]"
           >
-            로그인하고 시작하기
+            Login & Get Started
             <ChevronRight className="h-5 w-5" />
           </motion.button>
         </div>
@@ -222,15 +222,15 @@ function PairScreen({ onContinue }) {
   return (
     <div className="flex h-full flex-col pb-8">
       <TopHeader
-        title="노드 연동"
-        subtitle="근처의 AirVent Node를 찾아 네트워크에 연결합니다"
+        title="Node Pairing"
+        subtitle="Search for nearby AirVent Nodes and connect to the network"
       />
 
       <div className="px-5 pt-2">
         <motion.div whileHover={{ scale: 1.01 }} className={`${card} p-5`}>
           <div className="flex items-center justify-between mb-4">
             <div>
-              <p className="text-[12px] font-medium text-white/60 mb-0.5">발견된 주변 기기</p>
+              <p className="text-[12px] font-medium text-white/60 mb-0.5">Nearby Devices Found</p>
               <h3 className="text-[18px] font-bold text-white tracking-tight">AV-Node-240318-A12</h3>
             </div>
             <div className="flex items-center gap-1.5 rounded-full bg-emerald-500/15 px-3 py-1.5 text-[11px] font-semibold text-emerald-400">
@@ -238,7 +238,7 @@ function PairScreen({ onContinue }) {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
               </span>
-              BLE 발견됨
+              BLE Found
             </div>
           </div>
           <div className="rounded-[20px] bg-black/40 p-4 ring-1 ring-white/5 relative overflow-hidden">
@@ -248,8 +248,8 @@ function PairScreen({ onContinue }) {
                 <Smartphone className="h-6 w-6 text-cyan-300" />
               </div>
               <div className="flex-1">
-                <p className="text-[14px] font-semibold text-white">초기 설정 진행 중</p>
-                <p className="text-[12px] text-white/60 mt-0.5">센서 캘리브레이션 및 펌웨어 검증</p>
+                <p className="text-[14px] font-semibold text-white">Initial setup in progress</p>
+                <p className="text-[12px] text-white/60 mt-0.5">Sensor calibration and firmware verification</p>
               </div>
               <RefreshCw className="h-5 w-5 animate-spin text-cyan-400/70" />
             </div>
@@ -260,8 +260,8 @@ function PairScreen({ onContinue }) {
       <div className="px-5 pt-4">
         <div className={`${card} p-5`}>
           <div className="mb-4 flex items-center justify-between">
-            <p className="text-[15px] font-semibold text-white">Wi‑Fi 네트워크 선택</p>
-            <span className="text-[11px] text-cyan-300 bg-cyan-900/30 px-2 py-1 rounded-md">2.4GHz 권장</span>
+            <p className="text-[15px] font-semibold text-white">Select Wi-Fi Network</p>
+            <span className="text-[11px] text-cyan-300 bg-cyan-900/30 px-2 py-1 rounded-md">2.4GHz Recommended</span>
           </div>
           <div className="space-y-2.5">
             {wifiList.map((wifi) => {
@@ -278,7 +278,7 @@ function PairScreen({ onContinue }) {
                 >
                   <div className="text-left">
                     <p className={`text-[14px] font-semibold ${active ? 'text-white' : 'text-white/90'}`}>{wifi.name}</p>
-                    <p className="text-[11px] text-white/50 mt-0.5">WPA2 보안 연결</p>
+                    <p className="text-[11px] text-white/50 mt-0.5">WPA2 Secure Connection</p>
                   </div>
                   {active ? <CheckCircle2 className="h-5 w-5 text-cyan-400" /> : <Wifi className="h-5 w-5 text-white/30" />}
                 </button>
@@ -292,7 +292,7 @@ function PairScreen({ onContinue }) {
                onClick={() => setPaired(true)}
                className="mt-5 flex w-full items-center justify-center gap-2 rounded-[20px] bg-white px-4 py-4 text-[15px] font-bold text-slate-900 shadow-xl transition hover:bg-slate-100"
              >
-               Wi‑Fi 연결 요청
+               Request Wi-Fi Connection
              </motion.button>
           ) : (
             <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="mt-5">
@@ -300,7 +300,7 @@ function PairScreen({ onContinue }) {
                 onClick={onContinue}
                 className="flex w-full items-center justify-center gap-2 rounded-[20px] bg-gradient-to-r from-emerald-400 to-cyan-400 px-4 py-4 text-[15px] font-bold text-slate-950 shadow-[0_4px_20px_rgba(52,211,153,0.3)] transition"
               >
-                연결 성공! 대시보드로 이동
+                Connection Success! Go to Dashboard
                 <ChevronRight className="h-5 w-5" />
               </button>
             </motion.div>
@@ -326,7 +326,7 @@ function DashboardCard({ item, index }) {
           </div>
           <div>
             <p className="text-[14px] font-bold text-white">{item.room}</p>
-            <p className="text-[11px] text-white/50">실시간 동기화 됨</p>
+            <p className="text-[11px] text-white/50">Synced Real-time</p>
           </div>
         </div>
         <div className="rounded-full bg-emerald-500/10 px-3 py-1 text-[11px] font-bold text-emerald-400 tracking-wide border border-emerald-500/20">{item.state}</div>
@@ -346,11 +346,11 @@ function DashboardCard({ item, index }) {
           <p className="text-[16px] font-bold text-white">{item.co2}</p>
         </div>
         <div className="rounded-[16px] bg-black/40 p-2.5 flex flex-col items-center justify-center ">
-          <div className="flex items-center gap-1 text-[10px] text-white/50 mb-1"><Thermometer className="h-3 w-3" />온도</div>
+          <div className="flex items-center gap-1 text-[10px] text-white/50 mb-1"><Thermometer className="h-3 w-3" />Temp</div>
           <p className="text-[16px] font-bold text-white">{item.temp}°</p>
         </div>
         <div className="rounded-[16px] bg-black/40 p-2.5 flex flex-col items-center justify-center ">
-          <div className="flex items-center gap-1 text-[10px] text-white/50 mb-1"><Droplets className="h-3 w-3" />습도</div>
+          <div className="flex items-center gap-1 text-[10px] text-white/50 mb-1"><Droplets className="h-3 w-3" />Hum</div>
           <p className="text-[16px] font-bold text-white">{item.humi}%</p>
         </div>
       </div>
@@ -362,8 +362,8 @@ function DashboardScreen({ goWallet }) {
   return (
     <div className="flex h-full flex-col pb-8">
       <TopHeader
-        title="공기질 상황"
-        subtitle="전체 노드 실시간 지표 및 패턴"
+        title="Air Quality Status"
+        subtitle="Real-time metrics and patterns across all nodes"
         right={
           <div className="relative rounded-full bg-white/10 p-2.5 text-white/80 hover:bg-white/20 transition cursor-pointer backdrop-blur-md border border-white/5">
             <span className="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-slate-900"></span>
@@ -381,8 +381,8 @@ function DashboardScreen({ goWallet }) {
               <p className="text-[22px] font-bold text-white tracking-tight">89 <span className="text-[13px] text-white/40 font-medium">/ 100</span></p>
             </div>
             <div className="rounded-[20px] bg-white/5 p-3.5 border border-white/5">
-              <div className="flex items-center gap-2 text-[11px] font-medium text-white/60 mb-1.5"><CloudSun className="h-3.5 w-3.5 text-amber-300" /> 외부 유입 비교</div>
-              <p className="text-[13px] font-semibold text-white leading-tight">외기 대비 <span className="text-emerald-400">31%</span> 안정적</p>
+              <div className="flex items-center gap-2 text-[11px] font-medium text-white/60 mb-1.5"><CloudSun className="h-3.5 w-3.5 text-amber-300" /> Outdoor Comparison</div>
+              <p className="text-[13px] font-semibold text-white leading-tight">Compared to outdoor, <span className="text-emerald-400">31%</span> more stable</p>
             </div>
           </div>
         </motion.div>
@@ -392,10 +392,10 @@ function DashboardScreen({ goWallet }) {
         <div className={`${card} p-5`}>
           <div className="mb-4 flex items-center justify-between">
             <div>
-              <p className="text-[15px] font-bold text-white">IAQ 트렌드 예측</p>
-              <p className="text-[11px] text-white/50 mt-0.5">24시간 단위 평균 기준</p>
+              <p className="text-[15px] font-bold text-white">IAQ Trend Forecast</p>
+              <p className="text-[11px] text-white/50 mt-0.5">Based on 24H average</p>
             </div>
-            <div className="rounded-md bg-emerald-500/10 px-2 py-1 text-[10px] font-bold text-emerald-400 tracking-wider">안정권 진입</div>
+            <div className="rounded-md bg-emerald-500/10 px-2 py-1 text-[10px] font-bold text-emerald-400 tracking-wider">Stable Zone</div>
           </div>
           <div className="h-[140px] w-full -ml-3">
             <ResponsiveContainer width="100%" height="100%">
@@ -425,8 +425,8 @@ function DashboardScreen({ goWallet }) {
         <div className={`${card} p-5`}>
           <div className="mb-4 flex items-center justify-between">
             <div>
-              <p className="text-[15px] font-bold text-white">활성 노드 위치</p>
-              <p className="text-[11px] text-white/50 mt-0.5">3대의 기기가 온라인 상태</p>
+              <p className="text-[15px] font-bold text-white">Active Node Locations</p>
+              <p className="text-[11px] text-white/50 mt-0.5">3 devices are online</p>
             </div>
             <div className="flex items-center gap-1.5 rounded-full bg-white/5 px-2.5 py-1.5 border border-white/5">
               <MapPin className="h-3 w-3 text-cyan-300" />
@@ -451,8 +451,8 @@ function WalletScreen({ onContinue }) {
   return (
     <div className="flex h-full flex-col pb-8">
       <TopHeader
-        title="Web3 지갑 연동"
-        subtitle="보상 수령을 위한 Solana 지갑을 설정합니다"
+        title="Web3 Wallet Pairing"
+        subtitle="Set up your Solana wallet to receive rewards"
       />
 
       <div className="px-5 pt-2">
@@ -462,8 +462,8 @@ function WalletScreen({ onContinue }) {
               <Wallet className="h-6 w-6 text-violet-300" />
             </div>
             <div>
-              <p className="text-[16px] font-bold text-white">지갑 어플리케이션</p>
-              <p className="text-[12px] text-white/60 mt-0.5">Deeplink 또는 MWA 방식 지원</p>
+              <p className="text-[16px] font-bold text-white">Wallet Application</p>
+              <p className="text-[12px] text-white/60 mt-0.5">Supports Deeplink or MWA</p>
             </div>
           </div>
 
@@ -488,7 +488,7 @@ function WalletScreen({ onContinue }) {
 
           <div className="mt-5 rounded-[20px] bg-black/40 p-4 border border-white/5 flex items-center justify-between">
             <div>
-              <p className="text-[11px] font-medium text-white/50">연결될 데모 주소</p>
+              <p className="text-[11px] font-medium text-white/50">Demo Address to Connect</p>
               <p className="mt-1 text-[15px] font-mono font-bold text-white tracking-wider">8x2k...Jp9Q</p>
             </div>
             <ShieldCheck className="h-6 w-6 text-emerald-400" />
@@ -498,7 +498,7 @@ function WalletScreen({ onContinue }) {
             whileTap={{ scale: 0.96 }}
             className="mt-5 flex w-full items-center justify-center gap-2 rounded-[20px] bg-white px-4 py-4 text-[15px] font-bold text-slate-900 shadow-xl"
           >
-            {selectedWallet} 앱 열고 연동하기
+            {selectedWallet} Open App & Connect
             <ChevronRight className="h-5 w-5" />
           </motion.button>
         </div>
@@ -508,8 +508,8 @@ function WalletScreen({ onContinue }) {
         <div className={`${card} p-5`}>
           <div className="mb-4 flex items-center justify-between">
             <div>
-              <p className="text-[15px] font-bold text-white">수령 예측</p>
-              <p className="text-[11px] text-white/50 mt-0.5">활성 노드 3대 · 데이터 품질 98%</p>
+              <p className="text-[15px] font-bold text-white">Estimated Rewards</p>
+              <p className="text-[11px] text-white/50 mt-0.5">3 Active Nodes · 98% Data Quality</p>
             </div>
             <div className="rounded-full bg-amber-500/10 p-2 border border-amber-500/20">
               <Coins className="h-4 w-4 text-amber-400" />
@@ -518,19 +518,19 @@ function WalletScreen({ onContinue }) {
           
           <div className="grid grid-cols-3 gap-3">
             <div className="rounded-[20px] bg-black/30 border border-white/5 p-4 flex flex-col items-center justify-center">
-              <p className="text-[11px] font-medium text-white/50 mb-1">오늘</p>
+              <p className="text-[11px] font-medium text-white/50 mb-1">Today</p>
               <p className="text-[20px] font-bold text-white">18.4</p>
               <p className="text-[10px] font-bold text-cyan-300 mt-0.5 tracking-wider">AIVT</p>
             </div>
             <div className="rounded-[20px] bg-black/30 border border-white/5 p-4 flex flex-col items-center justify-center">
-              <p className="text-[11px] font-medium text-white/50 mb-1">이번 주</p>
+              <p className="text-[11px] font-medium text-white/50 mb-1">This Week</p>
               <p className="text-[20px] font-bold text-white">112.0</p>
               <p className="text-[10px] font-bold text-cyan-300 mt-0.5 tracking-wider">AIVT</p>
             </div>
             <div className="rounded-[20px] bg-emerald-500/10 border border-emerald-500/20 p-4 flex flex-col items-center justify-center">
-              <p className="text-[11px] font-medium text-emerald-200/70 mb-1">품질보너스</p>
+              <p className="text-[11px] font-medium text-emerald-200/70 mb-1">Quality Bonus</p>
               <p className="text-[20px] font-bold text-emerald-400">+14%</p>
-              <p className="text-[10px] font-bold text-emerald-300/70 mt-0.5">Gold 티어</p>
+              <p className="text-[10px] font-bold text-emerald-300/70 mt-0.5">Gold Tier</p>
             </div>
           </div>
 
@@ -539,7 +539,7 @@ function WalletScreen({ onContinue }) {
             onClick={onContinue}
             className="mt-5 flex w-full items-center justify-center gap-2 rounded-[20px] border border-violet-500/30 bg-violet-500/15 px-4 py-4 text-[14px] font-bold text-violet-200 transition hover:bg-violet-500/25"
           >
-            상세 리워드 정책 확인
+            View Reward Policy Details
             <ChevronRight className="h-4 w-4" />
           </motion.button>
         </div>
@@ -551,13 +551,13 @@ function WalletScreen({ onContinue }) {
 function RewardScreen() {
   const [autoClaim, setAutoClaim] = useState(true);
   const [dataShare, setDataShare] = useState(true);
-  const [zone, setZone] = useState('실내 데이터 + 외기 비교');
+  const [zone, setZone] = useState('Indoor data + Outdoor Comp');
 
   return (
     <div className="flex h-full flex-col pb-8">
       <TopHeader
-        title="리워드 관리"
-        subtitle="보상 정책 설정 및 실시간 클레임"
+        title="Reward Management"
+        subtitle="Policy settings and real-time claims"
       />
 
       <div className="px-5 pt-2">
@@ -565,10 +565,10 @@ function RewardScreen() {
           <div className="rounded-[24px] bg-gradient-to-br from-emerald-500/20 via-cyan-500/10 to-transparent p-5">
             <div className="flex items-center justify-between mb-2">
               <div>
-                <p className="text-[12px] font-medium text-white/70">예상 월간 누적</p>
+                <p className="text-[12px] font-medium text-white/70">Est. Monthly Total</p>
               </div>
               <div className="flex items-center gap-1 rounded-full bg-emerald-500/20 px-2.5 py-1 text-[10px] font-bold text-emerald-300">
-                <Sparkles className="h-3 w-3" />안정 권역
+                <Sparkles className="h-3 w-3" />Stable Zone
               </div>
             </div>
             <div className="flex items-end justify-between">
@@ -586,12 +586,12 @@ function RewardScreen() {
 
       <div className="px-5 pt-4">
         <div className={`${card} p-5`}>
-          <p className="mb-4 text-[15px] font-bold text-white">자동화 및 정책</p>
+          <p className="mb-4 text-[15px] font-bold text-white">Automation & Policies</p>
           <div className="space-y-3">
             <div className="flex items-center justify-between rounded-[20px] bg-black/30 border border-white/5 px-4 py-3.5">
               <div>
-                <p className="text-[14px] font-bold text-white">자동 클레임</p>
-                <p className="text-[11px] text-white/50 mt-0.5">100 AIVT 달성 시 지갑 전송</p>
+                <p className="text-[14px] font-bold text-white">Auto Claim</p>
+                <p className="text-[11px] text-white/50 mt-0.5">Transfer to wallet at 100 AIVT</p>
               </div>
               <button
                 onClick={() => setAutoClaim(!autoClaim)}
@@ -603,8 +603,8 @@ function RewardScreen() {
             
             <div className="flex items-center justify-between rounded-[20px] bg-black/30 border border-white/5 px-4 py-3.5">
               <div>
-                <p className="text-[14px] font-bold text-white">데이터 익명 공유</p>
-                <p className="text-[11px] text-white/50 mt-0.5">품질 보너스 (최대 15%) 적용</p>
+                <p className="text-[14px] font-bold text-white">Anonymous Data Sharing</p>
+                <p className="text-[11px] text-white/50 mt-0.5">Quality bonus (up to 15%) applied</p>
               </div>
               <button
                 onClick={() => setDataShare(!dataShare)}
@@ -616,9 +616,9 @@ function RewardScreen() {
           </div>
 
           <div className="mt-5 rounded-[20px] bg-black/40 border border-white/5 p-4">
-            <p className="text-[11px] font-medium text-white/50 mb-3">데이터 제공 레벨</p>
+            <p className="text-[11px] font-medium text-white/50 mb-3">Data Privacy Level</p>
             <div className="flex flex-wrap gap-2">
-              {['실내 + 외기 비교', '실내 요약', '공유 안함'].map((opt) => (
+              {['Indoor + Outdoor', 'Indoor Summary', 'No Sharing'].map((opt) => (
                 <button
                   key={opt}
                   onClick={() => setZone(opt)}
@@ -636,8 +636,8 @@ function RewardScreen() {
         <div className={`${card} p-5 border-cyan-500/20 bg-cyan-500/5`}>
           <div className="flex items-center justify-between mb-4">
             <div>
-              <p className="text-[15px] font-bold text-white">클레임 가능 수량</p>
-              <p className="text-[11px] text-cyan-300/70 mt-0.5">수수료 무료 · 스폰서 트랜잭션</p>
+              <p className="text-[15px] font-bold text-white">Claimable Quantity</p>
+              <p className="text-[11px] text-cyan-300/70 mt-0.5">Fee-free · Sponsored Transaction</p>
             </div>
             <Gift className="h-6 w-6 text-cyan-400" />
           </div>
@@ -649,7 +649,7 @@ function RewardScreen() {
             whileTap={{ scale: 0.96 }}
             className="flex w-full items-center justify-center gap-2 rounded-[20px] bg-gradient-to-r from-cyan-400 to-emerald-400 px-4 py-4 text-[15px] font-bold text-slate-950 shadow-lg shadow-cyan-500/20"
           >
-            즉시 클레임 실행
+            Execute Instant Claim
           </motion.button>
         </div>
       </div>
@@ -675,7 +675,7 @@ export default function AirVentDePINApp() {
     <div className="min-h-screen bg-slate-950 font-sans text-white md:p-8 flex items-center justify-center relative">
       <a href="/" className="absolute top-6 left-6 md:top-8 md:left-8 flex items-center gap-2 px-5 py-2.5 bg-white/5 hover:bg-white/10 text-white/80 hover:text-white rounded-full backdrop-blur-md transition border border-white/10 z-[100] shadow-lg">
         <ChevronLeft className="h-4 w-4" />
-        <span className="text-[13px] font-bold tracking-wide">웹사이트로 돌아가기</span>
+        <span className="text-[13px] font-bold tracking-wide">Back to Website</span>
       </a>
 
       <div className="w-full max-w-[1200px] grid grid-cols-1 md:grid-cols-[400px_minmax(0,1fr)] gap-10 items-center drop-shadow-2xl pt-20 md:pt-0">
