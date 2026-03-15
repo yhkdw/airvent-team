@@ -23,23 +23,29 @@ export default function OnboardingPage() {
     if (nickname.trim().length < 2) { setError("닉네임은 2자 이상이어야 합니다."); return; }
 
     setLoading(true);
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) { nav("/login"); return; }
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) { nav("/login"); return; }
 
-    const { error: saveErr } = await saveNickname(session.user.id, nickname.trim());
-    setLoading(false);
+      const { error: saveErr } = await saveNickname(session.user.id, nickname.trim());
 
-    if (saveErr) {
-      console.error("[Onboarding] Save error:", saveErr);
-      if (saveErr.message.includes("unique") || saveErr.code === "23505") {
-        setError("이미 사용 중인 닉네임입니다. 다른 닉네임을 입력해주세요.");
-      } else if (saveErr.message.includes("406") || saveErr.code === "PGRST106") {
-        setError("데이터베이스 설정 문제(profiles 테이블 부재)가 감지되었습니다. 관리자에게 문의하거나 SQL 스크립트를 실행해주세요.");
+      if (saveErr) {
+        console.error("[Onboarding] Save error:", saveErr);
+        if (saveErr.message.includes("unique") || saveErr.code === "23505") {
+          setError("이미 사용 중인 닉네임입니다. 다른 닉네임을 입력해주세요.");
+        } else if (saveErr.message.includes("406") || saveErr.code === "PGRST106") {
+          setError("데이터베이스 설정 문제(profiles 테이블 부재)가 감지되었습니다. 관리자에게 문의하거나 SQL 스크립트를 실행해주세요.");
+        } else {
+          setError(saveErr.message || "저장 중 오류가 발생했습니다.");
+        }
       } else {
-        setError(saveErr.message);
+        nav("/");
       }
-    } else {
-      nav("/");
+    } catch (err: any) {
+      console.error("[Onboarding] Exception:", err);
+      setError("서버와의 통신 중 수기 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
+    } finally {
+      setLoading(false);
     }
   };
 
