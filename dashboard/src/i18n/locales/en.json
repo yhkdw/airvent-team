@@ -16,7 +16,7 @@
         "connecting": "Connecting..."
     },
     "overview": {
-         "metrics": {
+        "metrics": {
             "pm25": "PM2.5 (Fine Dust)",
             "pm1": "PM1.0 (Ultra-Fine)",
             "pm10": "PM10 (Dust)",
@@ -76,7 +76,13 @@
             "network_desc": "The AirVent team is participating in the Superteam Korea Startup Village, focusing on developing innovative DePIN solutions for the Solana ecosystem."
         },
         "read_more": "READ MORE",
-        "view_all_news": "VIEW ALL ANNOUNCEMENTS"
+        "view_all_news": "VIEW ALL ANNOUNCEMENTS",
+        "news1_title": "v1.9.1 Update: Global Status I18n",
+        "news1_desc": "Full support for 4 languages in global network status and metrics.",
+        "news2_title": "New AI Audit Engine Alpha",
+        "news2_desc": "Improving air quality detection with machine learning models.",
+        "news3_title": "DePIN Rewards Phase 2",
+        "news3_desc": "Bigger rewards for active community node operators."
     },
     "wallet": {
         "spl_account": "SPL Token Account",

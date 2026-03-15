@@ -16,7 +16,7 @@
         "connecting": "연결 중..."
     },
     "overview": {
-         "metrics": {
+        "metrics": {
             "pm25": "초미세먼지",
             "pm1": "극초미세먼지",
             "pm10": "미세먼지",
@@ -64,7 +64,7 @@
         "network_score": "네트워크 점수",
         "total_audits": "총 감사 횟수",
         "live_audit": "실시간 감사 피드",
-        "news_title": "네트워크 소식 및 공지사항",
+        "news_title": "네트워크 뉴스 및 공지",
         "indoor_comfort": "실내 쾌적도",
         "live_stream": "실시간 데이터",
         "news": {
@@ -76,7 +76,13 @@
             "network_desc": "AirVent 팀이 슈퍼팀코리아 스타트업빌리지(Superteam Korea Startup Village)에 참여하여 솔라나 생태계의 혁신적인 DePIN 솔루션을 집중적으로 개발하고 있습니다."
         },
         "read_more": "더 보기",
-        "view_all_news": "모든 공지사항 보기"
+        "view_all_news": "모든 공지사항 보기",
+        "news1_title": "v1.9.1 업데이트: 글로벌 상태 다국어화",
+        "news1_desc": "글로벌 네트워크 상태 및 지표에 대한 4개 국어 지원이 완료되었습니다.",
+        "news2_title": "새로운 AI 감사 엔진 알파",
+        "news2_desc": "머신러닝 모델을 통한 공기질 감지 성능 향상.",
+        "news3_title": "DePIN 보상 페이즈 2",
+        "news3_desc": "활성 커뮤니티 노드 운영자를 위한 더 큰 보상."
     },
     "wallet": {
         "spl_account": "SPL 토큰 계정",

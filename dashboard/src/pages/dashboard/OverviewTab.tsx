@@ -260,7 +260,7 @@ export default function OverviewTab() {
                                     <Coffee size={20} className={activeSpace === 'lounge' ? getStatusColorCls(activeStatus, 'text') : 'text-slate-600'} />
                                     <span className={`text-xs mt-1 ${activeSpace === 'lounge' ? 'text-slate-100 font-bold' : 'text-slate-500'}`}>{t("overview.spaces.lounge")}</span>
                                 </button>
-                                <div className="col-start-1 row-start-3 col-span-4 rounded-xl border border-slate-800 bg-slate-900/10 flex items-center justify-center text-[10px] text-slate-700 uppercase tracking-widest italic">Hallway / Elevator Area</div>
+                                <div className="col-start-1 row-start-3 col-span-4 rounded-xl border border-slate-800 bg-slate-900/10 flex items-center justify-center text-[10px] text-slate-700 uppercase tracking-widest italic">{t("overview.spaces.hallway")}</div>
                             </div>
                         )}
 

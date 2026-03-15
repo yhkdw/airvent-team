@@ -16,7 +16,7 @@
         "connecting": "連接中..."
     },
     "overview": {
-         "metrics": {
+        "metrics": {
             "pm25": "超細懸浮微粒",
             "pm1": "極細懸浮微粒",
             "pm10": "細懸浮微粒",
@@ -76,7 +76,13 @@
             "network_desc": "AirVent 團隊目前正在參與 Superteam Korea Startup Village，致力於為 Solana 生態系開發創新的 DePIN 解決方案。"
         },
         "read_more": "閱讀更多",
-        "view_all_news": "查看所有公告"
+        "view_all_news": "查看所有公告",
+        "news1_title": "v1.9.1 更新：全球狀態多語言化",
+        "news1_desc": "全球網路狀態與指標的 4 種語言支援已完成。",
+        "news2_title": "全新 AI 審計引擎 Alpha",
+        "news2_desc": "透過機器學習模型提升空氣品質檢測性能。",
+        "news3_title": "DePIN 獎勵階段 2",
+        "news3_desc": "為活躍的社群節點營運者提供更豐厚的獎勵。"
     },
     "wallet": {
         "spl_account": "SPL 代幣帳戶",

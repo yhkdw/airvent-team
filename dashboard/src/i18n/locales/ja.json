@@ -16,7 +16,7 @@
         "connecting": "接続中..."
     },
     "overview": {
-         "metrics": {
+        "metrics": {
             "pm25": "超微小粒子状物質",
             "pm1": "極微小粒子状物質",
             "pm10": "微小粒子状物質",
@@ -64,7 +64,7 @@
         "network_score": "ネットワークスコア",
         "total_audits": "総監査数",
         "live_audit": "ライブ監査フィード",
-        "news_title": "ネットワークニュース＆お知らせ",
+        "news_title": "ネットワークニュース&お知らせ",
         "indoor_comfort": "室内環境の快適さ",
         "live_stream": "ライブストリーム",
         "news": {
@@ -75,8 +75,14 @@
             "network_title": "AirVent: Superteam Korea Startup Villageに参加いたします",
             "network_desc": "AirVentチームは、Solanaエコシステム向けの革新的なDePINソリューションの開発に焦点を当て、Superteam Korea Startup Villageに参加しております。"
         },
-        "read_more": "続きを読む",
-        "view_all_news": "すべてのお知らせを見る"
+        "read_more": "もっと見る",
+        "view_all_news": "すべてのお知らせを見る",
+        "news1_title": "v1.9.1 アップデート：グローバルステータスの多言語化",
+        "news1_desc": "グローバルネットワークの状況とメトリクスの4言語サポートが完了しました。",
+        "news2_title": "新しいAI監査エンジン アルファ",
+        "news2_desc": "機械学習モデルによる空気質検知性能の向上。",
+        "news3_title": "DePIN 報酬フェーズ2",
+        "news3_desc": "アクティブなコミュニティノード運営者へのさらなる報酬。"
     },
     "wallet": {
         "spl_account": "SPL トークンアカウント",
