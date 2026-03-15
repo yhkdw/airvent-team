@@ -156,7 +156,7 @@ const t = {
       },
     ],
     footerTagline: "Hyperlocal Air Quality Network — Powered by Solana",
-    footerLinks: { docs: "문서", github: "GitHub", blog: "블로그", privacy: "개인정보처리방침", terms: "이용약관", warranty: "보증정책" },
+    footerLinks: { docs: "Medium", github: "GitHub", blog: "블로그", privacy: "개인정보처리방침", terms: "이용약관", warranty: "보증정책" },
     toast: {
       welcome: "님, 환영합니다!",
       sub: "{tx.toast.sub}"
@@ -308,7 +308,7 @@ const t = {
       },
     ],
     footerTagline: "Hyperlocal Air Quality Network — Powered by Solana",
-    footerLinks: { docs: "Docs", github: "GitHub", blog: "Blog", privacy: "Privacy Policy", terms: "Terms of Service", warranty: "Warranty Policy" },
+    footerLinks: { docs: "Medium", github: "GitHub", blog: "Blog", privacy: "Privacy Policy", terms: "Terms of Service", warranty: "Warranty Policy" },
     toast: { welcome: ", welcome back!", sub: "Welcome to AirVent" },
   },
   ja: {
@@ -457,7 +457,7 @@ const t = {
       },
     ],
     footerTagline: "Hyperlocal Air Quality Network — Powered by Solana",
-    footerLinks: { docs: "文書", github: "GitHub", blog: "ブログ", privacy: "個人情報保護方針", terms: "利用規約", warranty: "保証政策" },
+    footerLinks: { docs: "Medium", github: "GitHub", blog: "ブログ", privacy: "個人情報保護方針", terms: "利用規約", warranty: "保証政策" },
     toast: { welcome: "さん、おかえりなさい！", sub: "AirVentへようこそ" },
   },
   'zh-TW': {
@@ -606,7 +606,7 @@ const t = {
       },
     ],
     footerTagline: "Hyperlocal Air Quality Network — Powered by Solana",
-    footerLinks: { docs: "文檔", github: "GitHub", blog: "部落格", privacy: "隱私權政策", terms: "使用條款", warranty: "保固政策" },
+    footerLinks: { docs: "Medium", github: "GitHub", blog: "部落格", privacy: "隱私權政策", terms: "使用條款", warranty: "保固政策" },
     toast: { welcome: "，歡迎回來！", sub: "歡迎來到 AirVent" },
   },
 };
@@ -987,7 +987,7 @@ export default function LandingPage() {
               <div>
                 <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Resources</h4>
                 <ul className="space-y-2.5 text-sm text-slate-500">
-                  <li><a href="#" className="hover:text-emerald-400 transition-colors">{tx.footerLinks.docs}</a></li>
+                  <li><a href="https://medium.com/@airventinccokr" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400 transition-colors">{tx.footerLinks.docs}</a></li>
                   <li><a href="https://github.com/yhkdw/airvent-team" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400 transition-colors">{tx.footerLinks.github}</a></li>
                   <li><a href="#" className="hover:text-emerald-400 transition-colors">{tx.footerLinks.blog}</a></li>
                 </ul>

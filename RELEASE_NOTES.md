@@ -1,6 +1,18 @@
 # AirVent DePIN Release Notes
 
 
+## Version: v1.9.4 - 2026-03-15
+
+### 🎉 Whats New
+- **Medium Integration**: Replaced the "Docs" link in the footer Resources section with "Medium", linking directly to the official AirVent Medium blog.
+
+### 🛠 Technical Changes
+- Version bump to `v1.9.4`.
+- Updated `LandingPage.tsx` with multi-language support for the "Medium" label and linked it to `https://medium.com/@airventinccokr`.
+
+---
+
+
 ## Version: v1.9.3 - 2026-03-15
 
 ### 🎉 Whats New
