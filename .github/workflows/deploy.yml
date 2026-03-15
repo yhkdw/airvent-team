@@ -50,11 +50,21 @@ jobs:
           chmod 600 ~/.config/solana/id.json
           export PATH="/home/runner/.local/share/solana/install/active_release/bin:$PATH"
           solana config set --url devnet --keypair ~/.config/solana/id.json
+          solana airdrop 2 || true
 
       - name: Build Program
         run: |
           export PATH="/home/runner/.local/share/solana/install/active_release/bin:$(npm config get prefix)/bin:$PATH"
-          anchor build
+          # Redirect both stdout and stderr to a file
+          anchor build 2>&1 | tee build_output.log
+
+      - name: Upload Build Logs on Failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-error-logs
+          path: build_output.log
+          retention-days: 1
 
       - name: Deploy Program
         run: |
