@@ -50,23 +50,30 @@ jobs:
           chmod 600 ~/.config/solana/id.json
           export PATH="/home/runner/.local/share/solana/install/active_release/bin:$PATH"
           solana config set --url devnet --keypair ~/.config/solana/id.json
-          solana airdrop 2 || true
+          
+          echo "💰 Requesting airdrop (Retry 3 times)..."
+          for i in {1..3}; do solana airdrop 2 && break || sleep 5; done
+          echo "✅ Wallet Address: $(solana address)"
+          echo "✅ Current Balance: $(solana balance)"
 
       - name: Build Program
         run: |
           export PATH="/home/runner/.local/share/solana/install/active_release/bin:$(npm config get prefix)/bin:$PATH"
-          # Redirect both stdout and stderr to a file
           anchor build 2>&1 | tee build_output.log
-
-      - name: Upload Build Logs on Failure
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-error-logs
-          path: build_output.log
-          retention-days: 1
 
       - name: Deploy Program
         run: |
           export PATH="/home/runner/.local/share/solana/install/active_release/bin:$(npm config get prefix)/bin:$PATH"
-          anchor deploy --provider.cluster https://api.devnet.solana.com
+          echo "🚀 Starting Deployment..."
+          # Capture deploy logs as well
+          anchor deploy --provider.cluster devnet 2>&1 | tee deploy_output.log
+
+      - name: Upload Logs on Failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: deployment-error-logs
+          path: |
+            build_output.log
+            deploy_output.log
+          retention-days: 1
