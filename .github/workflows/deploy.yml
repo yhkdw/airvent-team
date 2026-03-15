@@ -26,18 +26,25 @@ jobs:
 
       - name: Install Solana CLI
         run: |
-          # Robust install using mirror or direct download with retries
-          sh -c "$(curl -sSfL https://release.solana.com/v1.18.12/install)"
+          # Using direct pipe to sh which is more standard in CI
+          curl -sSfL https://release.solana.com/v1.18.12/install | sh
           echo "/home/runner/.local/share/solana/install/active_release/bin" >> $GITHUB_PATH
 
       - name: Install Anchor CLI
         run: |
-          # Match local environment version
+          # Use specific version that matches local env
           npm install -g @coral-xyz/anchor-cli@0.30.1
           echo "$(npm config get prefix)/bin" >> $GITHUB_PATH
 
       - name: Setup Solana Keypair
         run: |
+          # Verify solana installation in this shell
+          export PATH="/home/runner/.local/share/solana/install/active_release/bin:$PATH"
+          if ! command -v solana &> /dev/null; then
+            echo "❌ ERROR: solana CLI not found in PATH."
+            exit 1
+          fi
+          
           mkdir -p ~/.config/solana
           KEY_DATA="${{ secrets.SOLANA_DEPLOY_KEY }}"
           
@@ -53,8 +60,10 @@ jobs:
 
       - name: Build Program
         run: |
+          export PATH="/home/runner/.local/share/solana/install/active_release/bin:$(npm config get prefix)/bin:$PATH"
           anchor build
 
       - name: Deploy Program
         run: |
+          export PATH="/home/runner/.local/share/solana/install/active_release/bin:$(npm config get prefix)/bin:$PATH"
           anchor deploy --provider.cluster devnet
