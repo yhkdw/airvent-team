@@ -1,6 +1,20 @@
 # AirVent DePIN Release Notes
 
 
+## Version: v1.9.2 - 2026-03-15
+
+### 🎉 Whats New
+- **News Section Translation Fix**: Resolved an issue where translation keys (e.g., `overview.news1_title`) were being displayed instead of actual content in the "Network News & Announcements" section.
+- **Office Map Localization**: Fully internationalized remaining hardcoded strings in the office layout, specifically the "Hallway / Elevator Area" label.
+
+### 🛠 Technical Changes
+- Version bump to `v1.9.2`.
+- Updated all language JSON files with missing news content and space labels.
+- Refactored `OverviewTab.tsx` to handle dynamic rendering of the hallway area.
+
+---
+
+
 ## Version: v1.9.1 - 2026-03-14
 
 ### 🎉 Whats New
