@@ -6,7 +6,6 @@ on:
   workflow_dispatch:
 
 env:
-  # Node.js 20 지원 종료 대응 (Node 24 사용 강제)
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
@@ -26,44 +25,40 @@ jobs:
 
       - name: Install Solana CLI
         run: |
-          # Using direct pipe to sh which is more standard in CI
+          # Robust install
           curl -sSfL https://release.solana.com/v1.18.12/install | sh
           echo "/home/runner/.local/share/solana/install/active_release/bin" >> $GITHUB_PATH
 
       - name: Install Anchor CLI
         run: |
-          # Use specific version that matches local env
           npm install -g @coral-xyz/anchor-cli@0.30.1
           echo "$(npm config get prefix)/bin" >> $GITHUB_PATH
 
       - name: Setup Solana Keypair
+        env:
+          KEY_DATA: ${{ secrets.SOLANA_DEPLOY_KEY }}
         run: |
-          # Verify solana installation in this shell
-          export PATH="/home/runner/.local/share/solana/install/active_release/bin:$PATH"
-          if ! command -v solana &> /dev/null; then
-            echo "❌ ERROR: solana CLI not found in PATH."
-            exit 1
-          fi
-          
           mkdir -p ~/.config/solana
-          KEY_DATA="${{ secrets.SOLANA_DEPLOY_KEY }}"
-          
+          # Debug: check if secret is passed (masked by default in GHA)
           if [ -z "$KEY_DATA" ]; then
             echo "❌ ERROR: SOLANA_DEPLOY_KEY secret is not found or empty."
             exit 1
           fi
           
+          # Write secret safely
           echo "$KEY_DATA" > ~/.config/solana/id.json
           chmod 600 ~/.config/solana/id.json
+          
+          # Force export path for this step to ensure solana is found
+          export PATH="/home/runner/.local/share/solana/install/active_release/bin:$PATH"
           solana config set --url devnet --keypair ~/.config/solana/id.json
           echo "✅ Solana config ready. Address: $(solana address)"
 
-      - name: Build Program
+      - name: Build and Deploy
         run: |
+          # Force export paths for build step
           export PATH="/home/runner/.local/share/solana/install/active_release/bin:$(npm config get prefix)/bin:$PATH"
+          echo "Building..."
           anchor build
-
-      - name: Deploy Program
-        run: |
-          export PATH="/home/runner/.local/share/solana/install/active_release/bin:$(npm config get prefix)/bin:$PATH"
+          echo "Deploying..."
           anchor deploy --provider.cluster devnet
