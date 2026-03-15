@@ -47,10 +47,6 @@ jobs:
           KEY_DATA: ${{ secrets.SOLANA_DEPLOY_KEY }}
         run: |
           mkdir -p ~/.config/solana
-          if [ -z "$KEY_DATA" ]; then
-            echo "❌ ERROR: SOLANA_DEPLOY_KEY secret is not found or empty."
-            exit 1
-          fi
           echo "$KEY_DATA" > ~/.config/solana/id.json
           chmod 600 ~/.config/solana/id.json
           export PATH="/home/runner/.local/share/solana/install/active_release/bin:$PATH"
@@ -58,18 +54,22 @@ jobs:
           
           echo "💰 Requesting airdrop..."
           solana airdrop 2 || true
-          echo "✅ Wallet Address: $(solana address)"
           echo "✅ Current Balance: $(solana balance)"
 
-      - name: Build Program
+      - name: Build Program (Debug Mode)
         run: |
           export PATH="/home/runner/.local/share/solana/install/active_release/bin:$(npm config get prefix)/bin:$PATH"
-          echo "🔨 Starting Build..."
-          anchor build
+          echo "🔨 Starting Build with Verbose Logging..."
+          # Print versions for debugging
+          anchor --version
+          solana --version
+          rustc --version
+          
+          # Actual build with verbose to see where it fails
+          anchor build --verbose
 
       - name: Deploy Program
         run: |
           export PATH="/home/runner/.local/share/solana/install/active_release/bin:$(npm config get prefix)/bin:$PATH"
           echo "🚀 Starting Deployment..."
-          # Use --provider.cluster instead of cluster name for clarity
           anchor deploy --provider.cluster https://api.devnet.solana.com
