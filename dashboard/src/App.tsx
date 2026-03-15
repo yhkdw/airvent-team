@@ -37,8 +37,8 @@ export default function App() {
         console.log(`[App] ${event} at ${currentPath}, next: ${next}, hasToken: ${hasAccessToken}`);
 
         // 닉네임 확인 — 없으면 온보딩으로
-        const nickname = await getNickname(session.user.id);
-        if (!nickname) {
+        const { data: nickname, error: profileError } = await getNickname(session.user.id);
+        if (!nickname && !profileError) {
           console.log("[App] No nickname found, redirecting to /onboarding");
           navigate("/onboarding", { replace: true });
           return;

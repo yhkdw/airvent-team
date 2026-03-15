@@ -45,19 +45,20 @@ export async function loginWithSocial(provider: 'google' | 'twitter', next?: str
   return { data, error };
 }
 
-export async function getNickname(userId: string): Promise<string | null> {
-  const { data } = await supabase
+export async function getNickname(userId: string): Promise<{ data: string | null; error: any }> {
+  const { data, error } = await supabase
     .from('profiles')
     .select('nickname')
     .eq('id', userId)
     .single();
-  return data?.nickname ?? null;
+  return { data: data?.nickname ?? null, error };
 }
 
 export async function saveNickname(userId: string, nickname: string) {
-  return await supabase
+  const { data, error } = await supabase
     .from('profiles')
     .upsert({ id: userId, nickname }, { onConflict: 'id' });
+  return { data, error };
 }
 
 export async function logout(): Promise<void> {

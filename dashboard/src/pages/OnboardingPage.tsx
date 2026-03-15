@@ -30,8 +30,11 @@ export default function OnboardingPage() {
     setLoading(false);
 
     if (saveErr) {
+      console.error("[Onboarding] Save error:", saveErr);
       if (saveErr.message.includes("unique") || saveErr.code === "23505") {
         setError("이미 사용 중인 닉네임입니다. 다른 닉네임을 입력해주세요.");
+      } else if (saveErr.message.includes("406") || saveErr.code === "PGRST106") {
+        setError("데이터베이스 설정 문제(profiles 테이블 부재)가 감지되었습니다. 관리자에게 문의하거나 SQL 스크립트를 실행해주세요.");
       } else {
         setError(saveErr.message);
       }
