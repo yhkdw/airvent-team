@@ -2,9 +2,12 @@ name: Deploy to Solana Devnet
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   workflow_dispatch:
+
+env:
+  # Node.js 20 지원 종료 대응 (Node 24 사용 강제)
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   deploy:
@@ -23,21 +26,30 @@ jobs:
 
       - name: Install Solana CLI
         run: |
-          curl -sSfL https://release.solana.com/v1.18.12/install -o solana-install.sh
-          sh solana-install.sh
+          # Robust install using mirror or direct download with retries
+          sh -c "$(curl -sSfL https://release.solana.com/v1.18.12/install)"
           echo "/home/runner/.local/share/solana/install/active_release/bin" >> $GITHUB_PATH
 
       - name: Install Anchor CLI
         run: |
-          npm install -g @coral-xyz/anchor-cli@0.29.0
+          # Match local environment version
+          npm install -g @coral-xyz/anchor-cli@0.30.1
           echo "$(npm config get prefix)/bin" >> $GITHUB_PATH
 
       - name: Setup Solana Keypair
         run: |
           mkdir -p ~/.config/solana
-          echo "${{ secrets.SOLANA_DEPLOY_KEY }}" > ~/.config/solana/id.json
+          KEY_DATA="${{ secrets.SOLANA_DEPLOY_KEY }}"
+          
+          if [ -z "$KEY_DATA" ]; then
+            echo "❌ ERROR: SOLANA_DEPLOY_KEY secret is not found or empty."
+            exit 1
+          fi
+          
+          echo "$KEY_DATA" > ~/.config/solana/id.json
           chmod 600 ~/.config/solana/id.json
           solana config set --url devnet --keypair ~/.config/solana/id.json
+          echo "✅ Solana config ready. Address: $(solana address)"
 
       - name: Build Program
         run: |
