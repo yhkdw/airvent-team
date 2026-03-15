@@ -51,25 +51,15 @@ jobs:
           chmod 600 ~/.config/solana/id.json
           export PATH="/home/runner/.local/share/solana/install/active_release/bin:$PATH"
           solana config set --url devnet --keypair ~/.config/solana/id.json
-          
-          echo "💰 Requesting airdrop..."
           solana airdrop 2 || true
-          echo "✅ Current Balance: $(solana balance)"
+          solana balance
 
-      - name: Build Program (Debug Mode)
+      - name: Build Program
         run: |
           export PATH="/home/runner/.local/share/solana/install/active_release/bin:$(npm config get prefix)/bin:$PATH"
-          echo "🔨 Starting Build with Verbose Logging..."
-          # Print versions for debugging
-          anchor --version
-          solana --version
-          rustc --version
-          
-          # Actual build with verbose to see where it fails
           anchor build --verbose
 
       - name: Deploy Program
         run: |
           export PATH="/home/runner/.local/share/solana/install/active_release/bin:$(npm config get prefix)/bin:$PATH"
-          echo "🚀 Starting Deployment..."
           anchor deploy --provider.cluster https://api.devnet.solana.com
