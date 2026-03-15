@@ -1,6 +1,18 @@
 # AirVent DePIN Release Notes
 
 
+## Version: v1.9.5 - 2026-03-15
+
+### 🎉 Whats New
+- **Corporate Website Integration**: Replaced the "Blog" link in the footer Resources section with "Corporate", linking directly to the official company website (`https://www.airventinc.co.kr`).
+
+### 🛠 Technical Changes
+- Version bump to `v1.9.5`.
+- Updated `LandingPage.tsx` with multi-language support (KO, EN, JA, ZH) for the "Corporate" label.
+
+---
+
+
 ## Version: v1.9.4 - 2026-03-15
 
 ### 🎉 Whats New
