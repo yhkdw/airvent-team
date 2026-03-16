@@ -5,7 +5,7 @@ resolution = true
 skip-lint = false
 
 [programs.devnet]
-airvent_subscription = "C245wF5gEDvBzgtskqooaz4yCdqFrgutt1CLub8iLWsF"
+airvent_subscription = "B2EXeDBK3y6jyYzwqNqUEA8NMsVJhWCdKc6ZiLYC8hRM"
 
 [programs.testnet]
 airvent_subscription = "FRUF1NqpmYxzwuxEiqVbuDXwaGB7fdhaaA7i9curNc6R"
@@ -14,7 +14,7 @@ airvent_subscription = "FRUF1NqpmYxzwuxEiqVbuDXwaGB7fdhaaA7i9curNc6R"
 url = "https://api.apr.dev"
 
 [provider]
-cluster = "Devnet"
+cluster = "devnet"
 wallet = "~/.config/solana/id.json"
 
 [scripts]
