@@ -16,9 +16,9 @@ const t = {
     login: "로그인",
     dashboard: "대시보드",
     heroEyebrow: "DEPIN AIR QUALITY NETWORK",
-    heroTitle: "실내 공기질을 측정하는 노드,\n이제 Testnet의 첫 기여자를 모집합니다",
+    heroTitle: "집·사무실 공기질을 실시간으로 확인하고,\n초기 네트워크 기여 보상까지 받으세요.",
     heroSub:
-      "AirVent는 집·사무실·실내 공간의 공기질을 측정하는 스마트 노드입니다. 노드 출시와 Devnet 검증을 마친 지금, 제품 사용자이자 초기 네트워크 기여자로 함께할 첫 유저를 모집하고 있습니다.",
+      "AirVent는 실내 공기질을 측정하는 스마트 노드입니다. 초기 구매자는 한국 Genesis 가격으로 노드를 확보하고, 설치·연동·운영에 따라 AIVT 보상을 받습니다.",
     heroCta: "노드 구매하기",
     heroMore: "앱 DEMO",
     heroCtaAuthed: "노드 구매하기",
@@ -168,9 +168,9 @@ const t = {
     login: "Login",
     dashboard: "Dashboard",
     heroEyebrow: "DEPIN AIR QUALITY NETWORK",
-    heroTitle: "A Node for Indoor Air Quality,\nRecruiting Testnet Early Contributors",
+    heroTitle: "Check Home and Office Air Quality in Real-Time,\nand Earn Early Network Contribution Rewards.",
     heroSub:
-      "AirVent is a smart node that measures air quality in homes, offices, and indoor spaces. Following our Devnet verification, we are now recruiting the first users to join as product users and early network contributors.",
+      "AirVent is a smart node that measures indoor air quality. Early buyers can secure nodes at Korea Genesis pricing and receive AIVT rewards based on installation, connection, and operation.",
     heroCta: "Apply for Node",
     heroMore: "App DEMO",
     heroCtaAuthed: "Apply for Node",
@@ -468,7 +468,7 @@ const t = {
     heroEyebrow: "DEPIN AIR QUALITY NETWORK",
     heroTitle: "測量室內空氣質量的節點，\n現正招募 Testnet 首批貢獻者",
     heroSub:
-      "AirVent 是測量家庭、辦公室及室內空間空氣質量的智能節點。隨着節點發布和 Devnet 驗證的完成，我們現正招募首批以產品用戶及初期網絡貢獻者身份加入的成員。",
+      "AirVent 是測量室內空氣質量的智能節點。初期購買者可以韓國 Genesis 價格確保節點，並根據安裝、連動及運營獲得 AIVT 獎勵。",
     heroCta: "申請節點",
     heroMore: "App DEMO",
     heroCtaAuthed: "申請節點",
