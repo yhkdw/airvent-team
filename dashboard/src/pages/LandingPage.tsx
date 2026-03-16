@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Container from "../components/Container";
 import { isAuthed, logout, getNickname } from "../auth";
+import { supabase } from "../lib/supabaseClient";
 import i18n from "../i18n/config";
 
 const isLocal: boolean =
@@ -672,31 +673,32 @@ export default function LandingPage() {
         setNickname(null);
       }
     };
-    import('../lib/supabaseClient').then(({ supabase: sb }) => {
-      sb.auth.getSession().then(({ data: { session } }) => loadUser(session));
-      const { data: { subscription } } = sb.auth.onAuthStateChange((_event, session) => {
-        loadUser(session);
-      });
-      return () => {
-        subscription.unsubscribe();
-        clearTimeout(toastTimer);
-      };
+    let subscription: any;
+    supabase.auth.getSession().then(({ data: { session } }) => loadUser(session));
+    const { data: { subscription: sub } } = supabase.auth.onAuthStateChange((_event, session) => {
+      loadUser(session);
     });
+    subscription = sub;
+
+    return () => {
+      if (subscription) subscription.unsubscribe();
+      clearTimeout(toastTimer);
+    };
   }, []);
 
   const handleLogout = async () => {
     console.log("[LandingPage] handleLogout called");
+    setMenuOpen(false); // Close menu immediately for better UX
     try {
       await logout();
-      console.log("[LandingPage] logout() success");
     } catch (err) {
-      console.error("[LandingPage] logout() error:", err);
+      console.error("[LandingPage] logout error:", err);
     } finally {
+      // Force clear local state regardless of server response
       setAuthenticated(false);
       setNickname(null);
-      setMenuOpen(false);
       navigate("/");
-      console.log("[LandingPage] handleLogout finally complete");
+      console.log("[LandingPage] logout cleanup done");
     }
   };
 

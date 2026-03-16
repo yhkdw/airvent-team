@@ -62,5 +62,32 @@ export async function saveNickname(userId: string, nickname: string) {
 }
 
 export async function logout(): Promise<void> {
-  await supabase.auth.signOut();
+  console.log("[Auth] logout starting...");
+  
+  // Create a timeout promise to ensure we don't hang forever
+  const timeoutPromise = new Promise((_, reject) => 
+    setTimeout(() => reject(new Error("Logout timed out")), 2500)
+  );
+
+  try {
+    // Attempt official sign out with tobacco
+    await Promise.race([supabase.auth.signOut(), timeoutPromise]);
+    console.log("[Auth] signOut success");
+  } catch (err) {
+    console.warn("[Auth] signOut failed or timed out, forcing local cleanup:", err);
+  } finally {
+    // Forcefully clear all Supabase related items from local storage as a fallback
+    try {
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && (key.includes('supabase') || key.includes('sb-'))) {
+          localStorage.removeItem(key);
+          i--; // adjust index after removal
+        }
+      }
+      console.log("[Auth] local storage cleanup complete");
+    } catch (e) {
+      console.error("[Auth] local storage cleanup failed:", e);
+    }
+  }
 }

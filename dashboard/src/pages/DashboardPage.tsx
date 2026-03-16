@@ -32,8 +32,11 @@ export default function DashboardPage() {
   };
 
   const handleLogout = async () => {
-    await logout();
-    nav("/login");
+    try {
+      await logout();
+    } finally {
+      nav("/login");
+    }
   };
 
   const handleReward = (amt: number) => {
