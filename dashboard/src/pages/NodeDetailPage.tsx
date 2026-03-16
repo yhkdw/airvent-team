@@ -11,7 +11,7 @@ type ProductKey = "pro" | "titan";
 const products: Record<ProductKey, {
     name: string; tagline: Record<Lang, string>; image: string;
     earlyBird: number; standard: number; set3: number; list: number;
-    specs: { label: string; value: string; highlight?: boolean }[];
+    specs: { label: Record<Lang, string>; value: Record<Lang, string>; highlight?: boolean }[];
 }> = {
     pro: {
         name: "Airvent Pro",
@@ -19,18 +19,23 @@ const products: Record<ProductKey, {
         image: "/airvent_pro.png",
         earlyBird: 349, standard: 399, set3: 299, list: 499,
         specs: [
-            { label: "PM1.0", value: "0–500 µg/m³", highlight: true },
-            { label: "PM2.5", value: "0–999 µg/m³", highlight: true },
-            { label: "PM10", value: "0–999 µg/m³", highlight: true },
-            { label: "CO₂", value: "400–5000 ppm", highlight: true },
-            { label: "TVOC", value: "Level 1–5" },
-            { label: "온도 / Temp", value: "0–50 °C ±0.5" },
-            { label: "습도 / Humi", value: "0–99% RH ±3" },
-            { label: "디스플레이", value: "4.3\" 컬러 LCD" },
-            { label: "연결", value: "Wi-Fi 2.4GHz" },
-            { label: "전원", value: "USB-C 5V/2A" },
-            { label: "크기", value: "120 × 75 × 25 mm" },
-            { label: "인증", value: "CE / KC" },
+            { label: { ko: "색상", en: "Color", ja: "カラー", "zh-TW": "顏色" }, value: { ko: "Black+Gray, White+Rosegold", en: "Black+Gray, White+Rosegold", ja: "Black+Gray, White+Rosegold", "zh-TW": "Black+Gray, White+Rosegold" } },
+            { label: { ko: "전원 / 공급 방식", en: "Power Supply", ja: "電源供給", "zh-TW": "電源供應" }, value: { ko: "USB-C (5V/1.5A), Terminal(24V)", en: "USB-C (5V/1.5A), Terminal(24V)", ja: "USB-C (5V/1.5A), Terminal(24V)", "zh-TW": "USB-C (5V/1.5A), Terminal(24V)" } },
+            { label: { ko: "초미세먼지 (PM1.0)", en: "PM1.0", ja: "超微小粒子 (PM1.0)", "zh-TW": "超細懸浮微粒 (PM1.0)" }, value: { ko: "0–5000 μg/m³ (±10%)", en: "0–5000 μg/m³ (±10%)", ja: "0–5000 μg/m³ (±10%)", "zh-TW": "0–5000 μg/m³ (±10%)" }, highlight: true },
+            { label: { ko: "미세먼지 (PM2.5)", en: "PM2.5", ja: "微小粒子 (PM2.5)", "zh-TW": "細懸浮微粒 (PM2.5)" }, value: { ko: "0–5000 μg/m³ (±10%)", en: "0–5000 μg/m³ (±10%)", ja: "0–5000 μg/m³ (±10%)", "zh-TW": "0–5000 μg/m³ (±10%)" }, highlight: true },
+            { label: { ko: "미세먼지 (PM10)", en: "PM10", ja: "粒子状物質 (PM10)", "zh-TW": "懸浮微粒 (PM10)" }, value: { ko: "0–5000 μg/m³ (±25%)", en: "0–5000 μg/m³ (±25%)", ja: "0–5000 μg/m³ (±25%)", "zh-TW": "0–5000 μg/m³ (±25%)" }, highlight: true },
+            { label: { ko: "이산화탄소 (CO₂)", en: "CO2", ja: "二酸化炭素 (CO₂)", "zh-TW": "二氧化碳 (CO₂)" }, value: { ko: "±(50ppm + 5%)", en: "±(50ppm + 5%)", ja: "±(50ppm + 5%)", "zh-TW": "±(50ppm + 5%)" }, highlight: true },
+            { label: { ko: "휘발성유기화합물(TVOC)", en: "TVOC", ja: "揮発性有機化合物(TVOC)", "zh-TW": "總揮發性有機化合物(TVOC)" }, value: { ko: "0-100 Level (±15%)", en: "0-100 Level (±15%)", ja: "0-100 Level (±15%)", "zh-TW": "0-100 Level (±15%)" } },
+            { label: { ko: "온도", en: "Temperature", ja: "温度", "zh-TW": "溫度" }, value: { ko: "-10℃ ~ 60℃ (±2℃)", en: "-10℃ ~ 60℃ (±2℃)", ja: "-10℃ ~ 60℃ (±2℃)", "zh-TW": "-10℃ ~ 60℃ (±2℃)" } },
+            { label: { ko: "습도", en: "Humidity", ja: "湿度", "zh-TW": "濕度" }, value: { ko: "0~99%RH (±5%)", en: "0~99%RH (±5%)", ja: "0~99%RH (±5%)", "zh-TW": "0~99%RH (±5%)" } },
+            { label: { ko: "동작 환경", en: "Operating Env.", ja: "動作環境", "zh-TW": "運作環境" }, value: { ko: "-10℃~60℃, 0~95%RH", en: "-10℃~60℃, 0~95%RH", ja: "-10℃~60℃, 0~95%RH", "zh-TW": "-10℃~60℃, 0~95%RH" } },
+            { label: { ko: "통신 방식", en: "Communication", ja: "通信方式", "zh-TW": "通訊方式" }, value: { ko: "Wi-Fi(2.4/5G), RS485, BLE", en: "Wi-Fi(2.4/5G), RS485, BLE", ja: "Wi-Fi(2.4/5G), RS485, BLE", "zh-TW": "Wi-Fi(2.4/5G), RS485, BLE" } },
+            { label: { ko: "무게", en: "Weight", ja: "重量", "zh-TW": "重量" }, value: { ko: "204g", en: "204g", ja: "204g", "zh-TW": "204g" } },
+            { label: { ko: "크기", en: "Dimensions", ja: "사이즈", "zh-TW": "尺寸" }, value: { ko: "133 x 80 x 24 mm", en: "133 x 80 x 24 mm", ja: "133 x 80 x 24 mm", "zh-TW": "133 x 80 x 24 mm" } },
+            { label: { ko: "인증", en: "Certification", ja: "認証", "zh-TW": "認證" }, value: { ko: "KC / 1등급 미세먼지 성능인증", en: "KC / Grade 1 Performance", ja: "KC / 性能認証1等級", "zh-TW": "KC / 1級性能認證" } },
+            { label: { ko: "제조 및 판매", en: "Manufacturer", ja: "製造・販売", "zh-TW": "製造與銷售" }, value: { ko: "(주)에어벤트", en: "Airvent Co., Ltd.", ja: "Airvent Co., Ltd.", "zh-TW": "Airvent Co., Ltd." } },
+            { label: { ko: "제조국", en: "Origin", ja: "製造国", "zh-TW": "製造國" }, value: { ko: "대한민국", en: "Republic of Korea", ja: "大韓民国", "zh-TW": "大韓民國" } },
+            { label: { ko: "구성품", en: "Components", ja: "同梱品", "zh-TW": "內容物" }, value: { ko: "본체, 매뉴얼, 브라켓, 케이블", en: "Product, Manual, Case, Cable", ja: "本体, マニュアル, ブラケット, ケーブル", "zh-TW": "本體, 說明書, 支架, 數據線" } },
         ],
     },
     titan: {
@@ -39,18 +44,18 @@ const products: Record<ProductKey, {
         image: "/airvent_titan.png",
         earlyBird: 599, standard: 699, set3: 549, list: 799,
         specs: [
-            { label: "PM1.0", value: "0–1000 µg/m³", highlight: true },
-            { label: "PM2.5", value: "0–1000 µg/m³", highlight: true },
-            { label: "PM10", value: "0–1000 µg/m³", highlight: true },
-            { label: "CO₂", value: "400–10000 ppm", highlight: true },
-            { label: "TVOC", value: "Level 1–5 (고감도)" },
-            { label: "온도 / Temp", value: "-20–60 °C ±0.3" },
-            { label: "습도 / Humi", value: "0–99% RH ±2" },
-            { label: "디스플레이", value: "5.0\" 컬러 IPS LCD" },
-            { label: "연결", value: "Wi-Fi 2.4/5GHz + LTE (옵션)" },
-            { label: "전원", value: "USB-C + DC 12V 방수 지원" },
-            { label: "크기", value: "150 × 90 × 30 mm (IP54)" },
-            { label: "인증", value: "CE / KC / FCC" },
+            { label: { ko: "PM1.0", en: "PM1.0", ja: "PM1.0", "zh-TW": "PM1.0" }, value: { ko: "0–1000 μg/m³", en: "0–1000 μg/m³", ja: "0–1000 μg/m³", "zh-TW": "0–1000 μg/m³" }, highlight: true },
+            { label: { ko: "PM2.5", en: "PM2.5", ja: "PM2.5", "zh-TW": "PM2.5" }, value: { ko: "0–1000 μg/m³", en: "0–1000 μg/m³", ja: "0–1000 μg/m³", "zh-TW": "0–1000 μg/m³" }, highlight: true },
+            { label: { ko: "PM10", en: "PM10", ja: "PM10", "zh-TW": "PM10" }, value: { ko: "0–1000 μg/m³", en: "0–1000 μg/m³", ja: "0–1000 μg/m³", "zh-TW": "0–1000 μg/m³" }, highlight: true },
+            { label: { ko: "CO₂", en: "CO₂", ja: "CO₂", "zh-TW": "CO₂" }, value: { ko: "400–10000 ppm", en: "400–10000 ppm", ja: "400–10000 ppm", "zh-TW": "400–10000 ppm" }, highlight: true },
+            { label: { ko: "TVOC", en: "TVOC", ja: "TVOC", "zh-TW": "TVOC" }, value: { ko: "Level 1–5 (고감도)", en: "Level 1–5 (고감도)", ja: "Level 1–5 (고감도)", "zh-TW": "Level 1–5 (고감도)" } },
+            { label: { ko: "Temperature", en: "Temperature", ja: "Temperature", "zh-TW": "Temperature" }, value: { ko: "-20–60 °C ±0.3", en: "-20–60 °C ±0.3", ja: "-20–60 °C ±0.3", "zh-TW": "-20–60 °C ±0.3" } },
+            { label: { ko: "Humidity", en: "Humidity", ja: "Humidity", "zh-TW": "Humidity" }, value: { ko: "0–99% RH ±2", en: "0–99% RH ±2", ja: "0–99% RH ±2", "zh-TW": "0–99% RH ±2" } },
+            { label: { ko: "Display", en: "Display", ja: "Display", "zh-TW": "Display" }, value: { ko: "5.0\" Color IPS LCD", en: "5.0\" Color IPS LCD", ja: "5.0\" Color IPS LCD", "zh-TW": "5.0\" Color IPS LCD" } },
+            { label: { ko: "Connectivity", en: "Connectivity", ja: "Connectivity", "zh-TW": "Connectivity" }, value: { ko: "Wi-Fi 2.4/5GHz + LTE", en: "Wi-Fi 2.4/5GHz + LTE", ja: "Wi-Fi 2.4/5GHz + LTE", "zh-TW": "Wi-Fi 2.4/5GHz + LTE" } },
+            { label: { ko: "Power", en: "Power", ja: "Power", "zh-TW": "Power" }, value: { ko: "USB-C + DC 12V (IP54)", en: "USB-C + DC 12V (IP54)", ja: "USB-C + DC 12V (IP54)", "zh-TW": "USB-C + DC 12V (IP54)" } },
+            { label: { ko: "Size", en: "Size", ja: "Size", "zh-TW": "Size" }, value: { ko: "150 x 90 x 30 mm", en: "150 x 90 x 30 mm", ja: "150 x 90 x 30 mm", "zh-TW": "150 x 90 x 30 mm" } },
+            { label: { ko: "Cert", en: "Cert", ja: "Cert", "zh-TW": "Cert" }, value: { ko: "CE / KC / FCC", en: "CE / KC / FCC", ja: "CE / KC / FCC", "zh-TW": "CE / KC / FCC" } },
         ],
     },
 };
@@ -271,9 +276,9 @@ export default function NodeDetailPage() {
                                     {product.specs.map((spec, i) => (
                                         <div key={i} className={`flex items-center justify-between px-6 py-4 transition-colors hover:bg-slate-800/30 ${spec.highlight ? "bg-emerald-500/3" : ""}`}>
                                             <span className={`text-sm font-semibold ${spec.highlight ? "text-emerald-400" : "text-slate-300"}`}>
-                                                {spec.label}
+                                                {spec.label[lang]}
                                             </span>
-                                            <span className="text-sm text-slate-400 font-mono">{spec.value}</span>
+                                            <span className="text-sm text-slate-400 font-mono">{spec.value[lang]}</span>
                                         </div>
                                     ))}
                                 </div>
