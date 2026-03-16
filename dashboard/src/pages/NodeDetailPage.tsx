@@ -17,7 +17,7 @@ const products: Record<ProductKey, {
         name: "Airvent Pro",
         tagline: { ko: "개인·가정용 하이퍼로컬 센서", en: "Personal & Home Hyperlocal Sensor", ja: "個人・家庭用ハイパーローカルセンサー", "zh-TW": "個人・家庭用區域感測器" },
         image: "/airvent_pro.png",
-        earlyBird: 349, standard: 399, set3: 333, list: 499,
+        earlyBird: 349, standard: 399, set3: 999, list: 499,
         specs: [
             { label: { ko: "색상", en: "Color", ja: "カラー", "zh-TW": "顏色" }, value: { ko: "Black+Gray, White+Rosegold", en: "Black+Gray, White+Rosegold", ja: "Black+Gray, White+Rosegold", "zh-TW": "Black+Gray, White+Rosegold" } },
             { label: { ko: "전원 / 공급 방식", en: "Power Supply", ja: "電源供給", "zh-TW": "電源供應" }, value: { ko: "USB-C (5V/1.5A), Terminal(24V)", en: "USB-C (5V/1.5A), Terminal(24V)", ja: "USB-C (5V/1.5A), Terminal(24V)", "zh-TW": "USB-C (5V/1.5A), Terminal(24V)" } },
@@ -42,7 +42,7 @@ const products: Record<ProductKey, {
         name: "Airvent Titan",
         tagline: { ko: "상업·옥외용 프리미엄 센서", en: "Commercial & Outdoor Premium Sensor", ja: "商用・屋外用プレミアムセンサー", "zh-TW": "商用・戶外用頂級感測器" },
         image: "/airvent_titan.png",
-        earlyBird: 599, standard: 699, set3: 549, list: 799,
+        earlyBird: 599, standard: 699, set3: 1647, list: 799,
         specs: [
             { label: { ko: "색상", en: "Color", ja: "カラー", "zh-TW": "顏色" }, value: { ko: "Black+Gray, White+Rosegold", en: "Black+Gray, White+Rosegold", ja: "Black+Gray, White+Rosegold", "zh-TW": "Black+Gray, White+Rosegold" } },
             { label: { ko: "전원 / 공급 방식", en: "Power Supply", ja: "電源供給", "zh-TW": "電源供應" }, value: { ko: "USB-C (5V/1A), Terminal(24V)", en: "USB-C (5V/1A), Terminal(24V)", ja: "USB-C (5V/1A), Terminal(24V)", "zh-TW": "USB-C (5V/1A), Terminal(24V)" } },
@@ -235,7 +235,7 @@ export default function NodeDetailPage() {
                                         {[
                                             { label: lang === "ko" ? "얼리버드" : "Early Bird", val: product.earlyBird },
                                             { label: lang === "ko" ? "스탠다드" : "Standard", val: product.standard },
-                                            { label: lang === "ko" ? "3대 세트 (개당)" : "Set of 3 (each)", val: product.set3 },
+                                            { label: lang === "ko" ? "3대 세트" : "Set of 3", val: product.set3 },
                                             { label: lang === "ko" ? "정가" : "List Price", val: product.list },
                                         ].map((p, i) => (
                                             <button 
