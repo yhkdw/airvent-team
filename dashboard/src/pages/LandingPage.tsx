@@ -12,7 +12,7 @@ const isLocal: boolean =
 /* ─────────────── i18n ─────────────── */
 const t = {
   ko: {
-    nav: { about: "소개", node: "노드 구매", demo: "대시보드 Demo" },
+    nav: { about: "소개", node: "노드 구매", store: "AIRAM Store", demo: "대시보드 Demo" },
     login: "로그인",
     dashboard: "대시보드",
     heroEyebrow: "DEPIN AIR QUALITY NETWORK",
@@ -164,7 +164,7 @@ const t = {
     },
   },
   en: {
-    nav: { about: "About", node: "Buy Node", demo: "Dashboard Demo" },
+    nav: { about: "About", node: "Buy Node", store: "AIRAM Store", demo: "Dashboard Demo" },
     login: "Login",
     dashboard: "Dashboard",
     heroEyebrow: "DEPIN AIR QUALITY NETWORK",
@@ -313,7 +313,7 @@ const t = {
     toast: { welcome: ", welcome back!", sub: "Welcome to AirVent" },
   },
   ja: {
-    nav: { about: "紹介", node: "ノード購入", demo: "ダッシュボードDemo" },
+    nav: { about: "紹介", node: "ノード購入", store: "AIRAM Store", demo: "ダッシュボードDemo" },
     login: "ログイン",
     dashboard: "ダッシュボード",
     heroEyebrow: "DEPIN AIR QUALITY NETWORK",
@@ -462,7 +462,7 @@ const t = {
     toast: { welcome: "さん、おかえりなさい！", sub: "AirVentへようこそ" },
   },
   'zh-TW': {
-    nav: { about: "關於", node: "購買節點", demo: "儀表板 Demo" },
+    nav: { about: "關於", node: "購買節點", store: "AIRAM Store", demo: "儀表板 Demo" },
     login: "登錄",
     dashboard: "儀表板",
     heroEyebrow: "DEPIN AIR QUALITY NETWORK",
@@ -735,6 +735,7 @@ export default function LandingPage() {
             <nav className="hidden md:flex items-center gap-6">
               <a href="#problems" className="text-sm text-slate-400 hover:text-emerald-400 transition-colors">{tx.nav.about}</a>
               <Link to="/node" className="text-sm text-slate-400 hover:text-emerald-400 transition-colors">{tx.nav.node}</Link>
+              <a href="https://old.airvent.ai" target="_blank" rel="noopener noreferrer" className="text-sm text-slate-400 hover:text-emerald-400 transition-colors">{tx.nav.store}</a>
             </nav>
             <div className="flex items-center gap-3">
               <div className="flex gap-1 bg-slate-900 rounded-full p-1 border border-slate-800">
@@ -796,6 +797,10 @@ export default function LandingPage() {
                         {tx.heroCtaAuthed}
                         <span>→</span>
                       </Link>
+                      <a href="https://old.airvent.ai" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-xl border border-emerald-500/30 text-emerald-400 font-bold px-8 py-4 text-base hover:bg-emerald-500/10 transition shadow-lg shadow-emerald-500/10 transform hover:-translate-y-0.5">
+                        {tx.nav.store}
+                        <span className="text-xs">↗</span>
+                      </a>
                       <Link to="/dashboard" className="inline-flex items-center gap-2 rounded-xl bg-blue-500 text-white font-bold px-8 py-4 text-base hover:bg-blue-400 transition shadow-lg shadow-blue-500/20 transform hover:-translate-y-0.5">
                         {tx.heroDash}
                       </Link>
@@ -809,6 +814,10 @@ export default function LandingPage() {
                         {tx.heroCta}
                         <span>→</span>
                       </Link>
+                      <a href="https://old.airvent.ai" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-xl border border-emerald-500/30 text-emerald-400 font-bold px-8 py-4 text-base hover:bg-emerald-500/10 transition shadow-lg shadow-emerald-500/10 transform hover:-translate-y-0.5">
+                        {tx.nav.store}
+                        <span className="text-xs">↗</span>
+                      </a>
                       <a href="/demo/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-xl border border-slate-700 text-slate-400 font-semibold px-8 py-4 text-base hover:border-slate-500 hover:text-white transition">
                         {tx.heroMore}
                       </a>
