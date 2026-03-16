@@ -661,7 +661,7 @@ export default function LandingPage() {
       console.log("[LandingPage] loadUser session check:", !!session);
       if (session) {
         setAuthenticated(true);
-        const nick = await getNickname(session.user.id);
+        const { data: nick } = await getNickname(session.user.id);
         setNickname(nick);
         if (nick) {
           setShowToast(true);
