@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import i18n from "../i18n/config";
 import { Link, useNavigate } from "react-router-dom";
 import Container from "../components/Container";
 import { isAuthed, logout } from "../auth";
@@ -91,7 +92,19 @@ const faqs: { q: Record<Lang, string>; a: Record<Lang, string> }[] = [
 
 /* ─────────────── Component ─────────────── */
 export default function NodeDetailPage() {
-    const [lang, setLang] = useState<Lang>("ko");
+        const initialLang = (() => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlLang = urlParams.get("lang");
+        if (urlLang && ["ko", "en", "ja", "zh-TW"].includes(urlLang)) return urlLang as Lang;
+        
+        const i18nLang = i18n.language || "en";
+        if (i18nLang.startsWith("ko")) return "ko";
+        if (i18nLang.startsWith("ja")) return "ja";
+        if (i18nLang.startsWith("zh")) return "zh-TW";
+        return "en";
+    })() as Lang;
+
+    const [lang, setLang] = useState<Lang>(initialLang);
     const [selected, setSelected] = useState<ProductKey>("pro");
     const [uptime, setUptime] = useState(20); // hours/day
     const [openFaq, setOpenFaq] = useState<number | null>(null);
@@ -131,8 +144,8 @@ export default function NodeDetailPage() {
                         </Link>
                         <div className="flex items-center gap-3">
                             <div className="flex gap-1 bg-slate-900 rounded-full p-1 border border-slate-800">
-                                {(["ko", "en", "ja", "zh-TW"] as Lang[]).map((l) => (
-                                    <button key={l} onClick={() => setLang(l)}
+                                {(["en", "ko", "ja", "zh-TW"] as Lang[]).map((l) => (
+                                    <button key={l} onClick={() => { setLang(l); i18n.changeLanguage(l); }}
                                         className={`px-3 py-1 rounded-full text-xs font-bold transition-colors ${lang === l ? "bg-emerald-500 text-slate-950" : "text-slate-400 hover:text-slate-200"}`}>
                                         {l.toUpperCase() === "ZH-TW" ? "ZH" : l.toUpperCase()}
                                     </button>

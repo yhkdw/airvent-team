@@ -734,7 +734,7 @@ export default function LandingPage() {
             </div>
             <nav className="hidden md:flex items-center gap-6">
               <a href="#problems" className="text-sm text-slate-400 hover:text-emerald-400 transition-colors">{tx.nav.about}</a>
-              <Link to="/node" className="text-sm text-slate-400 hover:text-emerald-400 transition-colors">{tx.nav.node}</Link>
+              <Link to={`/node?lang=${lang}`} className="text-sm text-slate-400 hover:text-emerald-400 transition-colors">{tx.nav.node}</Link>
               <a href="https://old.airvent.ai" target="_blank" rel="noopener noreferrer" className="text-sm text-slate-400 hover:text-emerald-400 transition-colors">{tx.nav.store}</a>
             </nav>
             <div className="flex items-center gap-3">
@@ -793,7 +793,7 @@ export default function LandingPage() {
                 <div className="flex flex-wrap gap-4">
                   {authenticated ? (
                     <>
-                      <Link to="/node" className="inline-flex items-center gap-2 rounded-xl bg-emerald-500 text-slate-950 font-bold px-8 py-4 text-base hover:bg-emerald-400 transition shadow-lg shadow-emerald-500/20 transform hover:-translate-y-0.5">
+                      <Link to={`/node?lang=${lang}`} className="inline-flex items-center gap-2 rounded-xl bg-emerald-500 text-slate-950 font-bold px-8 py-4 text-base hover:bg-emerald-400 transition shadow-lg shadow-emerald-500/20 transform hover:-translate-y-0.5">
                         {tx.heroCtaAuthed}
                         <span>→</span>
                       </Link>
@@ -810,7 +810,7 @@ export default function LandingPage() {
                     </>
                   ) : (
                     <>
-                      <Link to="/node" className="inline-flex items-center gap-2 rounded-xl bg-emerald-500 text-slate-950 font-bold px-8 py-4 text-base hover:bg-emerald-400 transition shadow-lg shadow-emerald-500/20 transform hover:-translate-y-0.5">
+                      <Link to={`/node?lang=${lang}`} className="inline-flex items-center gap-2 rounded-xl bg-emerald-500 text-slate-950 font-bold px-8 py-4 text-base hover:bg-emerald-400 transition shadow-lg shadow-emerald-500/20 transform hover:-translate-y-0.5">
                         {tx.heroCta}
                         <span>→</span>
                       </Link>
@@ -1014,7 +1014,7 @@ export default function LandingPage() {
               <div>
                 <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Product</h4>
                 <ul className="space-y-2.5 text-sm text-slate-500">
-                  <li><Link to="/node" className="hover:text-emerald-400 transition-colors">{tx.nav.node}</Link></li>
+                  <li><Link to={`/node?lang=${lang}`} className="hover:text-emerald-400 transition-colors">{tx.nav.node}</Link></li>
                   <li><Link to={`/login?lang=${lang}`} className="hover:text-emerald-400 transition-colors">{tx.dashboard}</Link></li>
                 </ul>
               </div>
