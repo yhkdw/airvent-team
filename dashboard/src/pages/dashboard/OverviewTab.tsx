@@ -77,10 +77,10 @@ export default function OverviewTab() {
         if (!base) return {} as AirPoint;
         const factors: Record<string, { pm25: number, co2: number, voc: number }> = {
             'living-room': { pm25: 1.0, co2: 1.0, voc: 1.0 },
-            'kitchen': { pm25: 2.8, co2: 1.1, voc: 2.1 }, 
+            'kitchen': { pm25: 6.5, co2: 1.2, voc: 1.8 }, // Force Bad/Very Bad PM2.5 (avg 12 * 6.5 = 78)
             'bedroom': { pm25: 0.9, co2: 1.3, voc: 0.9 }, 
             'kids-room': { pm25: 1.1, co2: 1.1, voc: 1.0 },
-            'meeting-a': { pm25: 1.4, co2: 2.2, voc: 1.2 }, 
+            'meeting-a': { pm25: 1.4, co2: 1.8, voc: 4.5 }, // Force Bad VOC (avg 220 / 10 * 4.5 = 99 Level)
             'office-area': { pm25: 1.1, co2: 1.2, voc: 1.1 },
             'lounge': { pm25: 1.2, co2: 1.1, voc: 1.4 }
         };
@@ -232,36 +232,36 @@ export default function OverviewTab() {
                     <div className="relative w-full max-w-2xl aspect-[16/9] bg-slate-950/50 rounded-2xl border border-slate-800 p-6 flex items-center justify-center">
                         {mode === 'home' ? (
                             <div className="grid grid-cols-4 grid-rows-3 w-full h-full gap-2 transition-all duration-500">
-                                <button onClick={() => setActiveSpace('living-room')} className={`col-span-2 row-span-2 rounded-xl border-2 flex flex-col items-center justify-center transition-all duration-300 ${activeSpace === 'living-room' ? `${getStatusColorCls(activeStatus, 'border')} bg-slate-800 shadow-[0_0_20px_rgba(0,0,0,0.5)] scale-[1.02]` : 'border-slate-800 bg-slate-900/50 hover:bg-slate-800'}`}>
-                                    <Home size={24} className={activeSpace === 'living-room' ? getStatusColorCls(activeStatus, 'text') : 'text-slate-600'} />
+                                <button onClick={() => setActiveSpace('living-room')} className={`col-span-2 row-span-2 rounded-xl border-2 flex flex-col items-center justify-center transition-all duration-300 ${activeSpace === 'living-room' ? 'bg-slate-800 shadow-[0_0_20px_rgba(0,0,0,0.5)] scale-[1.02]' : 'bg-slate-900/50 hover:bg-slate-800'} ${getStatusColorCls(getSpaceStatus('living-room'), 'border')}`}>
+                                    <Home size={24} className={getStatusColorCls(getSpaceStatus('living-room'), 'text')} />
                                     <span className={`text-xs mt-2 ${activeSpace === 'living-room' ? 'text-slate-100 font-bold' : 'text-slate-500'}`}>{t("overview.spaces.living-room")}</span>
                                 </button>
-                                <button onClick={() => setActiveSpace('kitchen')} className={`col-span-1 row-span-1 rounded-xl border-2 flex flex-col items-center justify-center transition-all duration-300 ${activeSpace === 'kitchen' ? `${getStatusColorCls(activeStatus, 'border')} bg-slate-800 shadow-[0_0_20px_rgba(0,0,0,0.5)] scale-[1.02]` : 'border-slate-800 bg-slate-900/50 hover:bg-slate-800'}`}>
-                                    <Wind size={20} className={activeSpace === 'kitchen' ? getStatusColorCls(activeStatus, 'text') : 'text-slate-600'} />
+                                <button onClick={() => setActiveSpace('kitchen')} className={`col-span-1 row-span-1 rounded-xl border-2 flex flex-col items-center justify-center transition-all duration-300 ${activeSpace === 'kitchen' ? 'bg-slate-800 shadow-[0_0_20px_rgba(0,0,0,0.5)] scale-[1.02]' : 'bg-slate-900/50 hover:bg-slate-800'} ${getStatusColorCls(getSpaceStatus('kitchen'), 'border')}`}>
+                                    <Wind size={20} className={getStatusColorCls(getSpaceStatus('kitchen'), 'text')} />
                                     <span className={`text-xs mt-1 ${activeSpace === 'kitchen' ? 'text-slate-100 font-bold' : 'text-slate-500'}`}>{t("overview.spaces.kitchen")}</span>
                                 </button>
                                 <div className="col-span-1 row-span-1 rounded-xl border border-slate-800 bg-slate-900/20 flex items-center justify-center text-[10px] text-slate-700">{t("overview.spaces.entrance")}</div>
                                 <div className="col-start-3 row-start-2 rounded-xl border border-slate-800 bg-slate-900/20 flex items-center justify-center text-[10px] text-slate-700">{t("overview.spaces.bathroom")}</div>
-                                <button onClick={() => setActiveSpace('bedroom')} className={`col-span-1 row-span-1 rounded-xl border-2 flex flex-col items-center justify-center transition-all duration-300 ${activeSpace === 'bedroom' ? `${getStatusColorCls(activeStatus, 'border')} bg-slate-800 shadow-[0_0_20px_rgba(0,0,0,0.5)] scale-[1.02]` : 'border-slate-800 bg-slate-900/50 hover:bg-slate-800'}`}>
-                                    <span className={`text-xs ${activeSpace === 'bedroom' ? 'text-slate-100 font-bold' : 'text-slate-500'}`}>{t("overview.spaces.bedroom")}</span>
+                                <button onClick={() => setActiveSpace('bedroom')} className={`col-span-1 row-span-1 rounded-xl border-2 flex flex-col items-center justify-center transition-all duration-300 ${activeSpace === 'bedroom' ? 'bg-slate-800 shadow-[0_0_20px_rgba(0,0,0,0.5)] scale-[1.02]' : 'bg-slate-900/50 hover:bg-slate-800'} ${getStatusColorCls(getSpaceStatus('bedroom'), 'border')}`}>
+                                    <span className={`text-xs ${activeSpace === 'bedroom' ? 'text-slate-100 font-bold' : 'text-slate-400'}`}>{t("overview.spaces.bedroom")}</span>
                                 </button>
-                                <button onClick={() => setActiveSpace('kids-room')} className={`col-start-1 row-start-3 col-span-1 rounded-xl border-2 flex flex-col items-center justify-center transition-all duration-300 ${activeSpace === 'kids-room' ? `${getStatusColorCls(activeStatus, 'border')} bg-slate-800 shadow-[0_0_20px_rgba(0,0,0,0.5)] scale-[1.02]` : 'border-slate-800 bg-slate-900/50 hover:bg-slate-800'}`}>
-                                    <span className={`text-xs ${activeSpace === 'kids-room' ? 'text-slate-100 font-bold' : 'text-slate-500'}`}>{t("overview.spaces.kids-room")}</span>
+                                <button onClick={() => setActiveSpace('kids-room')} className={`col-start-1 row-start-3 col-span-1 rounded-xl border-2 flex flex-col items-center justify-center transition-all duration-300 ${activeSpace === 'kids-room' ? 'bg-slate-800 shadow-[0_0_20px_rgba(0,0,0,0.5)] scale-[1.02]' : 'bg-slate-900/50 hover:bg-slate-800'} ${getStatusColorCls(getSpaceStatus('kids-room'), 'border')}`}>
+                                    <span className={`text-xs ${activeSpace === 'kids-room' ? 'text-slate-100 font-bold' : 'text-slate-400'}`}>{t("overview.spaces.kids-room")}</span>
                                 </button>
                                 <div className="col-start-2 row-start-3 col-span-3 rounded-xl border border-slate-800 bg-slate-900/10 flex items-center justify-center text-[10px] text-slate-700 uppercase tracking-widest">{t("overview.spaces.veranda")}</div>
                             </div>
                         ) : (
                             <div className="grid grid-cols-4 grid-rows-3 w-full h-full gap-2 transition-all duration-500">
-                                <button onClick={() => setActiveSpace('office-area')} className={`col-span-3 row-span-2 rounded-xl border-2 flex flex-col items-center justify-center transition-all duration-300 ${activeSpace === 'office-area' ? `${getStatusColorCls(activeStatus, 'border')} bg-slate-800 shadow-[0_0_20px_rgba(0,0,0,0.5)] scale-[1.02]` : 'border-slate-800 bg-slate-900/50 hover:bg-slate-800'}`}>
-                                    <Users size={32} className={activeSpace === 'office-area' ? getStatusColorCls(activeStatus, 'text') : 'text-slate-600'} />
+                                <button onClick={() => setActiveSpace('office-area')} className={`col-span-3 row-span-2 rounded-xl border-2 flex flex-col items-center justify-center transition-all duration-300 ${activeSpace === 'office-area' ? 'bg-slate-800 shadow-[0_0_20px_rgba(0,0,0,0.5)] scale-[1.02]' : 'bg-slate-900/50 hover:bg-slate-800'} ${getStatusColorCls(getSpaceStatus('office-area'), 'border')}`}>
+                                    <Users size={32} className={getStatusColorCls(getSpaceStatus('office-area'), 'text')} />
                                     <span className={`text-sm mt-3 ${activeSpace === 'office-area' ? 'text-slate-100 font-bold' : 'text-slate-500'}`}>{t("overview.spaces.office-area")}</span>
                                 </button>
-                                <button onClick={() => setActiveSpace('meeting-a')} className={`col-span-1 row-span-1 rounded-xl border-2 flex flex-col items-center justify-center transition-all duration-300 ${activeSpace === 'meeting-a' ? `${getStatusColorCls(activeStatus, 'border')} bg-slate-800 shadow-[0_0_20px_rgba(0,0,0,0.5)] scale-[1.02]` : 'border-slate-800 bg-slate-900/50 hover:bg-slate-800'}`}>
-                                    <Briefcase size={20} className={activeSpace === 'meeting-a' ? getStatusColorCls(activeStatus, 'text') : 'text-slate-600'} />
+                                <button onClick={() => setActiveSpace('meeting-a')} className={`col-span-1 row-span-1 rounded-xl border-2 flex flex-col items-center justify-center transition-all duration-300 ${activeSpace === 'meeting-a' ? 'bg-slate-800 shadow-[0_0_20px_rgba(0,0,0,0.5)] scale-[1.02]' : 'bg-slate-900/50 hover:bg-slate-800'} ${getStatusColorCls(getSpaceStatus('meeting-a'), 'border')}`}>
+                                    <Briefcase size={20} className={getStatusColorCls(getSpaceStatus('meeting-a'), 'text')} />
                                     <span className={`text-xs mt-1 ${activeSpace === 'meeting-a' ? 'text-slate-100 font-bold' : 'text-slate-500'}`}>{t("overview.spaces.meeting-a")}</span>
                                 </button>
-                                <button onClick={() => setActiveSpace('lounge')} className={`col-start-4 row-start-2 rounded-xl border-2 flex flex-col items-center justify-center transition-all duration-300 ${activeSpace === 'lounge' ? `${getStatusColorCls(activeStatus, 'border')} bg-slate-800 shadow-[0_0_20px_rgba(0,0,0,0.5)] scale-[1.02]` : 'border-slate-800 bg-slate-900/50 hover:bg-slate-800'}`}>
-                                    <Coffee size={20} className={activeSpace === 'lounge' ? getStatusColorCls(activeStatus, 'text') : 'text-slate-600'} />
+                                <button onClick={() => setActiveSpace('lounge')} className={`col-start-4 row-start-2 rounded-xl border-2 flex flex-col items-center justify-center transition-all duration-300 ${activeSpace === 'lounge' ? 'bg-slate-800 shadow-[0_0_20px_rgba(0,0,0,0.5)] scale-[1.02]' : 'bg-slate-900/50 hover:bg-slate-800'} ${getStatusColorCls(getSpaceStatus('lounge'), 'border')}`}>
+                                    <Coffee size={20} className={getStatusColorCls(getSpaceStatus('lounge'), 'text')} />
                                     <span className={`text-xs mt-1 ${activeSpace === 'lounge' ? 'text-slate-100 font-bold' : 'text-slate-500'}`}>{t("overview.spaces.lounge")}</span>
                                 </button>
                                 <div className="col-start-1 row-start-3 col-span-4 rounded-xl border border-slate-800 bg-slate-900/10 flex items-center justify-center text-[10px] text-slate-700 uppercase tracking-widest italic">{t("overview.spaces.hallway")}</div>
