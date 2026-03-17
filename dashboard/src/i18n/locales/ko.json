@@ -42,9 +42,10 @@
             "hallway": "복도 / 엘리베이터 구역"
         },
         "status_labels": {
-            "perfect": "Perfect",
-            "good": "Good",
-            "needs_vent": "Needs Vent"
+            "best": "좋음",
+            "good": "보통",
+            "needs_vent": "나쁨",
+            "bad": "매우나쁨"
         },
         "alerts": {
             "co2_title": "{{name}} CO2 경고",

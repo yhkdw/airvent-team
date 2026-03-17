@@ -42,9 +42,10 @@
             "hallway": "走廊 / 電梯區域"
         },
         "status_labels": {
-            "perfect": "Perfect",
-            "good": "Good",
-            "needs_vent": "Needs Vent"
+            "best": "良好",
+            "good": "普通",
+            "needs_vent": "不良",
+            "bad": "非常不良"
         },
         "alerts": {
             "co2_title": "{{name}} CO2 警告",

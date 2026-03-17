@@ -42,9 +42,10 @@
             "hallway": "廊下 / エレベーターエリア"
         },
         "status_labels": {
-            "perfect": "Perfect",
-            "good": "Good",
-            "needs_vent": "Needs Vent"
+            "best": "良い",
+            "good": "普通",
+            "needs_vent": "悪い",
+            "bad": "非常に悪い"
         },
         "alerts": {
             "co2_title": "{{name}} CO2警告",

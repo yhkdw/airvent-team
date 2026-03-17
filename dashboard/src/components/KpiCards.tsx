@@ -1,21 +1,22 @@
 import { useTranslation } from "react-i18next";
 import { AirPoint } from "../types/air";
 import { THRESHOLDS } from "../config/thresholds";
+import { getMetricStatus, getWorstStatus, AirStatus } from "../utils/airQuality";
 import { fmt } from "../utils/format";
 import { useMemo } from "react";
 
-function tone(val: number, threshold: number): "ok" | "warn" | "bad" {
-  if (val <= threshold * 0.85) return "ok";
-  if (val <= threshold) return "warn";
-  return "bad";
-}
 
-function cardToneCls(t: "ok" | "warn" | "bad"): { container: string, value: string } {
-  if (t === "ok") return { 
+
+function cardToneCls(t: AirStatus): { container: string, value: string } {
+  if (t === 'best') return { 
+    container: "border-blue-500/50 bg-blue-500/5 shadow-[0_0_15px_rgba(59,130,246,0.1)]", 
+    value: "text-blue-400" 
+  };
+  if (t === 'good') return { 
     container: "border-emerald-500/50 bg-emerald-500/5 shadow-[0_0_15px_rgba(16,185,129,0.1)]", 
     value: "text-emerald-400" 
   };
-  if (t === "warn") return { 
+  if (t === 'warn') return { 
     container: "border-amber-500/50 bg-amber-500/5 shadow-[0_0_15px_rgba(245,158,11,0.1)]", 
     value: "text-amber-400" 
   };
@@ -30,15 +31,27 @@ export default function KpiCards({ latest, spaceId }: { latest: AirPoint, spaceI
 
   const items = useMemo(() => {
     // PM 1.0 logic: using PM2.5 threshold as a base or fixed
-    const pm1Tone = latest.pm1 <= 10 ? "ok" : latest.pm1 <= 25 ? "warn" : "bad";
+    
+
+    const vocLevel = Math.round(latest.voc / 10);
+    const pm1Status = getMetricStatus('pm1', latest.pm1);
+    const pm25Status = getMetricStatus('pm25', latest.pm25);
+    const pm10Status = getMetricStatus('pm10', latest.pm10);
+    const co2Status = getMetricStatus('co2', latest.co2);
+    const vocStatus = getMetricStatus('voc', vocLevel);
+    
+    // Comfort status based on temp & hum
+    const tStat = getMetricStatus('temp', latest.temp);
+    const hStat = getMetricStatus('hum', latest.hum);
+    const comfortStatus = getWorstStatus([tStat, hStat]);
 
     const baseItems = [
-      { k: "PM2.5", v: latest.pm25, u: "µg/m³", t: tone(latest.pm25, THRESHOLDS.pm25), desc: t("overview.metrics.pm25"), priority: 1 },
-      { k: "PM1.0", v: latest.pm1, u: "µg/m³", t: pm1Tone, desc: t("overview.metrics.pm1"), priority: 2 },
-      { k: "PM10", v: latest.pm10, u: "µg/m³", t: tone(latest.pm10, THRESHOLDS.pm10), desc: t("overview.metrics.pm10"), priority: 5 },
-      { k: "CO2", v: latest.co2, u: "ppm", t: tone(latest.co2, THRESHOLDS.co2), desc: t("overview.metrics.co2"), priority: 10 },
-      { k: "VOC", v: latest.voc, u: "ppb", t: tone(latest.voc, THRESHOLDS.voc), desc: t("overview.metrics.voc"), priority: 15 },
-      { k: "Temp / Hum", v: 0, u: "", t: "ok" as const, extra: `${fmt(latest.temp, 1)}°C / ${latest.hum}%`, desc: t("overview.metrics.comfort"), priority: 20 },
+      { k: "PM2.5", v: latest.pm25, u: "µg/m³", t: pm25Status, desc: t("overview.metrics.pm25"), priority: 1 },
+      { k: "PM1.0", v: latest.pm1, u: "µg/m³", t: pm1Status, desc: t("overview.metrics.pm1"), priority: 2 },
+      { k: "PM10", v: latest.pm10, u: "µg/m³", t: pm10Status, desc: t("overview.metrics.pm10"), priority: 5 },
+      { k: "CO2", v: latest.co2, u: "ppm", t: co2Status, desc: t("overview.metrics.co2"), priority: 10 },
+      { k: "TVOC", v: vocLevel, u: "Level", t: vocStatus, desc: t("overview.metrics.voc"), priority: 15 },
+      { k: "Temp / Hum", v: 0, u: "", t: comfortStatus, extra: `${fmt(latest.temp, 1)}°C / ${latest.hum}%`, desc: t("overview.metrics.comfort"), priority: 20 },
     ];
 
     // Contextual Sorting based on spaceId
@@ -65,7 +78,7 @@ export default function KpiCards({ latest, spaceId }: { latest: AirPoint, spaceI
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
       {items.map((it) => {
-        const styles = cardToneCls(it.t as "ok" | "warn" | "bad" as "ok" | "warn" | "bad");
+        const styles = cardToneCls(it.t as AirStatus);
         return (
           <div
             key={it.k}

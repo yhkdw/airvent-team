@@ -4,6 +4,7 @@ import { Newspaper, ExternalLink, Home, Briefcase, MapPin, AlertTriangle, Fan, W
 import KpiCards from "../../components/KpiCards";
 import { getMockAirQualitySeries } from "../../mock/airquality";
 import { AirPoint } from "../../types/air";
+import { getMetricStatus, getWorstStatus, AirStatus } from "../../utils/airQuality";
 
 function getFormattedDate(offsetDays = 0) {
     const d = new Date();
@@ -18,30 +19,32 @@ function getFormattedDate(offsetDays = 0) {
 type DashboardMode = 'home' | 'office';
 
 // Centralized Status Logic: Worst-case wins
-export const getAirStatus = (p: AirPoint) => {
+export const getAirStatus = (p: AirPoint): AirStatus => {
     if (!p) return 'good';
-    // Bad
-    if (p.pm25 > 75 || p.pm1 > 25 || p.pm10 > 150 || p.co2 > 1500 || p.voc > 2000) return 'bad';
-    // Warn
-    if (p.pm25 > 35 || p.pm1 > 15 || p.pm10 > 80 || p.co2 > 1000 || p.voc > 1000) return 'warn';
-    // Normal
-    if (p.pm25 > 15 || p.pm1 > 8 || p.pm10 > 30 || p.co2 > 800 || p.voc > 500) return 'normal';
-    // Good
-    return 'good';
+    const statuses: AirStatus[] = [
+        getMetricStatus('pm25', p.pm25),
+        getMetricStatus('pm1', p.pm1),
+        getMetricStatus('pm10', p.pm10),
+        getMetricStatus('co2', p.co2),
+        getMetricStatus('voc', p.voc),
+        getMetricStatus('temp', p.temp),
+        getMetricStatus('hum', p.hum)
+    ];
+    return getWorstStatus(statuses);
 };
 
 export const getStatusColorCls = (status: string, type: 'bg' | 'border' | 'shadow' | 'text') => {
+    if (status === 'best') {
+        if (type === 'bg') return 'bg-blue-500';
+        if (type === 'border') return 'border-blue-500';
+        if (type === 'shadow') return 'shadow-blue-500/50';
+        return 'text-blue-400';
+    }
     if (status === 'good') {
         if (type === 'bg') return 'bg-emerald-500';
         if (type === 'border') return 'border-emerald-500';
         if (type === 'shadow') return 'shadow-emerald-500/50';
         return 'text-emerald-400';
-    }
-    if (status === 'normal') {
-        if (type === 'bg') return 'bg-blue-500';
-        if (type === 'border') return 'border-blue-500';
-        if (type === 'shadow') return 'shadow-blue-500/50';
-        return 'text-blue-400';
     }
     if (status === 'warn') {
         if (type === 'bg') return 'bg-amber-500';
@@ -49,6 +52,7 @@ export const getStatusColorCls = (status: string, type: 'bg' | 'border' | 'shado
         if (type === 'shadow') return 'shadow-amber-500/50';
         return 'text-amber-400';
     }
+    // bad
     if (type === 'bg') return 'bg-rose-500';
     if (type === 'border') return 'border-rose-500';
     if (type === 'shadow') return 'shadow-rose-500/50';
@@ -118,9 +122,9 @@ export default function OverviewTab() {
     const alertMessage = useMemo(() => {
         if (!latest) return null;
         if (activeStatus === 'warn' || activeStatus === 'bad') {
-            const isCO2Issue = latest.co2 > 1000;
-            const isPM25Issue = latest.pm25 > 35;
-            const isVOCIssue = latest.voc > 1000;
+            const isCO2Issue = getMetricStatus('co2', latest.co2) === 'bad' || getMetricStatus('co2', latest.co2) === 'warn';
+            const isPM25Issue = getMetricStatus('pm25', latest.pm25) === 'bad' || getMetricStatus('pm25', latest.pm25) === 'warn';
+            const isVOCIssue = getMetricStatus('voc', Math.round(latest.voc/10)) === 'bad' || getMetricStatus('voc', Math.round(latest.voc/10)) === 'warn';
 
             if (isCO2Issue) {
                 return {
@@ -267,7 +271,7 @@ export default function OverviewTab() {
                         <div className="absolute top-4 right-4 flex items-center gap-2 bg-slate-900/80 backdrop-blur border border-slate-800 px-3 py-1.5 rounded-full shadow-xl">
                             <div className={`w-2 h-2 rounded-full ${getStatusColorCls(activeStatus, 'bg')} ${getStatusColorCls(activeStatus, 'shadow')} animate-pulse`} />
                             <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">
-                                {t((activeSpaceInfo as any).nameKey)} : {activeStatus === 'good' ? t('overview.status_labels.perfect') : activeStatus === 'normal' ? t('overview.status_labels.good') : t('overview.status_labels.needs_vent')}
+                                {t((activeSpaceInfo as any).nameKey)} : {activeStatus === 'best' ? t('overview.status_labels.perfect') : activeStatus === 'good' ? t('overview.status_labels.good') : activeStatus === 'warn' ? t('overview.status_labels.needs_vent') : t('overview.status_labels.bad')}
                             </span>
                         </div>
                     </div>
