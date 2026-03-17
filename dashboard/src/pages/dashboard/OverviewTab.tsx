@@ -26,7 +26,7 @@ export const getAirStatus = (p: AirPoint): AirStatus => {
         getMetricStatus('pm1', p.pm1),
         getMetricStatus('pm10', p.pm10),
         getMetricStatus('co2', p.co2),
-        getMetricStatus('voc', p.voc),
+        getMetricStatus('voc', Math.round(p.voc / 10)),
         getMetricStatus('temp', p.temp),
         getMetricStatus('hum', p.hum)
     ];
@@ -77,10 +77,10 @@ export default function OverviewTab() {
         if (!base) return {} as AirPoint;
         const factors: Record<string, { pm25: number, co2: number, voc: number }> = {
             'living-room': { pm25: 1.0, co2: 1.0, voc: 1.0 },
-            'kitchen': { pm25: 6.5, co2: 1.2, voc: 1.8 }, // Force Bad/Very Bad PM2.5 (avg 12 * 6.5 = 78)
-            'bedroom': { pm25: 0.9, co2: 1.3, voc: 0.9 }, 
-            'kids-room': { pm25: 1.1, co2: 1.1, voc: 1.0 },
-            'meeting-a': { pm25: 1.4, co2: 1.8, voc: 4.5 }, // Force Bad VOC (avg 220 / 10 * 4.5 = 99 Level)
+            'kitchen': { pm25: 3.2, co2: 1.1, voc: 1.4 }, // Realistic variation (around warn/good)
+            'bedroom': { pm25: 0.9, co2: 1.1, voc: 0.9 }, 
+            'kids-room': { pm25: 1.1, co2: 1.0, voc: 1.0 },
+            'meeting-a': { pm25: 1.2, co2: 1.5, voc: 2.1 }, // Realistic variation (around good/warn)
             'office-area': { pm25: 1.1, co2: 1.2, voc: 1.1 },
             'lounge': { pm25: 1.2, co2: 1.1, voc: 1.4 }
         };
