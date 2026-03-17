@@ -1,5 +1,23 @@
 # Release Notes
 
+## [v2.1.1] - 2026-03-17
+
+### Added
+- **4-Stage Air Quality Visualization**: Implemented a comprehensive Blue (Best), Green (Good), Orange (Warn), Red (Bad) color scheme across the entire dashboard.
+- **Worst-Case Priority Space Synchronization**: Space icons and map borders now reflect the worst-performing air quality metric for each individual room.
+- **Dynamic Floor Plan Coloring**: The 2D map now independently colors all spaces in real-time, providing an instant holistic view of indoor air quality.
+- **Advanced Air Quality Simulation**: Introduced realistic simulation scenarios (Kitchen PM2.5 spikes, Meeting Room VOC levels) to verify UI responsiveness to high-risk events.
+- **Enhanced Reward Simulator**: Updated Node purchase rewards with a 2.0x early-buyer benefit coefficient and professional localized promotional banners.
+- **Improved Humidity & Temperature Logic**: Comfort metrics now feature dynamic status coloring based on environmental comfort zones.
+
+### Fixed
+- **TVOC Precision Bug**: Resolved a unit conversion issue (ppb to Level) that caused persistent "Bad" status indicators across the dashboard.
+- **Map UI Synchronization**: Fixed inconsistencies between the top navigation status dots and the 2D floor plan zone borders.
+- **Missing Sensor Terminology**: Standardized PM1.0, PM2.5, and PM10 naming conventions in all 4 supported languages.
+
+---
+
+
 ## [v1.8.0] - 2026-03-13
 
 ### Added
