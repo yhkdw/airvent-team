@@ -125,8 +125,8 @@ export default function NodeDetailPage() {
     };
 
     const product = products[selected];
-    // Estimated daily AIVT: ~0.8 AIVT/hr at 100% uptime (mock formula)
-    const dailyAIVT = (uptime * 0.8).toFixed(1);
+    // Estimated daily AIVT: ~2.0 AIVT/hr at 100% uptime (mock formula)
+    const dailyAIVT = (uptime * 2.0).toFixed(1);
     const monthlyAIVT = (Number(dailyAIVT) * 30).toFixed(0);
 
     return (
@@ -360,9 +360,21 @@ export default function NodeDetailPage() {
                                 </div>
 
                                 <div className="mt-6 rounded-xl bg-slate-800/40 border border-slate-700/50 px-5 py-3 text-xs text-slate-500 text-center leading-relaxed">
-                                    {lang === "ko"
-                                        ? "* 실제 리워드는 네트워크 상태, 데이터 품질, 토큰 가격에 따라 달라질 수 있습니다."
-                                        : "* Actual rewards may vary based on network conditions, data quality, and token price."}
+                                    <p className="text-emerald-400 font-bold mb-1">
+                                        {lang === "ko" ? "✨ 초기 구매자 혜택: 6개월간 보상 계수 x2.0 적용" 
+                                         : lang === "ja" ? "✨ 初期購入者特典：6か月間報酬係数x2.0適用"
+                                         : lang === "zh-TW" ? "✨ 初始購買者優惠：6個月內適用 x2.0 獎勵係數"
+                                         : "✨ Early Buyer Benefit: x2.0 reward coefficient for 6 months"}
+                                    </p>
+                                    <p>
+                                        {lang === "ko"
+                                            ? "* 실제 리워드는 네트워크 상태, 데이터 품질, 토큰 가격에 따라 달라질 수 있습니다."
+                                            : lang === "ja"
+                                            ? "* 実際の報酬は、ネットワークの状態、データの品質、トークンの価格によって異なる場合があります。"
+                                            : lang === "zh-TW"
+                                            ? "* 實際獎勵可能因網絡狀況、數據質量和代幣價格而異。"
+                                            : "* Actual rewards may vary based on network conditions, data quality, and token price."}
+                                    </p>
                                 </div>
                             </div>
                         </div>
