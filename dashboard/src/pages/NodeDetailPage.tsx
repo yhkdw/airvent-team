@@ -228,9 +228,9 @@ export default function NodeDetailPage() {
                                 {/* Key stats */}
                                 <div className="grid grid-cols-3 gap-4 mb-8">
                                     {[
-                                        { label: lang === "ko" ? "센서 항목" : "Sensors", val: "7종" },
-                                        { label: "PM2.5 정확도", val: "±10%" },
-                                        { label: lang === "ko" ? "업데이트 주기" : "Update Rate", val: "1min" },
+                                                                                { label: lang === "ko" ? "센서 항목" : lang === "ja" ? "センサー項目" : lang === "zh-TW" ? "感測器項目" : "Sensors", val: lang === "ko" ? "7종" : lang === "ja" ? "7種" : lang === "zh-TW" ? "7種" : "7 Types" },
+                                        { label: lang === "ko" ? "PM2.5 정확도" : lang === "ja" ? "PM2.5 精度" : lang === "zh-TW" ? "PM2.5 精準度" : "PM2.5 Accuracy", val: "±10%" },
+                                        { label: lang === "ko" ? "업데이트 주기" : lang === "ja" ? "更新周期" : lang === "zh-TW" ? "更新頻率" : "Update Rate", val: "1min" },
                                     ].map((s, i) => (
                                         <div key={i} className="rounded-xl bg-slate-900 border border-slate-800 p-4 text-center">
                                             <div className="text-xl font-black text-emerald-400">{s.val}</div>
