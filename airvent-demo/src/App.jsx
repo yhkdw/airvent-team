@@ -1,5 +1,12 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Connection, PublicKey } from '@solana/web3.js';
+import { createClient } from '@supabase/supabase-js';
+
+// Setup Supabase client inline
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 import {
   Wind,
   Wifi,
@@ -358,7 +365,8 @@ function DashboardCard({ item, index }) {
   );
 }
 
-function DashboardScreen({ goWallet }) {
+function DashboardScreen({ rooms, trend, goWallet }) {
+  const mainScore = rooms[0]?.score || 91;
   return (
     <div className="flex h-full flex-col pb-8">
       <TopHeader
@@ -374,11 +382,11 @@ function DashboardScreen({ goWallet }) {
 
       <div className="px-5 pt-2">
         <motion.div whileHover={{ scale: 1.01 }} className={`${card} overflow-hidden p-5 flex items-center justify-between gap-6`}>
-          <ScoreRing value={89} />
+          <ScoreRing value={mainScore} />
           <div className="flex-1 space-y-3">
             <div className="rounded-[20px] bg-white/5 p-3.5 border border-white/5">
               <div className="flex items-center gap-2 text-[11px] font-medium text-white/60 mb-1.5"><Gauge className="h-3.5 w-3.5 text-cyan-300" /> Integrated Score</div>
-              <p className="text-[22px] font-bold text-white tracking-tight">89 <span className="text-[13px] text-white/40 font-medium">/ 100</span></p>
+              <p className="text-[22px] font-bold text-white tracking-tight">{mainScore} <span className="text-[13px] text-white/40 font-medium">/ 100</span></p>
             </div>
             <div className="rounded-[20px] bg-white/5 p-3.5 border border-white/5">
               <div className="flex items-center gap-2 text-[11px] font-medium text-white/60 mb-1.5"><CloudSun className="h-3.5 w-3.5 text-amber-300" /> Outdoor Comparison</div>
@@ -393,13 +401,13 @@ function DashboardScreen({ goWallet }) {
           <div className="mb-4 flex items-center justify-between">
             <div>
               <p className="text-[15px] font-bold text-white">IAQ Trend Forecast</p>
-              <p className="text-[11px] text-white/50 mt-0.5">Based on 24H average</p>
+              <p className="text-[11px] text-white/50 mt-0.5">Based on live telemetry</p>
             </div>
             <div className="rounded-md bg-emerald-500/10 px-2 py-1 text-[10px] font-bold text-emerald-400 tracking-wider">Stable Zone</div>
           </div>
           <div className="h-[140px] w-full -ml-3">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={aqTrend} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+              <AreaChart data={trend} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="fillAqi" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor="rgba(34,211,238,0.4)" stopOpacity={1} />
@@ -434,7 +442,7 @@ function DashboardScreen({ goWallet }) {
             </div>
           </div>
           <div className="space-y-3">
-            {roomData.map((item, index) => (
+            {rooms.map((item, index) => (
               <DashboardCard key={item.room} item={item} index={index} />
             ))}
           </div>
@@ -444,9 +452,13 @@ function DashboardScreen({ goWallet }) {
   );
 }
 
-function WalletScreen({ onContinue }) {
+function WalletScreen({ tokenBalance, onContinue, rooms }) {
   const [selectedWallet, setSelectedWallet] = useState('Phantom');
   const wallets = ['Phantom', 'Solflare', 'Backpack'];
+
+  // Calculate dynamic today's reward based on live room air quality score and 3 nodes
+  const mainScore = rooms[0]?.score || 91;
+  const todayReward = (mainScore * 3 * 0.148).toFixed(1);
 
   return (
     <div className="flex h-full flex-col pb-8">
@@ -488,8 +500,17 @@ function WalletScreen({ onContinue }) {
 
           <div className="mt-5 rounded-[20px] bg-black/40 p-4 border border-white/5 flex items-center justify-between">
             <div>
-              <p className="text-[11px] font-medium text-white/50">Demo Address to Connect</p>
-              <p className="mt-1 text-[15px] font-mono font-bold text-white tracking-wider">8x2k...Jp9Q</p>
+              <p className="text-[11px] font-medium text-white/50">Solana Devnet Wallet</p>
+              <p className="mt-1 text-[15px] font-mono font-bold text-white tracking-wider">GUyF...RyHw</p>
+              <a 
+                href="https://explorer.solana.com/address/GUyFB5qJvPMRZweeL8fb7KQDdRicArQCTyAw64dkRyHw?cluster=devnet"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 mt-1.5 text-[11px] font-bold text-cyan-400 hover:text-cyan-300 transition"
+              >
+                View on Solana Explorer
+                <span className="text-[9px]">↗</span>
+              </a>
             </div>
             <ShieldCheck className="h-6 w-6 text-emerald-400" />
           </div>
@@ -519,12 +540,12 @@ function WalletScreen({ onContinue }) {
           <div className="grid grid-cols-3 gap-3">
             <div className="rounded-[20px] bg-black/30 border border-white/5 p-4 flex flex-col items-center justify-center">
               <p className="text-[11px] font-medium text-white/50 mb-1">Today</p>
-              <p className="text-[20px] font-bold text-white">18.4</p>
+              <p className="text-[20px] font-bold text-white">{todayReward}</p>
               <p className="text-[10px] font-bold text-cyan-300 mt-0.5 tracking-wider">AIVT</p>
             </div>
             <div className="rounded-[20px] bg-black/30 border border-white/5 p-4 flex flex-col items-center justify-center">
-              <p className="text-[11px] font-medium text-white/50 mb-1">This Week</p>
-              <p className="text-[20px] font-bold text-white">112.0</p>
+              <p className="text-[11px] font-medium text-white/50 mb-1">Total Onchain</p>
+              <p className="text-[20px] font-bold text-white">{tokenBalance !== null ? tokenBalance.toFixed(1) : "---"}</p>
               <p className="text-[10px] font-bold text-cyan-300 mt-0.5 tracking-wider">AIVT</p>
             </div>
             <div className="rounded-[20px] bg-emerald-500/10 border border-emerald-500/20 p-4 flex flex-col items-center justify-center">
@@ -548,10 +569,14 @@ function WalletScreen({ onContinue }) {
   );
 }
 
-function RewardScreen() {
+function RewardScreen({ tokenBalance, rooms }) {
   const [autoClaim, setAutoClaim] = useState(true);
   const [dataShare, setDataShare] = useState(true);
   const [zone, setZone] = useState('Indoor data + Outdoor Comp');
+
+  // Calculate dynamic projected monthly total based on live room air quality score
+  const mainScore = rooms[0]?.score || 91;
+  const estMonthly = Math.floor(mainScore * 3 * 4.45);
 
   return (
     <div className="flex h-full flex-col pb-8">
@@ -573,7 +598,7 @@ function RewardScreen() {
             </div>
             <div className="flex items-end justify-between">
               <div>
-                <p className="text-[36px] font-bold text-white tracking-tighter leading-none">2,940</p>
+                <p className="text-[36px] font-bold text-white tracking-tighter leading-none">{estMonthly.toLocaleString()}</p>
                 <p className="text-[13px] font-medium text-cyan-300 mt-2">AIVT Tokens</p>
               </div>
               <div className="w-12 h-12 rounded-full border-4 border-emerald-500/30 flex items-center justify-center">
@@ -642,7 +667,7 @@ function RewardScreen() {
             <Gift className="h-6 w-6 text-cyan-400" />
           </div>
           <div className="flex items-end justify-between border-b border-white/5 pb-4 mb-4">
-             <span className="text-[28px] font-bold text-white tracking-tight">146.4</span>
+             <span className="text-[28px] font-bold text-white tracking-tight">{(mainScore * 0.15).toFixed(2)}</span>
              <span className="text-[13px] font-medium text-cyan-300 mb-2">AIVT</span>
           </div>
           <motion.button 
@@ -659,14 +684,136 @@ function RewardScreen() {
 
 export default function AirVentDePINApp() {
   const [screen, setScreen] = useState('login');
+  const [tokenBalance, setTokenBalance] = useState(146.40);
+  const [rooms, setRooms] = useState(roomData);
+  const [trend, setTrend] = useState(aqTrend);
+
+  // Fetch Solana Devnet Token Balance
+  useEffect(() => {
+    const fetchBalance = async () => {
+      try {
+        const connection = new Connection("https://api.devnet.solana.com", "confirmed");
+        const mint = new PublicKey("BXV4ewBjMB1qmXjU3bc14SfXHQbseFhRy5xE4RtHtvsL");
+        const owner = new PublicKey("GUyFB5qJvPMRZweeL8fb7KQDdRicArQCTyAw64dkRyHw");
+        
+        const accounts = await connection.getTokenAccountsByOwner(owner, { mint });
+        if (accounts.value.length > 0) {
+          const balanceInfo = await connection.getTokenAccountBalance(accounts.value[0].pubkey);
+          setTokenBalance(balanceInfo.value.uiAmount || 0);
+        }
+      } catch (e) {
+        console.error("Failed to query Solana balance in Seeker app:", e);
+      }
+    };
+
+    fetchBalance();
+    const balanceInterval = setInterval(fetchBalance, 15000);
+    return () => clearInterval(balanceInterval);
+  }, []);
+
+  // Fetch Supabase sensor readings and subscribe to live changes
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadTelemetry = async () => {
+      const { data, error } = await supabase
+        .from('sensor_readings')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(8);
+
+      if (error) {
+        console.error("Failed to fetch historical telemetry for Seeker app:", error);
+        return;
+      }
+
+      if (data && isMounted) {
+        // Take the latest record to populate the "Living Room"
+        const latest = data[0];
+        const livingScore = Math.max(25, 100 - Math.floor(latest.pm2_5 * 1.5) - Math.floor(Math.max(0, latest.co2 - 400) / 20));
+        const livingState = livingScore > 90 ? 'Excellent' : livingScore > 75 ? 'Good' : 'Moderate';
+
+        const updatedRooms = [
+          {
+            room: 'Living Room',
+            score: livingScore,
+            pm25: latest.pm2_5,
+            pm1: latest.pm1_0,
+            co2: latest.co2,
+            tvoc: latest.voc || 112,
+            temp: latest.temperature,
+            humi: latest.humidity,
+            state: livingState,
+          },
+          ...roomData.slice(1) // Keep Bedroom and Kids Room as high-fidelity references
+        ];
+        setRooms(updatedRooms);
+
+        // Populate trend line chart based on historical PM2.5 readings
+        const historicalTrend = data.map((row) => {
+          const date = new Date(row.created_at);
+          const score = Math.max(25, 100 - Math.floor(row.pm2_5 * 1.5) - Math.floor(Math.max(0, row.co2 - 400) / 20));
+          return {
+            t: date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            aqi: score
+          };
+        }).reverse();
+        setTrend(historicalTrend);
+      }
+    };
+
+    loadTelemetry();
+
+    // Subscribe to live insert notifications
+    const channel = supabase
+      .channel('public:sensor_readings:seekermobile')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'sensor_readings' }, (payload) => {
+        if (!isMounted) return;
+        const latest = payload.new;
+        const livingScore = Math.max(25, 100 - Math.floor(latest.pm2_5 * 1.5) - Math.floor(Math.max(0, latest.co2 - 400) / 20));
+        const livingState = livingScore > 90 ? 'Excellent' : livingScore > 75 ? 'Good' : 'Moderate';
+
+        setRooms(prev => [
+          {
+            room: 'Living Room',
+            score: livingScore,
+            pm25: latest.pm2_5,
+            pm1: latest.pm1_0,
+            co2: latest.co2,
+            tvoc: latest.voc || 112,
+            temp: latest.temperature,
+            humi: latest.humidity,
+            state: livingState,
+          },
+          ...prev.slice(1)
+        ]);
+
+        const date = new Date(latest.created_at);
+        setTrend(prev => {
+          const newPoint = {
+            t: date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            aqi: livingScore
+          };
+          const nextTrend = [...prev, newPoint];
+          if (nextTrend.length > 8) nextTrend.shift();
+          return nextTrend;
+        });
+      })
+      .subscribe();
+
+    return () => {
+      isMounted = false;
+      supabase.removeChannel(channel);
+    };
+  }, []);
 
   const Screen = () => {
     switch (screen) {
       case 'login': return <LoginScreen onContinue={() => setScreen('pair')} />;
       case 'pair': return <PairScreen onContinue={() => setScreen('dashboard')} />;
-      case 'dashboard': return <DashboardScreen goWallet={() => setScreen('wallet')} />;
-      case 'wallet': return <WalletScreen onContinue={() => setScreen('reward')} />;
-      case 'reward': return <RewardScreen />;
+      case 'dashboard': return <DashboardScreen rooms={rooms} trend={trend} goWallet={() => setScreen('wallet')} />;
+      case 'wallet': return <WalletScreen tokenBalance={tokenBalance} onContinue={() => setScreen('reward')} rooms={rooms} />;
+      case 'reward': return <RewardScreen tokenBalance={tokenBalance} rooms={rooms} />;
       default: return null;
     }
   };

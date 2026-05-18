@@ -1,6 +1,6 @@
 {
   "name": "airvent-demo",
-  "version": "1.6.2",
+  "version": "1.6.5",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -14,6 +14,8 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "@solana/web3.js": "^1.98.4",
+    "@supabase/supabase-js": "^2.105.4",
     "framer-motion": "^12.35.1",
     "lucide-react": "^0.577.0",
     "react": "^19.2.4",

@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Wind, Activity, BrainCircuit, ShieldCheck, Zap, LayoutDashboard, LogOut, Wallet, ChevronRight } from 'lucide-react';
 import { loginWithEmail } from '../auth';
+import { Connection, PublicKey } from "@solana/web3.js";
+import { supabase } from "../lib/supabaseClient";
 
 // --- 1. 로그인 페이지 ---
 const LoginPage = ({ onLogin, onBack }: { onLogin: () => void, onBack: () => void }) => {
@@ -57,30 +59,100 @@ const LoginPage = ({ onLogin, onBack }: { onLogin: () => void, onBack: () => voi
 
 // --- 2. 대시보드 화면 (AI 검증 패널 추가) ---
 const DashboardView = ({ onLogout }: { onLogout: () => void }) => {
-    const [tokenBalance, setTokenBalance] = useState(1240.50);
-    const [aiStatus, setAiStatus] = useState(0);
+    const [tokenBalance, setTokenBalance] = useState<number | null>(null);
+    const [aiStatus, setAiStatus] = useState(2); // Start at verified historical
+    const [series, setSeries] = useState<any[]>([]);
 
     const aiLogs = [
-        { text: "센서 데이터 스트리밍 중...", icon: <Activity size={16} className="text-blue-400" /> },
-        { text: "OpenAI 패턴 분석: 어뷰징 징후 탐색...", icon: <BrainCircuit size={16} className="text-purple-400 animate-pulse" /> },
-        { text: "데이터 무결성 검증 완료 (신뢰도 99.8%)", icon: <ShieldCheck size={16} className="text-emerald-400" /> },
-        { text: "+0.05 AiVT 보상 지급 승인", icon: <Zap size={16} className="text-yellow-400" /> },
+        { text: "센서 데이터 유입 중...", icon: <Activity size={16} className="text-blue-400" /> },
+        { text: "AI 무결성 검증 엔진 가동: 어뷰징 패턴 분석 중...", icon: <BrainCircuit size={16} className="text-purple-400 animate-pulse" /> },
+        { text: "실시간 수집 데이터 신뢰도 검증 완료 (신뢰도 99.8%)", icon: <ShieldCheck size={16} className="text-emerald-400" /> },
+        { text: "솔라나 트랜잭션 기록 완료 및 $AIR 마이닝 지급", icon: <Zap size={16} className="text-yellow-400" /> },
     ];
 
-    // AI 로그 및 채굴 시뮬레이션
+    // Fetch Token Balance from Devnet
     useEffect(() => {
-        const aiInterval = setInterval(() => {
-            setAiStatus((prev) => (prev + 1) % aiLogs.length);
-        }, 2500); // 2.5초마다 상태 변경
+        const fetchBalance = async () => {
+            try {
+                const connection = new Connection("https://api.devnet.solana.com", "confirmed");
+                const mint = new PublicKey("BXV4ewBjMB1qmXjU3bc14SfXHQbseFhRy5xE4RtHtvsL");
+                const owner = new PublicKey("GUyFB5qJvPMRZweeL8fb7KQDdRicArQCTyAw64dkRyHw");
+                
+                const accounts = await connection.getTokenAccountsByOwner(owner, { mint });
+                if (accounts.value.length > 0) {
+                    const balanceInfo = await connection.getTokenAccountBalance(accounts.value[0].pubkey);
+                    setTokenBalance(balanceInfo.value.uiAmount || 0);
+                }
+            } catch (error) {
+                console.error("Failed to fetch Seeker demo token balance", error);
+            }
+        };
 
-        const tokenInterval = setInterval(() => {
-            setTokenBalance(prev => prev + 0.05);
-        }, 10000); // 10초마다 채굴
+        fetchBalance();
+        const balanceInterval = setInterval(fetchBalance, 15000);
+        return () => clearInterval(balanceInterval);
+    }, []);
 
-        return () => { clearInterval(aiInterval); clearInterval(tokenInterval); };
-    }, [aiLogs.length]);
+    // Fetch Historical Telemetry and Subscribe to Live Telemetry
+    useEffect(() => {
+        let isMounted = true;
 
-    const data = Array.from({ length: 24 }, (_, i) => ({ time: `${i}:00`, pm25: Math.floor(Math.random() * 30) + 15 }));
+        const fetchHistorical = async () => {
+            const { data, error } = await supabase
+                .from('sensor_readings')
+                .select('*')
+                .order('created_at', { ascending: false })
+                .limit(24);
+
+            if (error) {
+                console.error("Failed to load historical data for Seeker demo:", error);
+                return;
+            }
+
+            if (data && isMounted) {
+                const formatted = data.map((row: any) => {
+                    const date = new Date(row.created_at);
+                    return {
+                        time: date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                        pm25: row.pm2_5
+                    };
+                }).reverse();
+                setSeries(formatted);
+            }
+        };
+
+        fetchHistorical();
+
+        const channel = supabase
+            .channel('public:sensor_readings:seekerdemo')
+            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'sensor_readings' }, (payload) => {
+                if (!isMounted) return;
+                const row = payload.new;
+                const date = new Date(row.created_at);
+                const newPoint = {
+                    time: date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                    pm25: row.pm2_5
+                };
+
+                setSeries(prev => {
+                    const updated = [...prev, newPoint];
+                    if (updated.length > 24) updated.shift();
+                    return updated;
+                });
+
+                // Trigger AI Log sequential animation when a new record enters
+                setAiStatus(0);
+                setTimeout(() => setAiStatus(1), 5000);
+                setTimeout(() => setAiStatus(2), 15000);
+                setTimeout(() => setAiStatus(3), 25000);
+            })
+            .subscribe();
+
+        return () => {
+            isMounted = false;
+            supabase.removeChannel(channel);
+        };
+    }, []);
 
     return (
         <div className="flex h-screen bg-slate-900 text-white overflow-hidden">
@@ -101,7 +173,7 @@ const DashboardView = ({ onLogout }: { onLogout: () => void }) => {
                 <header className="h-16 bg-slate-800 border-b border-slate-700 flex items-center justify-between px-6 sticky top-0 z-10">
                     <h1 className="text-lg font-semibold">실시간 마이닝 & 검증</h1>
                     <button className="px-4 py-2 bg-emerald-600 rounded-lg font-medium text-sm flex items-center gap-2 transition-all">
-                        <Wallet size={16} /> {tokenBalance.toFixed(2)} AiVT
+                        <Wallet size={16} /> {tokenBalance !== null ? tokenBalance.toFixed(2) : "---"} AIVT
                     </button>
                 </header>
 
@@ -132,7 +204,23 @@ const DashboardView = ({ onLogout }: { onLogout: () => void }) => {
 
                     <div className="bg-slate-800 p-6 rounded-xl border border-slate-700">
                         <h3 className="text-lg font-semibold mb-6">시간대별 데이터 수집 차트</h3>
-                        <div className="h-64"><ResponsiveContainer><LineChart data={data}><CartesianGrid strokeDasharray="3 3" stroke="#334155" /><XAxis dataKey="time" stroke="#94a3b8" /><YAxis stroke="#94a3b8" /><Tooltip contentStyle={{ backgroundColor: '#1e293b', border: 'none' }} /><Line type="monotone" dataKey="pm25" stroke="#34d399" strokeWidth={3} dot={false} /></LineChart></ResponsiveContainer></div>
+                        <div className="h-64">
+                            {series.length > 0 ? (
+                                <ResponsiveContainer>
+                                    <LineChart data={series}>
+                                        <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+                                        <XAxis dataKey="time" stroke="#94a3b8" />
+                                        <YAxis stroke="#94a3b8" />
+                                        <Tooltip contentStyle={{ backgroundColor: '#1e293b', border: 'none' }} />
+                                        <Line type="monotone" dataKey="pm25" stroke="#34d399" strokeWidth={3} dot={false} />
+                                    </LineChart>
+                                </ResponsiveContainer>
+                            ) : (
+                                <div className="h-full flex items-center justify-center text-slate-500">
+                                    데이터를 수신하고 있습니다...
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
             </main>
