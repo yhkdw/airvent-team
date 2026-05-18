@@ -1,9 +1,34 @@
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { Connection, PublicKey } from "@solana/web3.js";
 import { Shield, ArrowUpRight, ArrowDownLeft, RefreshCw, Send, History } from "lucide-react";
 
 export default function WalletTab() {
     const { t } = useTranslation();
+    const [balance, setBalance] = useState<number | null>(null);
+
+    useEffect(() => {
+        const fetchBalance = async () => {
+            try {
+                const connection = new Connection("https://api.devnet.solana.com", "confirmed");
+                const mint = new PublicKey("BXV4ewBjMB1qmXjU3bc14SfXHQbseFhRy5xE4RtHtvsL");
+                const owner = new PublicKey("GUyFB5qJvPMRZweeL8fb7KQDdRicArQCTyAw64dkRyHw");
+                
+                const accounts = await connection.getTokenAccountsByOwner(owner, { mint });
+                if (accounts.value.length > 0) {
+                    const balanceInfo = await connection.getTokenAccountBalance(accounts.value[0].pubkey);
+                    setBalance(balanceInfo.value.uiAmount || 0);
+                }
+            } catch (error) {
+                console.error("Failed to fetch wallet token balance", error);
+            }
+        };
+
+        fetchBalance();
+    }, []);
+
+    const usdValue = balance !== null ? (balance * 0.05).toFixed(2) : "0.00";
+
     const transactions = useMemo(() => [
         {
             id: 1,
@@ -48,9 +73,10 @@ export default function WalletTab() {
                         </div>
                         <div>
                             <div className="text-4xl md:text-5xl font-extrabold tracking-tight text-white flex items-baseline gap-3">
-                                1,240.50 <span className="text-xl md:text-2xl text-slate-400 font-medium">AIVT</span>
+                                {balance !== null ? balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "---"}{" "}
+                                <span className="text-xl md:text-2xl text-slate-400 font-medium">AIVT</span>
                             </div>
-                            <div className="text-lg text-slate-500 font-medium mt-1">≈ $62.03 USD</div>
+                            <div className="text-lg text-slate-500 font-medium mt-1">≈ ${usdValue} USD</div>
                         </div>
                     </div>
 
