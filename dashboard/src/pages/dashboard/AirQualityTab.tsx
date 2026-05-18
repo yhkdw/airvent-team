@@ -1,13 +1,91 @@
-import { useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { createClient } from "@supabase/supabase-js";
 import { GasChart, PmChart } from "../../components/Charts";
 import RawTable from "../../components/RawTable";
-import { getMockAirQualitySeries, downsampleByMinutes } from "../../mock/airquality";
+import { AirPoint } from "../../types/air";
 import { Info } from "lucide-react";
 
+// Setup Supabase
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
 export default function AirQualityTab() {
-    const series = useMemo(() => getMockAirQualitySeries(), []);
-    const chartData = useMemo(() => downsampleByMinutes(series, 5), [series]);
-    const last60 = series.slice(-60);
+    const [series, setSeries] = useState<AirPoint[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        let isMounted = true;
+        
+        const fetchHistorical = async () => {
+            const { data, error } = await supabase
+                .from('sensor_readings')
+                .select('*')
+                .order('created_at', { ascending: false })
+                .limit(60);
+                
+            if (error) {
+                console.error("Error fetching historical data:", error);
+                if (isMounted) setLoading(false);
+                return;
+            }
+            
+            if (data && isMounted) {
+                const formatted: AirPoint[] = data.map(row => ({
+                    ts: new Date(row.created_at).toISOString(),
+                    timestamp: new Date(row.created_at).getTime(),
+                    pm25: row.pm2_5,
+                    pm10: row.pm10,
+                    pm1: row.pm1_0,
+                    temp: row.temperature,
+                    hum: row.humidity,
+                    co2: row.co2,
+                    voc: row.voc,
+                    source: 'supabase'
+                }) as AirPoint).reverse();
+                
+                setSeries(formatted);
+                setLoading(false);
+            }
+        };
+
+        fetchHistorical();
+
+        const channel = supabase
+            .channel('public:sensor_readings:airquality')
+            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'sensor_readings' }, (payload) => {
+                const row = payload.new;
+                const newPoint: AirPoint = {
+                    ts: new Date(row.created_at).toISOString(),
+                    timestamp: new Date(row.created_at).getTime(),
+                    pm25: row.pm2_5,
+                    pm10: row.pm10,
+                    pm1: row.pm1_0,
+                    temp: row.temperature,
+                    hum: row.humidity,
+                    co2: row.co2,
+                    voc: row.voc,
+                    source: 'supabase'
+                } as AirPoint;
+                
+                if (isMounted) {
+                    setSeries(prev => [...prev, newPoint].slice(-60));
+                }
+            })
+            .subscribe();
+
+        return () => {
+            isMounted = false;
+            supabase.removeChannel(channel);
+        };
+    }, []);
+
+    const chartData = series; // Realtime data doesn't need heavy downsampling
+    const last60 = series.slice().reverse(); // Reverse for table view (newest first)
+
+    if (loading) {
+        return <div className="p-8 text-center text-slate-500">Loading Live Data...</div>;
+    }
 
     return (
         <div className="space-y-6">

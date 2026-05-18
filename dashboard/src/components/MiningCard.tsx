@@ -1,53 +1,75 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { Connection, PublicKey } from "@solana/web3.js";
 import Badge from "./Badge";
 
-export default function MiningCard() {
+export default function MiningCard({ latestSignature }: { latestSignature: string | null }) {
     const { t } = useTranslation();
-    const [points, setPoints] = useState(1250);
+    const [points, setPoints] = useState<number>(0);
     const [progress, setProgress] = useState(0);
     const [status, setStatus] = useState<"MINING" | "VALIDATING" | "SOLANA_CONFIRMED">("MINING");
     const [blockHash, setBlockHash] = useState("Waiting...");
     const [solanaTx, setSolanaTx] = useState("");
+    const [lastFetchTime, setLastFetchTime] = useState<number>(Date.now());
 
-    // Mining loop - 60 seconds for a full cycle
+    // Fetch Token Balance from Devnet
+    useEffect(() => {
+        const fetchBalance = async () => {
+            try {
+                const connection = new Connection("https://api.devnet.solana.com", "confirmed");
+                const mint = new PublicKey("BXV4ewBjMB1qmXjU3bc14SfXHQbseFhRy5xE4RtHtvsL");
+                const owner = new PublicKey("GUyFB5qJvPMRZweeL8fb7KQDdRicArQCTyAw64dkRyHw");
+                
+                const accounts = await connection.getTokenAccountsByOwner(owner, { mint });
+                if (accounts.value.length > 0) {
+                    const balanceInfo = await connection.getTokenAccountBalance(accounts.value[0].pubkey);
+                    setPoints(balanceInfo.value.uiAmount || 0);
+                }
+            } catch (error) {
+                console.error("Failed to fetch token balance", error);
+            }
+        };
+
+        fetchBalance();
+    }, [latestSignature]);
+
+    // Handle new transactions
+    useEffect(() => {
+        if (latestSignature && latestSignature !== solanaTx) {
+            setSolanaTx(latestSignature.substring(0, 8) + "..." + latestSignature.substring(latestSignature.length - 4));
+            setBlockHash("0x" + Math.random().toString(16).substr(2, 8)); // Maintain a visual hash
+            setStatus("SOLANA_CONFIRMED");
+            setLastFetchTime(Date.now());
+            setProgress(100);
+
+            // Revert back to mining after 10 seconds to show the next 60s cycle starting
+            const timeout = setTimeout(() => {
+                setStatus("MINING");
+                setProgress(0);
+                setLastFetchTime(Date.now());
+            }, 10000);
+
+            return () => clearTimeout(timeout);
+        }
+    }, [latestSignature, solanaTx]);
+
+    // Progress bar visual effect syncing to 60s
     useEffect(() => {
         const timer = setInterval(() => {
-            setProgress((prev) => {
-                if (prev >= 100) {
-                    return 0;
-                }
-                // Finish exactly in ~60 seconds (100 / 60 steps)
-                return prev + (100 / 60);
-            });
+            if (status === "SOLANA_CONFIRMED") return;
+            
+            const elapsed = Date.now() - lastFetchTime;
+            const newProgress = Math.min((elapsed / 60000) * 100, 95); // Cap at 95% until real tx comes
+            
+            setProgress(newProgress);
+            
+            if (newProgress > 80 && status !== "VALIDATING") {
+                setStatus("VALIDATING");
+            }
         }, 1000);
 
         return () => clearInterval(timer);
-    }, []);
-
-    // Status state machine based on progress
-    useEffect(() => {
-        if (progress < 80) {
-            setStatus("MINING");
-        } else if (progress < 100) {
-            setStatus("VALIDATING");
-        } else {
-            // Just hit 100 (or reset)
-            if (status !== "SOLANA_CONFIRMED") {
-                setStatus("SOLANA_CONFIRMED");
-                // Mint points!
-                const reward = Math.floor(Math.random() * 5) + 5;
-                setPoints(p => p + reward);
-                setBlockHash("0x" + Math.random().toString(16).substr(2, 8));
-                // Simulate Solana TxID
-                const chars = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
-                let tx = "";
-                for (let i = 0; i < 8; i++) tx += chars.charAt(Math.floor(Math.random() * chars.length));
-                setSolanaTx(tx + "...");
-            }
-        }
-    }, [progress, status]);
-
+    }, [lastFetchTime, status]);
 
     return (
         <div className="rounded-2xl border border-slate-800 bg-slate-900/50 p-6 relative overflow-hidden h-full flex flex-col justify-between">
@@ -56,6 +78,14 @@ export default function MiningCard() {
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-24 h-24 text-emerald-500">
                     <path fillRule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zM12.75 6a.75.75 0 00-1.5 0v6c0 .414.336.75.75.75h4.5a.75.75 0 000-1.5h-3.75V6z" clipRule="evenodd" />
                 </svg>
+            </div>
+
+            {/* Progress Bar Background */}
+            <div className="absolute bottom-0 left-0 h-1 bg-slate-800 w-full">
+                <div 
+                    className="h-full bg-emerald-500 transition-all duration-1000 ease-linear" 
+                    style={{ width: `${progress}%` }} 
+                />
             </div>
 
             <div className="relative z-10 flex-1 flex flex-col">
@@ -70,7 +100,9 @@ export default function MiningCard() {
                 </div>
 
                 <div className="flex items-baseline gap-2 mb-8 mt-2">
-                    <span className="text-4xl font-bold text-emerald-400">{points.toLocaleString()}</span>
+                    <span className="text-4xl font-bold text-emerald-400">
+                        {points > 0 ? points.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "---"}
+                    </span>
                     <span className="text-sm text-slate-400 font-medium">AIVT</span>
                 </div>
 
@@ -94,7 +126,7 @@ export default function MiningCard() {
                         </div>
                         <div className="mt-3 pt-2 border-t border-slate-800 flex justify-between opacity-60">
                             <span>{t("rewards.next_epoch")}:</span>
-                            <span>~14m 20s</span>
+                            <span>{status === "SOLANA_CONFIRMED" ? "Confirmed" : `~${Math.max(0, Math.floor(60 - (Date.now() - lastFetchTime) / 1000))}s`}</span>
                         </div>
                     </div>
                 </div>

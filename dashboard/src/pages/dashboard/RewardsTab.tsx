@@ -19,6 +19,8 @@ export default function RewardsTab({ onReward }: RewardsTabProps) {
         setEvents((prev) => [event, ...prev].slice(0, 15));
     }, []);
 
+    const [latestSignature, setLatestSignature] = useState<string | null>(null);
+
     useEffect(() => {
         const DEVICE_ID = '5EBHA10001';
         const PROGRAM_ID = new PublicKey('B4m1ENS6SWV3H6mZkJ2VFkBKawqYe7atH4AjXoc4NZzR');
@@ -34,6 +36,10 @@ export default function RewardsTab({ onReward }: RewardsTabProps) {
                 const sigs = await connection.getSignaturesForAddress(devicePda, { limit: 10 });
                 if (!isMounted) return;
                 
+                if (sigs.length > 0) {
+                    setLatestSignature(sigs[0].signature);
+                }
+
                 const formattedEvents = sigs.map(sig => {
                     const date = new Date((sig.blockTime || 0) * 1000);
                     return {
@@ -66,10 +72,10 @@ export default function RewardsTab({ onReward }: RewardsTabProps) {
         <div className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
                 <div className="h-full">
-                    <MiningCard />
+                    <MiningCard latestSignature={latestSignature} />
                 </div>
                 <div className="h-full">
-                    <AiVerificationPanel onReward={onReward} onLogGenerated={handleLog} />
+                    <AiVerificationPanel onReward={onReward} latestSignature={latestSignature} />
                 </div>
             </div>
 
