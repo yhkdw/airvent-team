@@ -151,7 +151,7 @@ export default function OverviewTab() {
         };
     };
 
-    const latest = useMemo(() => getSpaceSpecificData(rawLatest, activeSpace), [rawLatest, activeSpace]);
+    const latest = useMemo(() => getSpaceSpecificData(rawLatest as AirPoint, activeSpace), [rawLatest, activeSpace]);
     const activeStatus = getAirStatus(latest);
 
     const homeSpaces = [
@@ -171,7 +171,7 @@ export default function OverviewTab() {
     const activeSpaceInfo = currentSpaces.find(s => s.id === activeSpace) || currentSpaces[0];
 
     const getSpaceStatus = (spaceId: string) => {
-        const data = getSpaceSpecificData(rawLatest, spaceId);
+        const data = getSpaceSpecificData(rawLatest as AirPoint, spaceId);
         return getAirStatus(data);
     };
 

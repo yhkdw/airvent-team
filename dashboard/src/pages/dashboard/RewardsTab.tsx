@@ -38,7 +38,7 @@ export default function RewardsTab({ onReward }: RewardsTabProps) {
                     const date = new Date((sig.blockTime || 0) * 1000);
                     return {
                         ts: date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
-                        badge: "SOLANA",
+                        badge: "SOLANA" as "SOLANA",
                         message: `Data Submitted. TX: ${sig.signature.substring(0, 6)}...${sig.signature.substring(sig.signature.length - 4)}`,
                         signature: sig.signature
                     };
