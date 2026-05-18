@@ -5,7 +5,7 @@ resolution = true
 skip-lint = false
 
 [programs.devnet]
-airvent_subscription = "B2EXeDBK3y6jyYzwqNqUEA8NMsVJhWCdKc6ZiLYC8hRM"
+airvent_subscription = "8rRn5tuqaeth3Bh3HtQQavAfmGrC4b3wJUuwQHdRp5KB"
 
 [programs.testnet]
 airvent_subscription = "FRUF1NqpmYxzwuxEiqVbuDXwaGB7fdhaaA7i9curNc6R"

@@ -1,118 +1,99 @@
-# AirVent Subscription — Solana Anchor 스마트 컨트랙트
+<div align="center">
+  <img src="https://raw.githubusercontent.com/yhkdw/airvent-team/main/dashboard/public/airvent-logo-v3.png" alt="AirVent Logo" width="200" />
 
-AirVent DePIN 플랫폼의 무료/프리미엄 구독 관리를 Solana 블록체인 위에 구현한 Anchor 프로젝트입니다.
+  # AirVent DePIN
+  **Solana-Powered Hyperlocal Air Quality Network**
 
-## 📋 프로젝트 구조
+  [![Solana](https://img.shields.io/badge/Solana-DePIN-14F195?logo=solana&logoColor=black)](https://solana.com/)
+  [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+  [![Version](https://img.shields.io/badge/version-v1.6.0-emerald.svg)]()
+</div>
 
-```
-Airvent-codex/
-├── Anchor.toml              # Anchor 프레임워크 설정
-├── Cargo.toml               # Rust 워크스페이스 설정
-├── programs/
-│   └── airvent_subscription/
-│       ├── Cargo.toml
-│       └── src/lib.rs        # 스마트 컨트랙트 (개선 완료)
-├── app/                      # 프론트엔드 연동 코드
-│   ├── idl/
-│   │   └── airvent_subscription.ts   # IDL 타입 정의
-│   ├── solana/
-│   │   ├── provider.ts       # Solana 연결 유틸리티
-│   │   └── subscription.ts   # 컨트랙트 호출 함수
-│   └── components/
-│       └── SubscriptionCard.tsx  # 구독 관리 UI
-├── migrations/
-│   └── deploy.ts
-└── tests/                    # (향후 추가)
-```
+<br/>
 
-## 🔧 스마트 컨트랙트 기능
+**AirVent** is a Decentralized Physical Infrastructure Network (DePIN) of IoT sensors measuring hyperlocal air quality (PM1.0, PM2.5, PM10, CO2, VOCs, Temperature, and Humidity). Node operators securely transmit environmental data and are rewarded with **$AIR** tokens on the Solana blockchain for contributing high-quality data to the global network.
 
-| 기능 | 함수명 | 설명 |
-|------|--------|------|
-| 무료 계정 생성 | `initialize_free_subscription` | 대시보드 가입 시 온체인 계정 생성 |
-| 포인트 적립 | `earn_free_points` | 오라클/서버가 사용자에게 포인트 적립 (1~1000) |
-| 프리미엄 업그레이드 | `upgrade_to_premium` | 하드웨어 시리얼 등록 및 프리미엄 전환 |
-| 프리미엄 해제 | `downgrade_from_premium` | 무료 구독으로 다시 전환 |
+*한국어 요약: AirVent는 대기오염 및 실내 공기질 데이터를 실시간으로 측정하는 IoT 센서 네트워크입니다. 센서 기여자는 양질의 환경 데이터를 제공하는 대가로 Solana 스마트 컨트랙트를 통해 토큰 리워드($AIR)를 분배받는 DePIN 생태계입니다.*
 
-## 🛠️ 빌드 및 배포
+---
 
-### 사전 요구사항
-- [Rust](https://rustup.rs/)
-- [Solana CLI](https://docs.solana.com/cli/install-solana-cli-tools)
-- [Anchor CLI](https://www.anchor-lang.com/docs/installation)
+## 🏗 Architecture & Data Flow
 
-### 빌드
+AirVent is built with a robust, scalable, and decentralized architecture, ensuring data integrity from the physical sensor all the way to the blockchain.
+
+1. **IoT Sensor Node (Hardware)** 🌬️
+   - Captures high-precision environmental metrics every 15 seconds.
+   - Securely transmits data payloads via MQTT to the central broker.
+2. **Bridge Service (Node.js)** 🌉
+   - Subscribes to real-time MQTT data streams (`env/SML001/+/data`).
+   - Deduplicates and caches data in **Supabase** (PostgreSQL) for fast frontend retrieval.
+   - Calls the `submitData` instruction on the **Solana Smart Contract** (`B4m1ENS6SWV3H6mZkJ2VFkBKawqYe7atH4AjXoc4NZzR`), triggering on-chain records and reward distribution.
+3. **Solana Smart Contract (Rust/Anchor)** ⛓️
+   - Manages device registry, ownership proofs, and active status.
+   - Verifies incoming data submissions and automatically distributes $AIR token rewards to the node operator's associated token account.
+4. **React Dashboard (Vite)** 📊
+   - **Real-time Monitoring**: Visualizes air quality metrics instantly via Supabase Realtime subscriptions.
+   - **100% Decentralized On-Chain Viewer**: Uses `@solana/web3.js` to fetch recent transaction signatures directly from the Solana RPC, displaying a live audit log of data submissions on the dashboard.
+
+---
+
+## 🛠 Tech Stack
+
+- **Frontend**: React, Vite, TailwindCSS, `@solana/web3.js`, `lucide-react`
+- **Bridge Backend**: Node.js, TypeScript, MQTT.js, Supabase JS Client, `@coral-xyz/anchor`
+- **Database**: Supabase (PostgreSQL with Row Level Security)
+- **Blockchain**: Solana, Rust, Anchor Framework, SPL Token Program
+
+---
+
+## 🚀 Getting Started (Local Development)
+
+Developers and contributors can easily run the entire platform locally to view real-time data ingestion and Solana blockchain interactions.
+
+### 1. Clone the Repository
 ```bash
-anchor build
+git clone https://github.com/yhkdw/airvent-team.git
+cd airvent-team
 ```
 
-### 배포 (Solana Testnet)
-
-로컬 PC의 용량 문제 해결을 위해 **GitHub Codespaces**에서 배포하는 것을 권장합니다.
-
-1. **Codespace 실행**: GitHub 리포지토리 상단의 `Code` -> `Codespaces` -> `Create codespace` 클릭
-2. **배포 스크립트 실행**: 터미널에서 다음 명령 실행
-   ```bash
-   bash scripts/deploy-testnet.sh
-   ```
-3. **Program ID 업데이트**: 배포 완료 후 출력되는 ID를 아래 파일들에 업데이트하세요.
-   - `Anchor.toml`
-   - `programs/airvent_subscription/src/lib.rs` (declare_id)
-   - `app/solana/provider.ts`
-
-## 🔗 대시보드 연동 방법
-
-### 1. 패키지 설치
+### 2. Run the Bridge Service (Data Ingestion)
+The Bridge service connects to the physical IoT sensors and the Solana blockchain. *(Note: Requires a valid `.env` file with Supabase credentials and a funded Solana local wallet).*
 ```bash
-cd Airvent_Dashboard
-npm install @solana/web3.js @coral-xyz/anchor
+cd dashboard/bridge
+npm install
+npm start
+```
+*Expected Output:*
+```log
+🚀 Starting AirVent Bridge Service...
+🔑 Server Wallet: GUyFB5q...
+✅ MQTT Connected to broker.
+📡 Subscribed to data topic: env/SML001/+/data
+📥 Received data from 5EBHA10001
+🗄️ Saved to Supabase: 5EBHA10001 [PM2.5: 14]
+🔗 Submitted to Solana: 4Ftc2nXvDvYkW1VFtucQwL...
 ```
 
-### 2. 파일 복사
-`app/` 폴더의 파일들을 대시보드 프로젝트로 복사:
-
-```
-app/idl/             → src/idl/
-app/solana/          → src/solana/
-app/components/      → src/components/ 에 추가
-```
-
-### 3. 환경 변수 (선택)
-`.env` 파일에 추가:
-```
-VITE_SOLANA_CLUSTER=testnet
-VITE_SOLANA_RPC=https://api.testnet.solana.com
-```
-
-### 4. DashboardPage에 통합
-```tsx
-import SubscriptionCard from "../components/SubscriptionCard";
-
-// DashboardPage 내부에 추가:
-<SubscriptionCard />
-```
-
-## 🔒 보안 사항
-
-- **Authority 패턴**: 포인트 적립은 반드시 `authority` (서버/오라클) 서명이 필요합니다
-- **단일 적립 제한**: 최대 1,000 포인트/건
-- **오버플로우 보호**: `checked_add`로 안전하게 처리
-- **PDA 기반**: 사용자당 하나의 고유 계정 (seeds: `["subscription", user_pubkey]`)
-
-## 🛡️ 데이터 위변조 검증 (Data Tampering Verification)
-
-AirVent 플랫폼은 공기질 데이터의 무결성을 보장하기 위해 HMAC-SHA256 기반의 검증 시스템을 제공합니다.
-
-### 📋 주요 검증 항목
-1. **무결성 검증**: 서버/디바이스 비밀키를 이용한 HMAC 서명 비교
-2. **연속성 검증**: 타임스탬프 역행 여부 확인
-3. **이상치 검증**: 급격한 데이터 변화 감지 (Suspicious 판정)
-
-### 🚀 실행 방법
+### 3. Run the Frontend Dashboard
+The dashboard visualizes the data and the Solana on-chain transactions.
 ```bash
-python air_quality_validator.py --input sample_data.jsonl --secret airvent-demo-key
+# Open a new terminal tab
+cd dashboard
+npm install
+npm run dev
 ```
+Navigate to `http://localhost:5176` in your browser. 
+Go to the **Rewards** tab and scroll to the bottom to see the **Live On-Chain Records** fetching directly from the Solana Devnet!
 
-### 📂 파일 구성
-- `air_quality_validator.py`: 검증 로직 및 CLI 툴
-- `sample_data.jsonl`: 테스트용 예시 데이터 (정상/변조/의심 데이터 포함)
+---
+
+## 🔗 Links & Resources
+
+- **Solana Smart Contract**: [Devnet Explorer (`B4m1ENS6SWV3H6mZkJ2VFkBKawqYe7atH4AjXoc4NZzR`)](https://explorer.solana.com/address/B4m1ENS6SWV3H6mZkJ2VFkBKawqYe7atH4AjXoc4NZzR?cluster=devnet)
+- **Token Mint ($AIR)**: [Devnet Explorer (`BXV4ewBjMB1qmXjU3bc14SfXHQbseFhRy5xE4RtHtvsL`)](https://explorer.solana.com/address/BXV4ewBjMB1qmXjU3bc14SfXHQbseFhRy5xE4RtHtvsL?cluster=devnet)
+
+---
+
+<div align="center">
+  <i>Built for the future of decentralized environmental monitoring.</i>
+</div>

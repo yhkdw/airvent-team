@@ -1,4 +1,5 @@
-import React, { useMemo, useState, cloneElement, ReactElement } from "react";
+import React, { useMemo, useState, useEffect, cloneElement, ReactElement } from "react";
+import { createClient } from "@supabase/supabase-js";
 import { useTranslation } from "react-i18next";
 import { Newspaper, ExternalLink, Home, Briefcase, MapPin, AlertTriangle, Fan, Wind, Coffee, Users } from "lucide-react";
 import KpiCards from "../../components/KpiCards";
@@ -17,6 +18,11 @@ function getFormattedDate(offsetDays = 0) {
 }
 
 type DashboardMode = 'home' | 'office';
+
+// Setup Supabase
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 // Centralized Status Logic: Worst-case wins
 export const getAirStatus = (p: AirPoint): AirStatus => {
@@ -69,9 +75,59 @@ export default function OverviewTab() {
     const { t } = useTranslation();
     const [mode, setMode] = useState<DashboardMode>('home');
     const [activeSpace, setActiveSpace] = useState('living-room');
+    const [rawLatest, setRawLatest] = useState<AirPoint | null>(null);
 
-    const series = useMemo(() => getMockAirQualitySeries(), []);
-    const rawLatest = series[series.length - 1];
+    useEffect(() => {
+        const fetchLatest = async () => {
+            const { data, error } = await supabase
+                .from('sensor_readings')
+                .select('*')
+                .order('created_at', { ascending: false })
+                .limit(1);
+
+            if (!error && data && data.length > 0) {
+                const row = data[0];
+                setRawLatest({
+                    timestamp: new Date(row.created_at).getTime(),
+                    pm25: row.pm2_5,
+                    pm10: row.pm10,
+                    pm1: row.pm1_0,
+                    temp: row.temperature,
+                    hum: row.humidity,
+                    co2: row.co2,
+                    voc: row.voc,
+                    source: 'supabase'
+                } as any);
+            } else {
+                const series = getMockAirQualitySeries();
+                setRawLatest(series[series.length - 1]);
+            }
+        };
+
+        fetchLatest();
+
+        const channel = supabase
+            .channel('public:sensor_readings')
+            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'sensor_readings' }, (payload) => {
+                const row = payload.new;
+                setRawLatest({
+                    timestamp: new Date(row.created_at).getTime(),
+                    pm25: row.pm2_5,
+                    pm10: row.pm10,
+                    pm1: row.pm1_0,
+                    temp: row.temperature,
+                    hum: row.humidity,
+                    co2: row.co2,
+                    voc: row.voc,
+                    source: 'supabase'
+                } as any);
+            })
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(channel);
+        };
+    }, []);
 
     const getSpaceSpecificData = (base: AirPoint, spaceId: string): AirPoint => {
         if (!base) return {} as AirPoint;

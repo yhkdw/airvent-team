@@ -4,7 +4,7 @@ use anchor_lang::prelude::*;
 // AirVent DePIN 구독 관리 스마트 컨트랙트
 // ─────────────────────────────────────────────────────────
 // 프로그램 ID (배포 후 실제 값으로 교체)
-declare_id!("B2EXeDBK3y6jyYzwqNqUEA8NMsVJhWCdKc6ZiLYC8hRM");
+declare_id!("8rRn5tuqaeth3Bh3HtQQavAfmGrC4b3wJUuwQHdRp5KB");
 
 /// 하드웨어 시리얼 최대 길이 (바이트)
 const MAX_HARDWARE_ID_LEN: usize = 64;

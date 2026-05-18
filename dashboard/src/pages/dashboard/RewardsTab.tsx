@@ -1,4 +1,5 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
+import { Connection, PublicKey } from "@solana/web3.js";
 import { useTranslation } from "react-i18next";
 import MiningCard from "../../components/MiningCard";
 import AiVerificationPanel, { AiEvent } from "../../components/AiVerificationPanel";
@@ -10,12 +11,55 @@ interface RewardsTabProps {
 
 export default function RewardsTab({ onReward }: RewardsTabProps) {
     const { t } = useTranslation();
-    const [events, setEvents] = useState<AiEvent[]>([
+    const [events, setEvents] = useState<(AiEvent & { signature?: string })[]>([
         { ts: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }), badge: "INFO", message: "AI Verification Pipeline Ready" },
     ]);
 
     const handleLog = useCallback((event: AiEvent) => {
-        setEvents((prev) => [event, ...prev].slice(0, 8));
+        setEvents((prev) => [event, ...prev].slice(0, 15));
+    }, []);
+
+    useEffect(() => {
+        const DEVICE_ID = '5EBHA10001';
+        const PROGRAM_ID = new PublicKey('B4m1ENS6SWV3H6mZkJ2VFkBKawqYe7atH4AjXoc4NZzR');
+        const connection = new Connection("https://api.devnet.solana.com", "confirmed");
+        const [devicePda] = PublicKey.findProgramAddressSync(
+            [Buffer.from("device"), Buffer.from(DEVICE_ID)],
+            PROGRAM_ID
+        );
+
+        let isMounted = true;
+        const fetchSigs = async () => {
+            try {
+                const sigs = await connection.getSignaturesForAddress(devicePda, { limit: 10 });
+                if (!isMounted) return;
+                
+                const formattedEvents = sigs.map(sig => {
+                    const date = new Date((sig.blockTime || 0) * 1000);
+                    return {
+                        ts: date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
+                        badge: "SOLANA",
+                        message: `Data Submitted. TX: ${sig.signature.substring(0, 6)}...${sig.signature.substring(sig.signature.length - 4)}`,
+                        signature: sig.signature
+                    };
+                });
+                
+                setEvents((prev) => {
+                    const nonSolana = prev.filter(e => e.badge !== "SOLANA");
+                    return [...formattedEvents, ...nonSolana].slice(0, 15);
+                });
+            } catch (e) {
+                console.error("Failed to fetch signatures", e);
+            }
+        };
+
+        fetchSigs();
+        const interval = setInterval(fetchSigs, 10000);
+        
+        return () => {
+            isMounted = false;
+            clearInterval(interval);
+        };
     }, []);
 
     return (
@@ -69,7 +113,7 @@ export default function RewardsTab({ onReward }: RewardsTabProps) {
                 <div className="p-4 border-b border-slate-800 bg-slate-800/20 flex items-center justify-between">
                     <div className="flex items-center gap-2">
                         <Terminal size={18} className="text-emerald-400" />
-                        <h3 className="text-sm font-bold uppercase tracking-widest">{t("rewards.audit_logs")}</h3>
+                        <h3 className="text-sm font-bold uppercase tracking-widest">{t("rewards.audit_logs") || "LIVE ON-CHAIN RECORDS"}</h3>
                     </div>
                     <div className="text-[10px] text-slate-500 font-mono text-xs opacity-50">{t("rewards.realtime_stream")}</div>
                 </div>
@@ -79,18 +123,25 @@ export default function RewardsTab({ onReward }: RewardsTabProps) {
                             key={i}
                             className="flex items-center justify-between gap-4 py-1 border-b border-slate-800/50 last:border-0"
                         >
-                            <div className="flex items-center gap-3">
-                                <span className="text-slate-500 text-[10px] w-16">{e.ts}</span>
+                            <div className="flex items-center gap-3 w-full">
+                                <span className="text-slate-500 text-[10px] w-16 whitespace-nowrap">{e.ts}</span>
                                 <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${e.badge === 'SOLANA' ? 'bg-purple-500/10 text-purple-400' :
                                     e.badge === 'WARN' ? 'bg-amber-500/10 text-amber-500' :
                                         'bg-slate-800 text-slate-400'
                                     }`}>
                                     {e.badge}
                                 </span>
-                                <span className="text-xs text-slate-300">{e.message}</span>
-                            </div>
-                            <div className="hidden sm:block">
-                                <span className="text-[10px] text-emerald-500/50">CHECKSUM_OK</span>
+                                <span className="text-xs text-slate-300 flex-1">{e.message}</span>
+                                {e.signature && (
+                                    <a 
+                                        href={`https://explorer.solana.com/tx/${e.signature}?cluster=devnet`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="hidden sm:flex items-center gap-1 text-[10px] text-purple-400 hover:text-purple-300 bg-purple-500/10 hover:bg-purple-500/20 px-2 py-1 rounded transition-colors"
+                                    >
+                                        Explorer 🔗
+                                    </a>
+                                )}
                             </div>
                         </div>
                     ))}

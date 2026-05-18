@@ -1,0 +1,22 @@
+{
+  "name": "airvent-bridge",
+  "version": "1.0.0",
+  "description": "MQTT to Supabase and Solana bridge",
+  "main": "index.ts",
+  "scripts": {
+    "start": "ts-node -T index.ts"
+  },
+  "dependencies": {
+    "@coral-xyz/anchor": "^0.30.1",
+    "@solana/spl-token": "^0.4.14",
+    "@solana/web3.js": "^1.95.4",
+    "@supabase/supabase-js": "^2.45.4",
+    "bs58": "^6.0.0",
+    "dotenv": "^16.4.5",
+    "mqtt": "^5.10.1"
+  },
+  "devDependencies": {
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.2"
+  }
+}
