@@ -1,12 +1,28 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Connection, PublicKey } from '@solana/web3.js';
-import { createClient } from '@supabase/supabase-js';
 
-// Setup Supabase client inline
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// 데모용 모듈 (Phase 4-B 신규)
+import { supabase } from './lib/supabase';
+import {
+  connectPhantom,
+  disconnectPhantom,
+  tryEagerConnect,
+  getPhantomProvider,
+} from './lib/phantom';
+import {
+  fetchDeviceInfo,
+  registerDevice,
+  transferOwnership,
+} from './lib/anchor-client';
+import { PublicKey } from '@solana/web3.js';
+import { useAirBalance } from './lib/useAirBalance';
+import {
+  DEMO_SERVER_WALLET,
+  PAIRED_DEVICE_KEY,
+  truncatePubkey,
+  explorerAddressUrl,
+  explorerTxUrl,
+} from './config/chain';
 import {
   Wind,
   Wifi,
@@ -222,95 +238,363 @@ function LoginScreen({ onContinue }) {
   );
 }
 
-function PairScreen({ onContinue }) {
-  const [selectedWifi, setSelectedWifi] = useState('Home_5G');
-  const [paired, setPaired] = useState(false);
+// 위임 가능한 owner 화면. 본인이 디바이스 소유자일 때만 표시됨.
+// 새 owner 주소를 입력하면 transferOwnership 인스트럭션을 호출.
+function TransferOwnershipPanel({ deviceId, currentOwnerPubkey, onTransferred }) {
+  const [expanded, setExpanded] = useState(false);
+  const [newOwner, setNewOwner] = useState('');
+  const [confirming, setConfirming] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState(null);
+
+  // base58 + 32~44 길이로 PublicKey 유효성 간이 검증
+  const isValidPubkey = (() => {
+    if (!newOwner) return false;
+    try {
+      // eslint-disable-next-line no-new
+      new PublicKey(newOwner);
+      return true;
+    } catch {
+      return false;
+    }
+  })();
+
+  const isSelfTransfer = isValidPubkey && currentOwnerPubkey && newOwner === currentOwnerPubkey.toBase58?.();
+
+  const handleTransfer = async () => {
+    if (!isValidPubkey || isSelfTransfer) return;
+    setErr(null);
+    setBusy(true);
+    try {
+      const sig = await transferOwnership(deviceId, newOwner);
+      onTransferred?.(sig);
+      setExpanded(false);
+      setConfirming(false);
+      setNewOwner('');
+    } catch (e) {
+      console.error(e);
+      setErr(e?.message ?? String(e));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="rounded-[16px] bg-emerald-500/10 border border-emerald-500/30 p-3.5">
+      <div className="flex items-start gap-2 text-[12px] text-emerald-300">
+        <CheckCircle2 className="h-4 w-4 mt-0.5 flex-shrink-0" />
+        <span>이 디바이스는 이미 내 지갑 소유입니다. "대시보드로 이동" 가능.</span>
+      </div>
+
+      {!expanded ? (
+        <button
+          onClick={() => setExpanded(true)}
+          className="mt-3 text-[11px] font-semibold text-white/60 hover:text-white/90 underline underline-offset-2"
+        >
+          ⚙️ 다른 지갑에 소유권 위임하기 (고급)
+        </button>
+      ) : (
+        <div className="mt-3 space-y-3">
+          <div className="rounded-[12px] bg-amber-500/10 border border-amber-500/30 p-2.5 text-[11px] text-amber-200 leading-relaxed">
+            ⚠️ <strong>주의</strong>: 위임 후엔 이 지갑으로 디바이스를 더 이상 관리할 수 없습니다.
+            보상도 새 owner에게 지급됩니다. 신뢰할 수 있는 주소인지 반드시 확인하세요.
+          </div>
+
+          <div>
+            <label className="text-[10px] font-semibold text-white/60 uppercase tracking-wider mb-1 block">
+              새 Owner 주소 (Solana base58)
+            </label>
+            <input
+              type="text"
+              value={newOwner}
+              onChange={(e) => { setNewOwner(e.target.value.trim()); setConfirming(false); }}
+              placeholder="예: 9X8b2...K4mN"
+              className={`w-full rounded-[12px] bg-black/40 border px-3 py-2.5 text-[12px] text-white font-mono focus:outline-none placeholder-white/30 ${
+                newOwner === '' ? 'border-white/10' :
+                isValidPubkey ? 'border-emerald-500/40' : 'border-rose-500/40'
+              }`}
+            />
+            {newOwner !== '' && !isValidPubkey && (
+              <p className="mt-1 text-[10px] text-rose-400">유효하지 않은 Solana 주소입니다.</p>
+            )}
+            {isSelfTransfer && (
+              <p className="mt-1 text-[10px] text-amber-400">현재 지갑과 동일한 주소입니다.</p>
+            )}
+          </div>
+
+          {err && (
+            <div className="rounded-[12px] bg-rose-500/10 border border-rose-500/30 p-2.5 text-[11px] text-rose-300">
+              ❌ {err}
+            </div>
+          )}
+
+          <div className="flex gap-2">
+            <button
+              onClick={() => { setExpanded(false); setConfirming(false); setNewOwner(''); setErr(null); }}
+              disabled={busy}
+              className="flex-1 rounded-[12px] bg-white/5 hover:bg-white/10 border border-white/10 px-3 py-2 text-[12px] font-semibold text-white/70 disabled:opacity-50"
+            >
+              취소
+            </button>
+            {!confirming ? (
+              <button
+                onClick={() => setConfirming(true)}
+                disabled={!isValidPubkey || isSelfTransfer || busy}
+                className="flex-1 rounded-[12px] bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 px-3 py-2 text-[12px] font-bold text-amber-200 disabled:opacity-30 disabled:cursor-not-allowed"
+              >
+                위임 진행
+              </button>
+            ) : (
+              <button
+                onClick={handleTransfer}
+                disabled={busy}
+                className="flex-1 rounded-[12px] bg-rose-500 hover:bg-rose-600 px-3 py-2 text-[12px] font-bold text-white disabled:opacity-50 flex items-center justify-center gap-1.5"
+              >
+                {busy ? (
+                  <>
+                    <RefreshCw className="h-3 w-3 animate-spin" />
+                    서명 대기 중…
+                  </>
+                ) : (
+                  '⚠️ 정말 위임'
+                )}
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function PairScreen({
+  onContinue,
+  walletPubkey,
+  onConnectWallet,
+  pairedDeviceId,
+  onPaired,
+  onUnpair,
+}) {
+  const [deviceIdInput, setDeviceIdInput] = useState('5EBHA10001');
+  const [status, setStatus] = useState('idle'); // idle | checking | already | available | pairing | error
+  const [statusMsg, setStatusMsg] = useState('');
+  const [txSig, setTxSig] = useState(null);
+  const [deviceInfo, setDeviceInfo] = useState(null);
+
+  // 입력값 변경 시 온체인 디바이스 상태 미리보기
+  useEffect(() => {
+    if (!deviceIdInput || deviceIdInput.length < 4) {
+      setStatus('idle');
+      setDeviceInfo(null);
+      return;
+    }
+    let cancelled = false;
+    setStatus('checking');
+    fetchDeviceInfo(deviceIdInput)
+      .then((info) => {
+        if (cancelled) return;
+        setDeviceInfo(info);
+        if (info.exists) {
+          setStatus('already');
+          setStatusMsg(
+            info.owner
+              ? `이미 등록됨 — 소유자: ${truncatePubkey(info.owner)}`
+              : '이미 등록된 디바이스입니다.'
+          );
+        } else {
+          setStatus('available');
+          setStatusMsg('등록 가능 — Phantom으로 페어링하세요.');
+        }
+      })
+      .catch((e) => {
+        if (cancelled) return;
+        setStatus('error');
+        setStatusMsg(`조회 실패: ${e?.message ?? e}`);
+      });
+    return () => { cancelled = true; };
+  }, [deviceIdInput]);
+
+  const isOwnedByMe = !!(
+    walletPubkey &&
+    deviceInfo?.owner &&
+    deviceInfo.owner.toBase58?.() === walletPubkey.toBase58?.()
+  );
+
+  const handlePair = async () => {
+    if (!walletPubkey) {
+      await onConnectWallet();
+      return;
+    }
+    setStatus('pairing');
+    setStatusMsg('Phantom에서 서명을 승인해주세요…');
+    try {
+      const sig = await registerDevice(deviceIdInput);
+      setTxSig(sig);
+      setStatus('paired');
+      setStatusMsg('페어링 완료! 측정값을 곧 받아옵니다.');
+      onPaired?.(deviceIdInput);
+    } catch (e) {
+      console.error(e);
+      setStatus('error');
+      setStatusMsg(`페어링 실패: ${e?.message ?? e}`);
+    }
+  };
+
+  const pairedStateView = pairedDeviceId && (
+    <div className="px-5 pt-2">
+      <div className={`${card} p-5 bg-gradient-to-b from-emerald-500/10 to-transparent`}>
+        <div className="flex items-center gap-3 mb-3">
+          <div className="rounded-2xl bg-emerald-500/20 p-2.5">
+            <CheckCircle2 className="h-5 w-5 text-emerald-400" />
+          </div>
+          <div>
+            <p className="text-[12px] font-medium text-white/60">현재 페어링된 디바이스</p>
+            <p className="text-[16px] font-bold text-white font-mono">{pairedDeviceId}</p>
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <button
+            onClick={onContinue}
+            className="flex-1 flex items-center justify-center gap-2 rounded-[16px] bg-gradient-to-r from-emerald-400 to-cyan-400 px-4 py-3 text-[14px] font-bold text-slate-950 shadow-lg"
+          >
+            대시보드로 이동 <ChevronRight className="h-4 w-4" />
+          </button>
+          <button
+            onClick={onUnpair}
+            className="rounded-[16px] bg-white/5 hover:bg-white/10 border border-white/10 px-4 py-3 text-[13px] font-semibold text-white/70"
+          >
+            해제
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <div className="flex h-full flex-col pb-8">
       <TopHeader
         title="Node Pairing"
-        subtitle="Search for nearby AirVent Nodes and connect to the network"
+        subtitle="디바이스 ID를 입력하고 Phantom으로 페어링하세요"
       />
 
-      <div className="px-5 pt-2">
-        <motion.div whileHover={{ scale: 1.01 }} className={`${card} p-5`}>
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <p className="text-[12px] font-medium text-white/60 mb-0.5">Nearby Devices Found</p>
-              <h3 className="text-[18px] font-bold text-white tracking-tight">AV-Node-240318-A12</h3>
+      {pairedStateView}
+
+      <div className="px-5 pt-3">
+        <div className={`${card} p-5`}>
+          <p className="text-[15px] font-semibold text-white mb-1">1. 디바이스 ID</p>
+          <p className="text-[11px] text-white/50 mb-3">측정기 본체 또는 박스의 시리얼 (예: 5EBHA10001)</p>
+          <input
+            type="text"
+            value={deviceIdInput}
+            onChange={(e) => setDeviceIdInput(e.target.value.trim())}
+            placeholder="5EBHA10001"
+            className="w-full rounded-[16px] bg-black/40 border border-white/10 px-4 py-3 text-[15px] text-white font-mono tracking-wider focus:outline-none focus:border-cyan-400/50 placeholder-white/30"
+          />
+          {status !== 'idle' && (
+            <div className={`mt-3 flex items-center gap-2 text-[12px] ${
+              status === 'available' ? 'text-emerald-400' :
+              status === 'already' ? (isOwnedByMe ? 'text-cyan-400' : 'text-amber-400') :
+              status === 'paired' ? 'text-emerald-400' :
+              status === 'error' ? 'text-rose-400' :
+              'text-white/60'
+            }`}>
+              {status === 'checking' && <RefreshCw className="h-3.5 w-3.5 animate-spin" />}
+              <span>{statusMsg || status}</span>
             </div>
-            <div className="flex items-center gap-1.5 rounded-full bg-emerald-500/15 px-3 py-1.5 text-[11px] font-semibold text-emerald-400">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-              </span>
-              BLE Found
-            </div>
-          </div>
-          <div className="rounded-[20px] bg-black/40 p-4 ring-1 ring-white/5 relative overflow-hidden">
-            <div className="absolute -right-4 -top-4 w-20 h-20 bg-cyan-500/10 blur-2xl rounded-full" />
-            <div className="flex items-center gap-4 relative z-10">
-              <div className="rounded-2xl bg-cyan-400/10 p-3 shadow-inner">
-                <Smartphone className="h-6 w-6 text-cyan-300" />
-              </div>
-              <div className="flex-1">
-                <p className="text-[14px] font-semibold text-white">Initial setup in progress</p>
-                <p className="text-[12px] text-white/60 mt-0.5">Sensor calibration and firmware verification</p>
-              </div>
-              <RefreshCw className="h-5 w-5 animate-spin text-cyan-400/70" />
-            </div>
-          </div>
-        </motion.div>
+          )}
+        </div>
       </div>
 
-      <div className="px-5 pt-4">
+      <div className="px-5 pt-3">
         <div className={`${card} p-5`}>
-          <div className="mb-4 flex items-center justify-between">
-            <p className="text-[15px] font-semibold text-white">Select Wi-Fi Network</p>
-            <span className="text-[11px] text-cyan-300 bg-cyan-900/30 px-2 py-1 rounded-md">2.4GHz Recommended</span>
-          </div>
-          <div className="space-y-2.5">
-            {wifiList.map((wifi) => {
-              const active = wifi.name === selectedWifi;
-              return (
-                <button
-                  key={wifi.name}
-                  onClick={() => setSelectedWifi(wifi.name)}
-                  className={`flex w-full items-center justify-between rounded-[20px] border px-4 py-3.5 transition-all duration-200 ${
-                    active
-                      ? 'border-cyan-400/50 bg-cyan-400/10 text-white shadow-[0_0_15px_rgba(34,211,238,0.1)]'
-                      : 'border-white/5 bg-black/30 text-white/70 hover:bg-black/50'
-                  }`}
-                >
-                  <div className="text-left">
-                    <p className={`text-[14px] font-semibold ${active ? 'text-white' : 'text-white/90'}`}>{wifi.name}</p>
-                    <p className="text-[11px] text-white/50 mt-0.5">WPA2 Secure Connection</p>
-                  </div>
-                  {active ? <CheckCircle2 className="h-5 w-5 text-cyan-400" /> : <Wifi className="h-5 w-5 text-white/30" />}
-                </button>
-              );
-            })}
-          </div>
+          <p className="text-[15px] font-semibold text-white mb-1">2. Phantom 지갑</p>
+          <p className="text-[11px] text-white/50 mb-3">측정값 보상이 이 지갑으로 자동 지급됩니다</p>
 
-          {!paired ? (
-             <motion.button
-               whileTap={{ scale: 0.96 }}
-               onClick={() => setPaired(true)}
-               className="mt-5 flex w-full items-center justify-center gap-2 rounded-[20px] bg-white px-4 py-4 text-[15px] font-bold text-slate-900 shadow-xl transition hover:bg-slate-100"
-             >
-               Request Wi-Fi Connection
-             </motion.button>
-          ) : (
-            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="mt-5">
-              <button
-                onClick={onContinue}
-                className="flex w-full items-center justify-center gap-2 rounded-[20px] bg-gradient-to-r from-emerald-400 to-cyan-400 px-4 py-4 text-[15px] font-bold text-slate-950 shadow-[0_4px_20px_rgba(52,211,153,0.3)] transition"
+          {walletPubkey ? (
+            <div className="flex items-center justify-between rounded-[16px] bg-black/40 border border-white/10 p-3.5">
+              <div className="flex items-center gap-3">
+                <div className="rounded-2xl bg-violet-500/20 p-2 border border-violet-500/30">
+                  <Wallet className="h-4 w-4 text-violet-300" />
+                </div>
+                <div>
+                  <p className="text-[11px] font-medium text-white/50">연결됨</p>
+                  <p className="text-[14px] font-mono font-bold text-white">{truncatePubkey(walletPubkey)}</p>
+                </div>
+              </div>
+              <a
+                href={explorerAddressUrl(walletPubkey)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[11px] font-bold text-cyan-400 hover:text-cyan-300"
               >
-                Connection Success! Go to Dashboard
-                <ChevronRight className="h-5 w-5" />
-              </button>
-            </motion.div>
+                Explorer ↗
+              </a>
+            </div>
+          ) : (
+            <motion.button
+              whileTap={{ scale: 0.96 }}
+              onClick={onConnectWallet}
+              className="flex w-full items-center justify-center gap-2 rounded-[16px] bg-violet-500/20 hover:bg-violet-500/30 border border-violet-500/40 px-4 py-3.5 text-[14px] font-bold text-violet-200"
+            >
+              <Wallet className="h-4 w-4" />
+              Phantom 연결
+            </motion.button>
+          )}
+        </div>
+      </div>
+
+      <div className="px-5 pt-3">
+        <div className={`${card} p-5`}>
+          <p className="text-[15px] font-semibold text-white mb-1">3. 페어링</p>
+          <p className="text-[11px] text-white/50 mb-3">register_device 인스트럭션을 호출해 온체인에 소유권을 등록</p>
+
+          {isOwnedByMe ? (
+            <TransferOwnershipPanel
+              deviceId={deviceIdInput}
+              currentOwnerPubkey={walletPubkey}
+              onTransferred={(sig) => {
+                setTxSig(sig);
+                setStatus('paired');
+                setStatusMsg('소유권 위임 완료 — 이제 다른 지갑 소유입니다.');
+                // 페어링 해제 (더 이상 내 디바이스 아님)
+                onUnpair?.();
+              }}
+            />
+          ) : status === 'already' ? (
+            <div className="rounded-[16px] bg-amber-500/10 border border-amber-500/30 p-3.5 text-[12px] text-amber-300">
+              ⚠️ 다른 사용자가 먼저 등록한 디바이스입니다. 본인 디바이스가 맞다면 기존 소유자가 transfer_ownership 해줘야 합니다.
+            </div>
+          ) : (
+            <motion.button
+              whileTap={{ scale: 0.96 }}
+              onClick={handlePair}
+              disabled={status === 'pairing' || status === 'checking'}
+              className="flex w-full items-center justify-center gap-2 rounded-[16px] bg-white px-4 py-3.5 text-[14px] font-bold text-slate-900 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {status === 'pairing' ? (
+                <>
+                  <RefreshCw className="h-4 w-4 animate-spin" />
+                  서명 대기 중…
+                </>
+              ) : !walletPubkey ? (
+                'Phantom 연결 후 페어링'
+              ) : status === 'available' ? (
+                <>register_device 호출 <ChevronRight className="h-4 w-4" /></>
+              ) : (
+                '디바이스 ID 확인 중…'
+              )}
+            </motion.button>
+          )}
+
+          {txSig && (
+            <a
+              href={explorerTxUrl(txSig)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-3 inline-flex items-center gap-1 text-[11px] text-cyan-400 hover:text-cyan-300 font-mono"
+            >
+              Tx: {txSig.slice(0, 8)}…{txSig.slice(-6)} ↗
+            </a>
           )}
         </div>
       </div>
@@ -452,13 +736,19 @@ function DashboardScreen({ rooms, trend, goWallet }) {
   );
 }
 
-function WalletScreen({ tokenBalance, onContinue, rooms }) {
-  const [selectedWallet, setSelectedWallet] = useState('Phantom');
-  const wallets = ['Phantom', 'Solflare', 'Backpack'];
-
+function WalletScreen({
+  tokenBalance,
+  onContinue,
+  rooms,
+  walletPubkey,
+  onConnectWallet,
+  onDisconnectWallet,
+}) {
   // Calculate dynamic today's reward based on live room air quality score and 3 nodes
   const mainScore = rooms[0]?.score || 91;
   const todayReward = (mainScore * 3 * 0.148).toFixed(1);
+
+  const isConnected = !!walletPubkey;
 
   return (
     <div className="flex h-full flex-col pb-8">
@@ -474,54 +764,54 @@ function WalletScreen({ tokenBalance, onContinue, rooms }) {
               <Wallet className="h-6 w-6 text-violet-300" />
             </div>
             <div>
-              <p className="text-[16px] font-bold text-white">Wallet Application</p>
-              <p className="text-[12px] text-white/60 mt-0.5">Supports Deeplink or MWA</p>
+              <p className="text-[16px] font-bold text-white">
+                {isConnected ? 'Phantom Connected' : 'Wallet Not Connected'}
+              </p>
+              <p className="text-[12px] text-white/60 mt-0.5">
+                {isConnected ? '연결된 지갑으로 보상 자동 수령' : '데모 서버 지갑 잔액을 표시 중입니다'}
+              </p>
             </div>
-          </div>
-
-          <div className="mt-6 grid grid-cols-3 gap-3">
-            {wallets.map((wallet) => {
-              const active = selectedWallet === wallet;
-              return (
-                <button
-                  key={wallet}
-                  onClick={() => setSelectedWallet(wallet)}
-                  className={`rounded-[16px] border py-3.5 text-[13px] font-bold transition-all duration-200 ${
-                    active 
-                    ? 'border-violet-400 bg-violet-500/20 text-white shadow-[0_0_15px_rgba(139,92,246,0.2)]' 
-                    : 'border-white/5 bg-black/40 text-white/50 hover:bg-black/60'
-                  }`}
-                >
-                  {wallet}
-                </button>
-              );
-            })}
           </div>
 
           <div className="mt-5 rounded-[20px] bg-black/40 p-4 border border-white/5 flex items-center justify-between">
             <div>
-              <p className="text-[11px] font-medium text-white/50">Solana Devnet Wallet</p>
-              <p className="mt-1 text-[15px] font-mono font-bold text-white tracking-wider">GUyF...RyHw</p>
-              <a 
-                href="https://explorer.solana.com/address/GUyFB5qJvPMRZweeL8fb7KQDdRicArQCTyAw64dkRyHw?cluster=devnet"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 mt-1.5 text-[11px] font-bold text-cyan-400 hover:text-cyan-300 transition"
-              >
-                View on Solana Explorer
-                <span className="text-[9px]">↗</span>
-              </a>
+              <p className="text-[11px] font-medium text-white/50">Solana Devnet</p>
+              <p className="mt-1 text-[15px] font-mono font-bold text-white tracking-wider">
+                {isConnected ? truncatePubkey(walletPubkey, 6, 6) : '데모 fallback'}
+              </p>
+              {isConnected && (
+                <a
+                  href={explorerAddressUrl(walletPubkey)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 mt-1.5 text-[11px] font-bold text-cyan-400 hover:text-cyan-300 transition"
+                >
+                  View on Solana Explorer
+                  <span className="text-[9px]">↗</span>
+                </a>
+              )}
             </div>
-            <ShieldCheck className="h-6 w-6 text-emerald-400" />
+            <ShieldCheck className={`h-6 w-6 ${isConnected ? 'text-emerald-400' : 'text-white/30'}`} />
           </div>
 
-          <motion.button 
-            whileTap={{ scale: 0.96 }}
-            className="mt-5 flex w-full items-center justify-center gap-2 rounded-[20px] bg-white px-4 py-4 text-[15px] font-bold text-slate-900 shadow-xl"
-          >
-            {selectedWallet} Open App & Connect
-            <ChevronRight className="h-5 w-5" />
-          </motion.button>
+          {isConnected ? (
+            <motion.button
+              whileTap={{ scale: 0.96 }}
+              onClick={onDisconnectWallet}
+              className="mt-5 flex w-full items-center justify-center gap-2 rounded-[20px] bg-white/5 hover:bg-white/10 border border-white/10 px-4 py-3.5 text-[13px] font-semibold text-white/70"
+            >
+              연결 해제
+            </motion.button>
+          ) : (
+            <motion.button
+              whileTap={{ scale: 0.96 }}
+              onClick={onConnectWallet}
+              className="mt-5 flex w-full items-center justify-center gap-2 rounded-[20px] bg-white px-4 py-4 text-[15px] font-bold text-slate-900 shadow-xl"
+            >
+              Phantom 연결
+              <ChevronRight className="h-5 w-5" />
+            </motion.button>
+          )}
         </div>
       </div>
 
@@ -684,43 +974,55 @@ function RewardScreen({ tokenBalance, rooms }) {
 
 export default function AirVentDePINApp() {
   const [screen, setScreen] = useState('login');
-  const [tokenBalance, setTokenBalance] = useState(146.40);
   const [rooms, setRooms] = useState(roomData);
   const [trend, setTrend] = useState(aqTrend);
 
-  // Fetch Solana Devnet Token Balance
-  useEffect(() => {
-    const fetchBalance = async () => {
-      try {
-        const connection = new Connection("https://api.devnet.solana.com", "confirmed");
-        const mint = new PublicKey("BXV4ewBjMB1qmXjU3bc14SfXHQbseFhRy5xE4RtHtvsL");
-        const owner = new PublicKey("GUyFB5qJvPMRZweeL8fb7KQDdRicArQCTyAw64dkRyHw");
-        
-        const accounts = await connection.getTokenAccountsByOwner(owner, { mint });
-        if (accounts.value.length > 0) {
-          const balanceInfo = await connection.getTokenAccountBalance(accounts.value[0].pubkey);
-          setTokenBalance(balanceInfo.value.uiAmount || 0);
-        }
-      } catch (e) {
-        console.error("Failed to query Solana balance in Seeker app:", e);
-      }
-    };
+  // Phase 4-B: Phantom 지갑 연결 상태 + 페어링한 device_id
+  const [walletPubkey, setWalletPubkey] = useState(null);
+  const [pairedDeviceId, setPairedDeviceId] = useState(() => {
+    try {
+      return localStorage.getItem(PAIRED_DEVICE_KEY) || null;
+    } catch {
+      return null;
+    }
+  });
 
-    fetchBalance();
-    const balanceInterval = setInterval(fetchBalance, 15000);
-    return () => clearInterval(balanceInterval);
+  // 페이지 로드 시 Phantom 자동 재연결 시도 (사용자가 한 번 connect 했었으면)
+  useEffect(() => {
+    tryEagerConnect().then((pk) => {
+      if (pk) setWalletPubkey(pk);
+    });
+    const provider = getPhantomProvider();
+    if (!provider) return;
+    const onConnect = (pk) => setWalletPubkey(pk);
+    const onDisconnect = () => setWalletPubkey(null);
+    provider.on?.('connect', onConnect);
+    provider.on?.('disconnect', onDisconnect);
+    return () => {
+      provider.off?.('connect', onConnect);
+      provider.off?.('disconnect', onDisconnect);
+    };
   }, []);
 
+  // 연결된 지갑의 AIR 잔액 (없으면 데모 서버 지갑으로 fallback)
+  const balanceOwner = walletPubkey ?? DEMO_SERVER_WALLET;
+  const { balance: tokenBalance } = useAirBalance(balanceOwner);
+
   // Fetch Supabase sensor readings and subscribe to live changes
+  // 페어링한 device_id 가 있으면 그 디바이스만 필터링.
   useEffect(() => {
     let isMounted = true;
 
     const loadTelemetry = async () => {
-      const { data, error } = await supabase
+      let query = supabase
         .from('sensor_readings')
         .select('*')
         .order('created_at', { ascending: false })
         .limit(8);
+      if (pairedDeviceId) {
+        query = query.eq('device_id', pairedDeviceId);
+      }
+      const { data, error } = await query;
 
       if (error) {
         console.error("Failed to fetch historical telemetry for Seeker app:", error);
@@ -764,10 +1066,15 @@ export default function AirVentDePINApp() {
 
     loadTelemetry();
 
-    // Subscribe to live insert notifications
+    // Subscribe to live insert notifications (페어링된 device_id 필터 적용)
     const channel = supabase
       .channel('public:sensor_readings:seekermobile')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'sensor_readings' }, (payload) => {
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'sensor_readings',
+        ...(pairedDeviceId ? { filter: `device_id=eq.${pairedDeviceId}` } : {}),
+      }, (payload) => {
         if (!isMounted) return;
         const latest = payload.new;
         const livingScore = Math.max(25, 100 - Math.floor(latest.pm2_5 * 1.5) - Math.floor(Math.max(0, latest.co2 - 400) / 20));
@@ -805,14 +1112,63 @@ export default function AirVentDePINApp() {
       isMounted = false;
       supabase.removeChannel(channel);
     };
-  }, []);
+  }, [pairedDeviceId]);
+
+  // Phantom 연결/해제 핸들러 (자식 컴포넌트에 전달)
+  const handleConnectWallet = async () => {
+    try {
+      const pk = await connectPhantom();
+      setWalletPubkey(pk);
+    } catch (e) {
+      console.error('Phantom 연결 실패:', e);
+      alert(e?.message ?? 'Phantom 연결에 실패했습니다.');
+    }
+  };
+
+  const handleDisconnectWallet = async () => {
+    await disconnectPhantom();
+    setWalletPubkey(null);
+  };
+
+  // 페어링 완료 핸들러 (PairScreen에서 register_device 성공 시 호출)
+  const handlePairedDevice = (deviceId) => {
+    try {
+      localStorage.setItem(PAIRED_DEVICE_KEY, deviceId);
+    } catch {}
+    setPairedDeviceId(deviceId);
+  };
+
+  const handleUnpair = () => {
+    try {
+      localStorage.removeItem(PAIRED_DEVICE_KEY);
+    } catch {}
+    setPairedDeviceId(null);
+  };
 
   const Screen = () => {
     switch (screen) {
       case 'login': return <LoginScreen onContinue={() => setScreen('pair')} />;
-      case 'pair': return <PairScreen onContinue={() => setScreen('dashboard')} />;
+      case 'pair': return (
+        <PairScreen
+          onContinue={() => setScreen('dashboard')}
+          walletPubkey={walletPubkey}
+          onConnectWallet={handleConnectWallet}
+          pairedDeviceId={pairedDeviceId}
+          onPaired={handlePairedDevice}
+          onUnpair={handleUnpair}
+        />
+      );
       case 'dashboard': return <DashboardScreen rooms={rooms} trend={trend} goWallet={() => setScreen('wallet')} />;
-      case 'wallet': return <WalletScreen tokenBalance={tokenBalance} onContinue={() => setScreen('reward')} rooms={rooms} />;
+      case 'wallet': return (
+        <WalletScreen
+          tokenBalance={tokenBalance}
+          onContinue={() => setScreen('reward')}
+          rooms={rooms}
+          walletPubkey={walletPubkey}
+          onConnectWallet={handleConnectWallet}
+          onDisconnectWallet={handleDisconnectWallet}
+        />
+      );
       case 'reward': return <RewardScreen tokenBalance={tokenBalance} rooms={rooms} />;
       default: return null;
     }

@@ -85,6 +85,16 @@ npm run dev
 Navigate to `http://localhost:5176` in your browser. 
 Go to the **Rewards** tab and scroll to the bottom to see the **Live On-Chain Records** fetching directly from the Solana Devnet!
 
+### 4. Run the Mobile Demo App (Optional)
+The mobile demo app demonstrates the **end-user pairing flow** — users connect their Phantom wallet, register their device on-chain via `register_device`, and view their personal sensor readings and AIR token balance.
+```bash
+# Open a new terminal tab
+cd airvent-demo
+npm install
+npm run dev
+```
+Open `http://localhost:5173/demo/` in **Phantom-enabled browser** (desktop Phantom extension or Phantom mobile in-app browser). Detailed pairing flow + transfer ownership UI documented in [`airvent-demo/README.md`](./airvent-demo/README.md).
+
 ---
 
 ## 🔗 Links & Resources
