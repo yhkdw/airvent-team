@@ -3,21 +3,21 @@ import { Program, AnchorProvider, Wallet } from '@coral-xyz/anchor';
 import * as fs from 'fs';
 import * as path from 'path';
 
-const SOLANA_RPC = 'https://api.devnet.solana.com';
-const PROGRAM_ID = new PublicKey('B4m1ENS6SWV3H6mZkJ2VFkBKawqYe7atH4AjXoc4NZzR');
-const DEVICE_ID = '5EBHA10001';
+import { config } from './config';
+
+const DEVICE_ID = config.scripts.deviceId;
 
 async function main() {
-  const walletPath = '/Users/user/.config/solana/airvent-bridge.json';
   const walletKeypair = Keypair.fromSecretKey(
-    new Uint8Array(JSON.parse(fs.readFileSync(walletPath, 'utf-8')))
+    new Uint8Array(JSON.parse(fs.readFileSync(config.solana.walletPath, 'utf-8')))
   );
   const wallet = new Wallet(walletKeypair);
 
-  const connection = new Connection(SOLANA_RPC, 'confirmed');
+  const connection = new Connection(config.solana.rpc, 'confirmed');
   const provider = new AnchorProvider(connection, wallet, { commitment: 'confirmed' });
 
-  const idlPath = path.resolve(process.cwd(), 'idl/airvent_contract.json');
+  // 정본 IDL은 리포 루트의 idl/ 디렉토리에 보관 (Single Source of Truth).
+  const idlPath = path.resolve(__dirname, '../../idl/airvent_contract.json');
   const idl = JSON.parse(fs.readFileSync(idlPath, 'utf8'));
   const program = new Program(idl, provider) as any;
 
@@ -27,7 +27,7 @@ async function main() {
     [Buffer.from("device"), Buffer.from(DEVICE_ID)],
     program.programId
   );
-  
+
   const [deviceRewardsPda] = PublicKey.findProgramAddressSync(
     [Buffer.from("device_rewards"), Buffer.from(DEVICE_ID)],
     program.programId

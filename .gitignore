@@ -17,9 +17,14 @@ Thumbs.db
 
 # Env
 .env
-
-# Env
-.env
+.env.local
+.env.*.local
 .next/
 dist/
 build/
+
+# Solana wallet keys (절대 커밋 금지)
+*-keypair.json
+airvent-bridge*.json
+id*.json
+wallet*.json

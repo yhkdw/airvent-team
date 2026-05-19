@@ -1,22 +1,20 @@
-import { Connection, Keypair, PublicKey } from '@solana/web3.js';
+import { Connection, Keypair } from '@solana/web3.js';
 import { getOrCreateAssociatedTokenAccount } from '@solana/spl-token';
 import * as fs from 'fs';
 
-const SOLANA_RPC = 'https://api.devnet.solana.com';
-const AIR_MINT = new PublicKey('BXV4ewBjMB1qmXjU3bc14SfXHQbseFhRy5xE4RtHtvsL');
+import { config } from './config';
 
 async function main() {
-  const walletPath = '/Users/user/.config/solana/airvent-bridge.json';
   const walletKeypair = Keypair.fromSecretKey(
-    new Uint8Array(JSON.parse(fs.readFileSync(walletPath, 'utf-8')))
+    new Uint8Array(JSON.parse(fs.readFileSync(config.solana.walletPath, 'utf-8')))
   );
-  const connection = new Connection(SOLANA_RPC, 'confirmed');
+  const connection = new Connection(config.solana.rpc, 'confirmed');
 
   try {
     const ata = await getOrCreateAssociatedTokenAccount(
       connection,
       walletKeypair,
-      AIR_MINT,
+      config.solana.airMint,
       walletKeypair.publicKey
     );
     console.log('✅ ATA created/exists:', ata.address.toBase58());

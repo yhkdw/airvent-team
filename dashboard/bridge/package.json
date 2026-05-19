@@ -2,9 +2,13 @@
   "name": "airvent-bridge",
   "version": "1.0.0",
   "description": "MQTT to Supabase and Solana bridge",
+  "type": "commonjs",
   "main": "index.ts",
   "scripts": {
-    "start": "ts-node -T index.ts"
+    "start": "ts-node -T index.ts",
+    "register": "ts-node -T register.ts",
+    "create-ata": "ts-node -T create_ata.ts",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@coral-xyz/anchor": "^0.30.1",

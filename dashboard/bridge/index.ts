@@ -1,47 +1,36 @@
 import mqtt from 'mqtt';
 import { createClient } from '@supabase/supabase-js';
-import { Connection, Keypair, PublicKey, clusterApiUrl } from '@solana/web3.js';
+import { Connection, Keypair, PublicKey } from '@solana/web3.js';
 import { Program, AnchorProvider, Wallet } from '@coral-xyz/anchor';
+import { getAssociatedTokenAddress } from '@solana/spl-token';
 import * as fs from 'fs';
 import * as path from 'path';
-import dotenv from 'dotenv';
 
-// Load environment variables
-dotenv.config();
+import { config, logConfigSummary } from './config';
 
 // ==========================================
-// 1. CONFIGURATION
+// 1. CLIENTS (config.ts 에서 검증된 값 사용)
 // ==========================================
 
-// Supabase
-const SUPABASE_URL = process.env.VITE_SUPABASE_URL!;
-const SUPABASE_ANON_KEY = process.env.VITE_SUPABASE_ANON_KEY!;
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const supabase = createClient(config.supabase.url, config.supabase.serviceRoleKey);
 
-// MQTT
-const MQTT_HOST = 'mqtt://211.188.57.53:1883';
-const MQTT_USERNAME = 'airvent_broker';
-const MQTT_PASSWORD = 'AirVent!@Mqtt#';
+// Load IDL and verify it matches the configured on-chain program before using keys.
+// 정본 IDL은 리포 루트의 idl/ 디렉토리에 보관 (Single Source of Truth).
+const idlPath = path.resolve(__dirname, '../../idl/airvent_contract.json');
+const idl = JSON.parse(fs.readFileSync(idlPath, 'utf8'));
+const PROGRAM_ID = config.solana.programId;
+const AIR_MINT = config.solana.airMint;
 
-// Solana
-const SOLANA_RPC = 'https://api.devnet.solana.com';
-const PROGRAM_ID = new PublicKey('B4m1ENS6SWV3H6mZkJ2VFkBKawqYe7atH4AjXoc4NZzR');
+validateProgramId(idl, PROGRAM_ID);
 
-// Load wallet
-const walletPath = '/Users/user/.config/solana/airvent-bridge.json';
 const walletKeypair = Keypair.fromSecretKey(
-  new Uint8Array(JSON.parse(fs.readFileSync(walletPath, 'utf-8')))
+  new Uint8Array(JSON.parse(fs.readFileSync(config.solana.walletPath, 'utf-8')))
 );
 const wallet = new Wallet(walletKeypair);
 
-// Connection and Provider
-const connection = new Connection(SOLANA_RPC, 'confirmed');
+const connection = new Connection(config.solana.rpc, 'confirmed');
 const provider = new AnchorProvider(connection, wallet, { commitment: 'confirmed' });
-
-// Load IDL
-const idlPath = path.resolve(process.cwd(), 'idl/airvent_contract.json');
-const idl = JSON.parse(fs.readFileSync(idlPath, 'utf8'));
-const program = new Program(idl, provider);
+const program = new Program(idl as any, provider) as any;
 
 // State to prevent spamming
 const processedMessages = new Set<string>();
@@ -50,25 +39,46 @@ const processedMessages = new Set<string>();
 // 2. INITIALIZATION
 // ==========================================
 
+function validateProgramId(programIdl: any, configuredProgramId: PublicKey): void {
+  const idlProgramId = programIdl?.address;
+  const configured = configuredProgramId.toBase58();
+
+  if (!idlProgramId) {
+    throw new Error(`IDL address missing: ${idlPath}`);
+  }
+
+  if (idlProgramId !== configured) {
+    throw new Error(
+      [
+        'SOLANA_PROGRAM_ID does not match IDL address.',
+        `  SOLANA_PROGRAM_ID: ${configured}`,
+        `  IDL address:       ${idlProgramId}`,
+        'Refusing to start because PDA derivation and Anchor program target would diverge.',
+      ].join('\n')
+    );
+  }
+}
+
 async function init() {
   console.log('🚀 Starting AirVent Bridge Service...');
+  logConfigSummary();
   console.log(`🔑 Server Wallet: ${wallet.publicKey.toBase58()}`);
-  
+
   const balance = await connection.getBalance(wallet.publicKey);
   console.log(`💰 Balance: ${balance / 1e9} SOL`);
 
   // Connect to MQTT
-  const mqttClient = mqtt.connect(MQTT_HOST, {
-    username: MQTT_USERNAME,
-    password: MQTT_PASSWORD,
+  const mqttClient = mqtt.connect(config.mqtt.host, {
+    username: config.mqtt.username,
+    password: config.mqtt.password,
     connectTimeout: 5000,
   });
 
   mqttClient.on('connect', () => {
     console.log('✅ MQTT Connected to broker.');
-    mqttClient.subscribe('env/SML001/+/data', (err) => {
+    mqttClient.subscribe(config.mqtt.topic, (err) => {
       if (err) console.error('❌ MQTT Subscribe Error:', err);
-      else console.log('📡 Subscribed to data topic: env/SML001/+/data');
+      else console.log(`📡 Subscribed to data topic: ${config.mqtt.topic}`);
     });
   });
 
@@ -88,7 +98,7 @@ async function init() {
       }
 
       console.log(`\n📥 Received data from ${payload.device_id || 'unknown'}`);
-      
+
       await handleIncomingData(payload);
     } catch (e: any) {
       console.error('❌ Error processing message:', e.message);
@@ -99,10 +109,6 @@ async function init() {
     console.error('❌ MQTT Error:', err.message);
   });
 }
-
-import { getAssociatedTokenAddress } from '@solana/spl-token';
-
-const AIR_MINT = new PublicKey('BXV4ewBjMB1qmXjU3bc14SfXHQbseFhRy5xE4RtHtvsL');
 
 // ==========================================
 // 3. DATA PROCESSING
@@ -140,7 +146,7 @@ async function handleIncomingData(payload: any) {
           created_at: timestamp ? new Date(parseInt(timestamp)).toISOString() : new Date().toISOString()
         }
       ]);
-    
+
     if (error) {
       console.error('⚠️ Supabase Insert Error (table might not exist):', error.message);
     } else {
@@ -154,19 +160,19 @@ async function handleIncomingData(payload: any) {
   try {
     const [nodeRegistryPda] = PublicKey.findProgramAddressSync(
       [Buffer.from("device"), Buffer.from(device_id)],
-      program.programId
+      PROGRAM_ID
     );
     const [deviceRewardsPda] = PublicKey.findProgramAddressSync(
       [Buffer.from("device_rewards"), Buffer.from(device_id)],
-      program.programId
+      PROGRAM_ID
     );
     const [rewardConfigPda] = PublicKey.findProgramAddressSync(
       [Buffer.from("reward_config")],
-      program.programId
+      PROGRAM_ID
     );
     const [treasuryPda] = PublicKey.findProgramAddressSync(
       [Buffer.from("treasury")],
-      program.programId
+      PROGRAM_ID
     );
 
     let deviceAccount;
