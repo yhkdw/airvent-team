@@ -1,9 +1,10 @@
-import { useState, useCallback, useEffect } from "react";
-import { Connection, PublicKey } from "@solana/web3.js";
+import { useState, useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import MiningCard from "../../components/MiningCard";
 import AiVerificationPanel, { AiEvent } from "../../components/AiVerificationPanel";
+import SolanaBadge from "../../components/SolanaBadge";
 import { TrendingUp, Award, Clock, Terminal } from "lucide-react";
+import { useDeviceSignatures } from "../../hooks/useDeviceSignatures";
 
 interface RewardsTabProps {
     onReward: (amt: number) => void;
@@ -11,62 +12,32 @@ interface RewardsTabProps {
 
 export default function RewardsTab({ onReward }: RewardsTabProps) {
     const { t } = useTranslation();
-    const [events, setEvents] = useState<(AiEvent & { signature?: string })[]>([
+
+    // 폴링 로직은 useDeviceSignatures 훅으로 일원화 (10초 간격은 폴링이 너무 잦으니 15초로)
+    const { signatures, latestSignature } = useDeviceSignatures({ limit: 10, intervalMs: 15000 });
+
+    const [infoEvents, setInfoEvents] = useState<AiEvent[]>([
         { ts: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }), badge: "INFO", message: "AI Verification Pipeline Ready" },
     ]);
 
     const handleLog = useCallback((event: AiEvent) => {
-        setEvents((prev) => [event, ...prev].slice(0, 15));
+        setInfoEvents((prev) => [event, ...prev].slice(0, 15));
     }, []);
 
-    const [latestSignature, setLatestSignature] = useState<string | null>(null);
-
-    useEffect(() => {
-        const DEVICE_ID = '5EBHA10001';
-        const PROGRAM_ID = new PublicKey('B4m1ENS6SWV3H6mZkJ2VFkBKawqYe7atH4AjXoc4NZzR');
-        const connection = new Connection("https://api.devnet.solana.com", "confirmed");
-        const [devicePda] = PublicKey.findProgramAddressSync(
-            [Buffer.from("device"), Buffer.from(DEVICE_ID)],
-            PROGRAM_ID
-        );
-
-        let isMounted = true;
-        const fetchSigs = async () => {
-            try {
-                const sigs = await connection.getSignaturesForAddress(devicePda, { limit: 10 });
-                if (!isMounted) return;
-                
-                if (sigs.length > 0) {
-                    setLatestSignature(sigs[0].signature);
-                }
-
-                const formattedEvents = sigs.map(sig => {
-                    const date = new Date((sig.blockTime || 0) * 1000);
-                    return {
-                        ts: date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
-                        badge: "SOLANA" as "SOLANA",
-                        message: `Data Submitted. TX: ${sig.signature.substring(0, 6)}...${sig.signature.substring(sig.signature.length - 4)}`,
-                        signature: sig.signature
-                    };
-                });
-                
-                setEvents((prev) => {
-                    const nonSolana = prev.filter(e => e.badge !== "SOLANA");
-                    return [...formattedEvents, ...nonSolana].slice(0, 15);
-                });
-            } catch (e) {
-                console.error("Failed to fetch signatures", e);
-            }
-        };
-
-        fetchSigs();
-        const interval = setInterval(fetchSigs, 10000);
-        
-        return () => {
-            isMounted = false;
-            clearInterval(interval);
-        };
-    }, []);
+    // Solana 시그니처를 AiEvent 형식으로 변환해 INFO/WARN과 합치기
+    type LogEntry = AiEvent & { signature?: string };
+    const events = useMemo<LogEntry[]>(() => {
+        const solanaEvents: LogEntry[] = signatures.map((sig) => {
+            const date = new Date((sig.blockTime || 0) * 1000);
+            return {
+                ts: date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
+                badge: "SOLANA",
+                message: `Data Submitted. TX: ${sig.signature.substring(0, 6)}...${sig.signature.substring(sig.signature.length - 4)}`,
+                signature: sig.signature,
+            };
+        });
+        return [...solanaEvents, ...infoEvents].slice(0, 15);
+    }, [signatures, infoEvents]);
 
     return (
         <div className="space-y-6">
@@ -138,16 +109,9 @@ export default function RewardsTab({ onReward }: RewardsTabProps) {
                                     {e.badge}
                                 </span>
                                 <span className="text-xs text-slate-300 flex-1">{e.message}</span>
-                                {e.signature && (
-                                    <a 
-                                        href={`https://explorer.solana.com/tx/${e.signature}?cluster=devnet`}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="hidden sm:flex items-center gap-1 text-[10px] text-purple-400 hover:text-purple-300 bg-purple-500/10 hover:bg-purple-500/20 px-2 py-1 rounded transition-colors"
-                                    >
-                                        Explorer 🔗
-                                    </a>
-                                )}
+                                <span className="hidden sm:inline-flex">
+                                    <SolanaBadge signature={e.signature} label="Explorer" />
+                                </span>
                             </div>
                         </div>
                     ))}

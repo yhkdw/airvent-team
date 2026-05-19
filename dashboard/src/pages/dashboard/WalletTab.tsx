@@ -1,12 +1,22 @@
 import { useMemo, useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { Connection, PublicKey } from "@solana/web3.js";
+import { useWallet } from "@solana/wallet-adapter-react";
 import { Shield, ArrowUpRight, ArrowDownLeft, RefreshCw, Send, History, X } from "lucide-react";
+import SolanaBadge from "../../components/SolanaBadge";
+import { DEMO_SERVER_WALLET } from "../../config/chain";
+import { useAirBalance } from "../../hooks/useAirBalance";
+import { useDeviceSignatures } from "../../hooks/useDeviceSignatures";
 
 export default function WalletTab() {
     const { t } = useTranslation();
-    const [balance, setBalance] = useState<number | null>(null);
-    const [events, setEvents] = useState<any[]>([]);
+    const { publicKey } = useWallet();
+
+    // 연결된 사용자 지갑이 있으면 그 잔액을, 없으면 데모 서버 지갑 잔액을 표시
+    const owner = useMemo(() => publicKey ?? DEMO_SERVER_WALLET, [publicKey]);
+    const { balance } = useAirBalance({ owner });
+
+    // 디바이스 PDA의 최근 트랜잭션 시그니처 (RewardsTab과 동일한 훅 재사용)
+    const { signatures } = useDeviceSignatures({ limit: 5, intervalMs: 30000 });
     
     // Send / Withdrawal Modal State
     const [isSendModalOpen, setIsSendModalOpen] = useState(false);
@@ -26,61 +36,24 @@ export default function WalletTab() {
         }
     ]);
 
-    // Fetch Token Balance from Devnet
-    useEffect(() => {
-        const fetchBalance = async () => {
-            try {
-                const connection = new Connection("https://api.devnet.solana.com", "confirmed");
-                const mint = new PublicKey("BXV4ewBjMB1qmXjU3bc14SfXHQbseFhRy5xE4RtHtvsL");
-                const owner = new PublicKey("GUyFB5qJvPMRZweeL8fb7KQDdRicArQCTyAw64dkRyHw");
-                
-                const accounts = await connection.getTokenAccountsByOwner(owner, { mint });
-                if (accounts.value.length > 0) {
-                    const balanceInfo = await connection.getTokenAccountBalance(accounts.value[0].pubkey);
-                    setBalance(balanceInfo.value.uiAmount || 0);
-                }
-            } catch (error) {
-                console.error("Failed to fetch wallet token balance", error);
-            }
-        };
-
-        fetchBalance();
-    }, []);
-
-    // Fetch Devnet TXs for deposits
-    useEffect(() => {
-        const DEVICE_ID = '5EBHA10001';
-        const PROGRAM_ID = new PublicKey('B4m1ENS6SWV3H6mZkJ2VFkBKawqYe7atH4AjXoc4NZzR');
-        const connection = new Connection("https://api.devnet.solana.com", "confirmed");
-        const [devicePda] = PublicKey.findProgramAddressSync(
-            [Buffer.from("device"), Buffer.from(DEVICE_ID)],
-            PROGRAM_ID
-        );
-        
-        const fetchTxs = async () => {
-            try {
-                const sigs = await connection.getSignaturesForAddress(devicePda, { limit: 5 });
-                const formatted = sigs.map((sig, idx) => {
-                    const date = new Date((sig.blockTime || 0) * 1000);
-                    const timeStr = date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-                    return {
-                        id: `real-${idx}`,
-                        type: "reward",
-                        amount: `+${(0.12 + Math.random() * 0.15).toFixed(2)}`,
-                        target: t("rewards.audit_logs"),
-                        time: timeStr,
-                        tx: `${sig.signature.substring(0, 6)}...${sig.signature.substring(sig.signature.length - 4)}`,
-                        signature: sig.signature,
-                        color: "text-emerald-400"
-                    };
-                });
-                setEvents(formatted);
-            } catch (e) {
-                console.error(e);
-            }
-        };
-        fetchTxs();
-    }, [t]);
+    // 시그니처에서 거래 내역 카드 형식으로 변환
+    const events = useMemo(() => {
+        return signatures.map((sig, idx) => {
+            const date = new Date((sig.blockTime || 0) * 1000);
+            const timeStr = date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+            return {
+                id: `real-${idx}`,
+                type: "reward",
+                // NOTE: 실제 보상 금액은 온체인에서 파싱해야 하는데, 데모용으로 약간의 노이즈를 더한 추정치 사용
+                amount: `+${(0.12 + Math.random() * 0.15).toFixed(2)}`,
+                target: t("rewards.audit_logs"),
+                time: timeStr,
+                tx: `${sig.signature.substring(0, 6)}...${sig.signature.substring(sig.signature.length - 4)}`,
+                signature: sig.signature,
+                color: "text-emerald-400",
+            };
+        });
+    }, [signatures, t]);
 
     const usdValue = balance !== null ? (balance * 0.05).toFixed(2) : "0.00";
 
@@ -98,8 +71,8 @@ export default function WalletTab() {
         setIsSending(true);
 
         setTimeout(() => {
-            setBalance(prev => prev !== null ? Math.round((prev - amt) * 100) / 100 : null);
-            
+            // 데모 모드 — 실제 온체인 잔액은 useAirBalance 훅이 자동 폴링하므로 굳이 클라이언트에서 차감할 필요 없음.
+            // 시뮬레이션 트랜잭션만 거래 내역에 추가.
             const newTx = {
                 id: `sim-${Date.now()}`,
                 type: "withdraw",
@@ -186,14 +159,7 @@ export default function WalletTab() {
                                     </div>
                                     <div className="text-xs text-slate-500 mt-0.5 flex items-center gap-2">
                                         {tx.signature ? (
-                                            <a 
-                                                href={`https://explorer.solana.com/tx/${tx.signature}?cluster=devnet`}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="font-mono text-[10px] text-purple-400 hover:underline"
-                                            >
-                                                {tx.tx} 🔗
-                                            </a>
+                                            <SolanaBadge signature={tx.signature} variant="compact" label={tx.tx} />
                                         ) : (
                                             <span className="font-mono text-[10px]">{tx.tx}</span>
                                         )}
