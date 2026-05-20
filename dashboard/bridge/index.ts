@@ -143,7 +143,7 @@ async function handleIncomingData(payload: any) {
           humidity: parseFloat(humidity) || 0,
           co2: parseFloat(co2) || 0,
           voc: parseFloat(voc) || 0,
-          created_at: timestamp ? new Date(parseInt(timestamp)).toISOString() : new Date().toISOString()
+          created_at: new Date().toISOString()
         }
       ]);
 
