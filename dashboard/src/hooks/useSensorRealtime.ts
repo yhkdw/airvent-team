@@ -13,7 +13,7 @@
  *   const { latest, isLoading, error } = useSensorRealtime();
  */
 import { useEffect, useState } from "react";
-import { supabase } from "../lib/supabaseClient";
+import { supabase, supabaseAnonKey, supabaseUrl } from "../lib/supabaseClient";
 import { AirPoint } from "../types/air";
 
 // Supabase sensor_readings row 형식 → 대시보드 AirPoint 매핑
@@ -49,29 +49,38 @@ export function useSensorRealtime(deviceId?: string): UseSensorRealtimeResult {
 
         // 1) 초기 fetch — 가장 최신 row
         const fetchLatest = async () => {
+            const controller = new AbortController();
+            const timeout = window.setTimeout(() => controller.abort(), 8000);
             try {
                 const maxCreatedAt = new Date(Date.now() + 60 * 1000).toISOString();
-                let query = supabase
-                    .from("sensor_readings")
-                    .select("*")
-                    .lte("created_at", maxCreatedAt)
-                    .order("created_at", { ascending: false })
-                    .limit(1);
+                const params = new URLSearchParams({
+                    select: "*",
+                    created_at: `lte.${maxCreatedAt}`,
+                    order: "created_at.desc",
+                    limit: "1",
+                });
 
                 if (deviceId) {
-                    query = query.eq("device_id", deviceId);
+                    params.set("device_id", `eq.${deviceId}`);
                 }
 
-                const { data, error: fetchErr } = await query;
+                const response = await fetch(`${supabaseUrl}/rest/v1/sensor_readings?${params.toString()}`, {
+                    headers: {
+                        apikey: supabaseAnonKey,
+                        Authorization: `Bearer ${supabaseAnonKey}`,
+                    },
+                    signal: controller.signal,
+                });
 
                 if (cancelled) return;
 
-                if (fetchErr) {
-                    setError(fetchErr.message);
+                if (!response.ok) {
+                    setError(`HTTP ${response.status}`);
                     setIsLoading(false);
                     return;
                 }
 
+                const data = await response.json();
                 if (data && data.length > 0) {
                     setLatest(mapRow(data[0]));
                 }
@@ -80,6 +89,8 @@ export function useSensorRealtime(deviceId?: string): UseSensorRealtimeResult {
                 if (cancelled) return;
                 setError(e?.message ?? "unknown error");
                 setIsLoading(false);
+            } finally {
+                window.clearTimeout(timeout);
             }
         };
 
