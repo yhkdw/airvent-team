@@ -18,9 +18,11 @@ export default function AirQualityTab() {
         let isMounted = true;
         
         const fetchHistorical = async () => {
+            const maxCreatedAt = new Date(Date.now() + 60 * 1000).toISOString();
             const { data, error } = await supabase
                 .from('sensor_readings')
                 .select('*')
+                .lte('created_at', maxCreatedAt)
                 .order('created_at', { ascending: false })
                 .limit(60);
                 

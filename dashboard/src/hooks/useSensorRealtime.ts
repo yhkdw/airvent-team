@@ -50,9 +50,11 @@ export function useSensorRealtime(deviceId?: string): UseSensorRealtimeResult {
         // 1) 초기 fetch — 가장 최신 row
         const fetchLatest = async () => {
             try {
+                const maxCreatedAt = new Date(Date.now() + 60 * 1000).toISOString();
                 let query = supabase
                     .from("sensor_readings")
                     .select("*")
+                    .lte("created_at", maxCreatedAt)
                     .order("created_at", { ascending: false })
                     .limit(1);
 
