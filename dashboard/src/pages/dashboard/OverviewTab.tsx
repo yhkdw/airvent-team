@@ -2,7 +2,6 @@ import React, { useMemo, useState, useEffect, cloneElement, ReactElement } from 
 import { useTranslation } from "react-i18next";
 import { Newspaper, ExternalLink, Home, Briefcase, MapPin, AlertTriangle, Fan, Wind, Coffee, Users } from "lucide-react";
 import KpiCards from "../../components/KpiCards";
-import { getMockAirQualitySeries } from "../../mock/airquality";
 import { AirPoint } from "../../types/air";
 import { getMetricStatus, getWorstStatus, AirStatus } from "../../utils/airQuality";
 import { useSensorRealtime } from "../../hooks/useSensorRealtime";
@@ -75,13 +74,11 @@ export default function OverviewTab() {
     // Supabase 실시간 측정값 (훅으로 일원화)
     const { latest: realtimeLatest, isLoading } = useSensorRealtime(DEMO_DEVICE_ID);
 
-    // 실시간 데이터가 아직 없을 땐 mock 시리즈로 폴백
+    // 실제 Supabase 데이터만 사용합니다. 데이터가 없으면 Mock으로 대체하지 않습니다.
     const rawLatest: AirPoint | null = useMemo(() => {
         if (realtimeLatest) return realtimeLatest as AirPoint;
-        if (isLoading) return null;
-        const series = getMockAirQualitySeries();
-        return series[series.length - 1];
-    }, [realtimeLatest, isLoading]);
+        return null;
+    }, [realtimeLatest]);
 
     const getSpaceSpecificData = (base: AirPoint, spaceId: string): AirPoint => {
         if (!base) return {} as AirPoint;

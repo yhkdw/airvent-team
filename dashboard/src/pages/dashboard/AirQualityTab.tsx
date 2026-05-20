@@ -4,6 +4,7 @@ import { GasChart, PmChart } from "../../components/Charts";
 import RawTable from "../../components/RawTable";
 import { AirPoint } from "../../types/air";
 import { Info } from "lucide-react";
+import { DEMO_DEVICE_ID } from "../../config/chain";
 
 // Setup Supabase
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
@@ -22,6 +23,7 @@ export default function AirQualityTab() {
             const { data, error } = await supabase
                 .from('sensor_readings')
                 .select('*')
+                .eq('device_id', DEMO_DEVICE_ID)
                 .lte('created_at', maxCreatedAt)
                 .order('created_at', { ascending: false })
                 .limit(60);
@@ -55,7 +57,15 @@ export default function AirQualityTab() {
 
         const channel = supabase
             .channel('public:sensor_readings:airquality')
-            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'sensor_readings' }, (payload) => {
+            .on(
+                'postgres_changes',
+                {
+                    event: 'INSERT',
+                    schema: 'public',
+                    table: 'sensor_readings',
+                    filter: `device_id=eq.${DEMO_DEVICE_ID}`,
+                },
+                (payload) => {
                 const row = payload.new;
                 const newPoint: AirPoint = {
                     ts: new Date(row.created_at).toISOString(),
