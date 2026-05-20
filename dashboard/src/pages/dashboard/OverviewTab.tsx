@@ -6,6 +6,7 @@ import { getMockAirQualitySeries } from "../../mock/airquality";
 import { AirPoint } from "../../types/air";
 import { getMetricStatus, getWorstStatus, AirStatus } from "../../utils/airQuality";
 import { useSensorRealtime } from "../../hooks/useSensorRealtime";
+import { DEMO_DEVICE_ID } from "../../config/chain";
 
 function getFormattedDate(offsetDays = 0) {
     const d = new Date();
@@ -72,7 +73,7 @@ export default function OverviewTab() {
     const [activeSpace, setActiveSpace] = useState('living-room');
 
     // Supabase 실시간 측정값 (훅으로 일원화)
-    const { latest: realtimeLatest, isLoading } = useSensorRealtime();
+    const { latest: realtimeLatest, isLoading } = useSensorRealtime(DEMO_DEVICE_ID);
 
     // 실시간 데이터가 아직 없을 땐 mock 시리즈로 폴백
     const rawLatest: AirPoint | null = useMemo(() => {
