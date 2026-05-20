@@ -52,7 +52,7 @@ export function useSensorRealtime(deviceId?: string): UseSensorRealtimeResult {
             const controller = new AbortController();
             const timeout = window.setTimeout(() => controller.abort(), 8000);
             try {
-                const maxCreatedAt = new Date(Date.now() + 60 * 1000).toISOString();
+                const maxCreatedAt = new Date().toISOString();
                 const params = new URLSearchParams({
                     select: "*",
                     created_at: `lte.${maxCreatedAt}`,

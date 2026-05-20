@@ -1,8 +1,18 @@
 import { AirPoint } from "../types/air";
 import { fmtTime } from "../utils/format";
 
+function pointTime(point: AirPoint): number {
+  if (point.ts) return new Date(point.ts).getTime();
+  if ((point as any).timestamp) return Number((point as any).timestamp);
+  return 0;
+}
+
 export default function RawTable({ recent }: { recent: AirPoint[] }) {
-  const rows = recent.slice(-60).reverse();
+  // RAW DATA는 최신 시간이 맨 위에 오도록 내림차순 정렬합니다.
+  const rows = recent
+    .slice()
+    .sort((a, b) => pointTime(b) - pointTime(a))
+    .slice(0, 60);
 
   return (
     <div className="rounded-2xl border border-slate-800 bg-slate-900/50 p-4 overflow-hidden">
@@ -28,9 +38,9 @@ export default function RawTable({ recent }: { recent: AirPoint[] }) {
             </tr>
           </thead>
           <tbody>
-            {rows.map((r) => (
-              <tr key={r.ts} className="border-b border-slate-900/80">
-                <td className="py-2 pr-3 text-slate-300">{fmtTime(r.ts)}</td>
+            {rows.map((r, index) => (
+              <tr key={`${r.ts ?? (r as any).timestamp}-${index}`} className="border-b border-slate-900/80">
+                <td className="py-2 pr-3 text-slate-300">{fmtTime(r.ts ?? new Date((r as any).timestamp).toISOString())}</td>
                 <td className="py-2 px-3 text-right">{r.pm25}</td>
                 <td className="py-2 px-3 text-right">{r.pm10}</td>
                 <td className="py-2 px-3 text-right">{r.co2}</td>
