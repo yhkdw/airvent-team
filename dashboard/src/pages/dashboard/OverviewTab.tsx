@@ -164,7 +164,7 @@ export default function OverviewTab() {
         return null;
     }, [mode, activeSpace, latest, activeStatus, activeSpaceInfo, t]);
 
-    if (!rawLatest) return <div className="p-8 text-center text-slate-500">t("overview.loading")</div>;
+    if (!rawLatest) return <div className="p-8 text-center text-slate-500">{t("overview.loading")}</div>;
 
     return (
         <div className="space-y-6">
