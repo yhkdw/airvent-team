@@ -176,8 +176,6 @@ const t = {
       step2Desc: "측정값이 대시보드에 즉시 반영되고, 기록은 Supabase에 안전하게 보관됩니다.",
       step3Title: "Solana 기반 검증 기록",
       step3Desc: "검증 가능한 데이터 흐름이 Solana 네트워크에 anchoring 됩니다.",
-      ctaDashboard: "Live Dashboard 보기",
-      ctaGenesis: "Genesis Node 알아보기",
       videoFallback: "브라우저가 비디오 재생을 지원하지 않습니다.",
       noVideoYet: "데모 영상을 곧 공개합니다.",
     },
@@ -344,8 +342,6 @@ const t = {
       step2Desc: "Readings appear instantly on the dashboard; history is safely stored in Supabase.",
       step3Title: "Solana-based Verification",
       step3Desc: "Verifiable data flow is anchored onto the Solana network.",
-      ctaDashboard: "View Live Dashboard",
-      ctaGenesis: "Explore Genesis Node",
       videoFallback: "Your browser does not support video playback.",
       noVideoYet: "The demo video will be published soon.",
     },
@@ -512,8 +508,6 @@ const t = {
       step2Desc: "測定値が即時に反映され、履歴は Supabase に安全に保管されます。",
       step3Title: "Solana 基盤の検証記録",
       step3Desc: "検証可能なデータフローを Solana ネットワークに anchoring します。",
-      ctaDashboard: "Live Dashboard を見る",
-      ctaGenesis: "Genesis Node について",
       videoFallback: "お使いのブラウザは動画再生に対応していません。",
       noVideoYet: "デモ動画を近日公開します。",
     },
@@ -680,8 +674,6 @@ const t = {
       step2Desc: "量測值立即反映，歷史紀錄安全保存於 Supabase。",
       step3Title: "Solana 驗證紀錄",
       step3Desc: "可驗證的數據流以 anchoring 方式記錄於 Solana 網路。",
-      ctaDashboard: "查看 Live Dashboard",
-      ctaGenesis: "認識 Genesis Node",
       videoFallback: "您的瀏覽器不支援影片播放。",
       noVideoYet: "Demo 影片即將公開。",
     },
@@ -952,7 +944,7 @@ export default function LandingPage() {
                     <span className="px-2.5 py-1 rounded-full bg-violet-500/10 text-violet-400 text-[10px] font-bold border border-violet-500/20 tracking-wide">{tx.demo.chip3}</span>
                   </div>
                   <a href="#full-demo" className="inline-flex items-center gap-2 text-sm font-semibold text-emerald-400 hover:text-emerald-300 transition">
-                    ▶ {tx.demo.ctaDashboard === "View Live Dashboard" ? "Watch Demo" : "Demo 영상 보기"}
+                    ▶ {lang === "ko" ? "Demo 영상 보기" : "Watch Demo"}
                     <span aria-hidden>→</span>
                   </a>
                 </div>
@@ -1004,16 +996,6 @@ export default function LandingPage() {
                 ))}
               </div>
 
-              <div className="flex flex-wrap gap-3 justify-center mt-10">
-                <Link to="/dashboard" className="inline-flex items-center gap-2 rounded-xl bg-emerald-500 text-slate-950 font-bold px-6 py-3 text-sm hover:bg-emerald-400 transition shadow-lg shadow-emerald-500/20">
-                  {tx.demo.ctaDashboard}
-                  <span>→</span>
-                </Link>
-                <Link to={`/node?lang=${lang}`} className="inline-flex items-center gap-2 rounded-xl border border-emerald-500/40 text-emerald-300 font-semibold px-6 py-3 text-sm hover:bg-emerald-500/10 transition">
-                  {tx.demo.ctaGenesis}
-                  <span className="text-xs">↗</span>
-                </Link>
-              </div>
             </div>
           </Container>
         </section>
