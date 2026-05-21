@@ -4,6 +4,7 @@ import { supabase } from "./lib/supabaseClient";
 import { getNickname } from "./auth";
 import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/LoginPage";
+import AuthCallbackPage from "./pages/AuthCallbackPage";
 import DashboardPage from "./pages/DashboardPage";
 import PrivacyPage from "./pages/PrivacyPage";
 import TermsPage from "./pages/TermsPage";
@@ -52,7 +53,7 @@ export default function App() {
 
         if (next) {
           navigate(getRedirectPath(next), { replace: true });
-        } else if (currentPath === "/login" || currentPath === "/dashboard" || currentPath.startsWith("/auth/") || hasAccessToken) {
+        } else if (currentPath.startsWith("/auth/") || hasAccessToken) {
           navigate(getRedirectPath("/"), { replace: true });
         }
       }
@@ -65,6 +66,7 @@ export default function App() {
     <Routes>
       <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/auth/callback" element={<AuthCallbackPage />} />
       <Route path="/onboarding" element={<OnboardingPage />} />
       <Route path="/node" element={<NodeDetailPage />} />
       <Route path="/privacy" element={<PrivacyPage />} />

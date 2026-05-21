@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { loginWithEmail, signUpWithEmail, loginWithSocial, isAuthed } from "../auth";
+import { loginWithEmail, signUpWithEmail, loginWithSocial, isAuthed, getNickname, saveNickname } from "../auth";
+import { supabase } from "../lib/supabaseClient";
 
 type SocialProvider = "google" | "twitter";
 type Mode = "login" | "signup" | "verify";
@@ -10,7 +11,7 @@ export default function LoginPage() {
   const { t, i18n } = useTranslation();
   const nav = useNavigate();
   const location = useLocation();
-  const nextPath = new URLSearchParams(location.search).get("next") || "/";
+  const nextPath = new URLSearchParams(location.search).get("next") || (location.state as { from?: string } | null)?.from || "/";
 
   const [mode, setMode] = useState<Mode>("login");
   const [email, setEmail] = useState("");
@@ -28,9 +29,24 @@ export default function LoginPage() {
       i18n.changeLanguage(langParam);
     }
     isAuthed().then(authed => {
-      if (authed) nav(nextPath.includes("?") ? `${nextPath}&lang=${i18n.language}` : `${nextPath}?lang=${i18n.language}`);
+      if (authed) redirectAfterAuth();
     });
-  }, [nav]);
+  }, [nav, location.search]);
+
+  const withLang = (path: string) => path.includes("?") ? `${path}&lang=${i18n.language}` : `${path}?lang=${i18n.language}`;
+
+  const redirectAfterAuth = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+
+    const { data: nickname, error: nicknameErr } = await getNickname(session.user.id);
+    if (!nickname && !nicknameErr) {
+      nav(withLang("/onboarding"), { replace: true });
+      return;
+    }
+
+    nav(withLang(nextPath), { replace: true });
+  };
 
   const handleSocialLogin = async (provider: SocialProvider) => {
     setError("");
@@ -49,7 +65,7 @@ export default function LoginPage() {
     const { error: loginErr } = await loginWithEmail(email, password);
     setLoading(false);
     if (loginErr) setError(loginErr.message || t("login.error_unauthorized"));
-    else nav(nextPath.includes("?") ? `${nextPath}&lang=${i18n.language}` : `${nextPath}?lang=${i18n.language}`);
+    else redirectAfterAuth();
   };
 
   const handleSignUp = async (e: React.FormEvent) => {
@@ -60,7 +76,17 @@ export default function LoginPage() {
     if (password !== confirmPassword) { setError(t("login.password_mismatch")); return; }
     if (password.length < 6) { setError(t("login.password_too_short")); return; }
     setLoading(true);
-    const { error: signUpErr } = await signUpWithEmail(email, password, nickname.trim());
+    const { data, error: signUpErr } = await signUpWithEmail(email, password, nickname.trim(), nextPath, i18n.language);
+    if (!signUpErr && data.session?.user) {
+      const { error: profileErr } = await saveNickname(data.session.user.id, nickname.trim());
+      setLoading(false);
+      if (profileErr) {
+        setError(profileErr.message || "Failed to save profile.");
+        return;
+      }
+      nav(withLang(nextPath), { replace: true });
+      return;
+    }
     setLoading(false);
     if (signUpErr) setError(signUpErr.message);
     else setMode("verify");

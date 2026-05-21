@@ -9,15 +9,29 @@ export async function isAuthed(): Promise<boolean> {
 }
 
 export async function loginWithEmail(email: string, password: string) {
-  return await supabase.auth.signInWithPassword({ email, password });
+  return await supabase.auth.signInWithPassword({
+    email: email.trim().toLowerCase(),
+    password,
+  });
 }
 
-export async function signUpWithEmail(email: string, password: string, nickname: string) {
+function buildEmailRedirectTo(next = "/", lang?: string) {
+  const params = new URLSearchParams();
+  if (next) params.set("next", next);
+  if (lang) params.set("lang", lang);
+
+  const origin = window.location.origin.replace(/\/$/, "");
+  const query = params.toString();
+  return `${origin}/auth/callback${query ? `?${query}` : ""}`;
+}
+
+export async function signUpWithEmail(email: string, password: string, nickname: string, next?: string, lang?: string) {
   return await supabase.auth.signUp({
-    email,
+    email: email.trim().toLowerCase(),
     password,
     options: {
       data: { nickname },
+      emailRedirectTo: buildEmailRedirectTo(next, lang),
     },
   });
 }
@@ -50,7 +64,7 @@ export async function getNickname(userId: string): Promise<{ data: string | null
     .from('profiles')
     .select('nickname')
     .eq('id', userId)
-    .single();
+    .maybeSingle();
   return { data: data?.nickname ?? null, error };
 }
 
