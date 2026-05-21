@@ -162,6 +162,25 @@ const t = {
       welcome: "님, 환영합니다!",
       sub: "{tx.toast.sub}"
     },
+    demo: {
+      liveLabel: "Live Node Demo",
+      flowText: "실제 센서 → 대시보드 → 검증",
+      chip1: "Live Telemetry",
+      chip2: "Dashboard",
+      chip3: "Solana Verification",
+      fullTitle: "AirVent DePIN Demo",
+      fullSubtitle: "실제 노드, 실시간 대시보드, 검증 가능한 데이터 흐름을 한 번에 확인하세요.",
+      step1Title: "실내 공기 측정",
+      step1Desc: "AirVent Node가 PM2.5·CO₂·VOC·온습도를 실시간으로 측정합니다.",
+      step2Title: "대시보드 실시간 표시",
+      step2Desc: "측정값이 대시보드에 즉시 반영되고, 기록은 Supabase에 안전하게 보관됩니다.",
+      step3Title: "Solana 기반 검증 기록",
+      step3Desc: "검증 가능한 데이터 흐름이 Solana 네트워크에 anchoring 됩니다.",
+      ctaDashboard: "Live Dashboard 보기",
+      ctaGenesis: "Genesis Node 알아보기",
+      videoFallback: "브라우저가 비디오 재생을 지원하지 않습니다.",
+      noVideoYet: "데모 영상을 곧 공개합니다.",
+    },
   },
   en: {
     nav: { about: "About", node: "Buy Node", store: "AIRAM Store", demo: "Dashboard Demo" },
@@ -311,6 +330,25 @@ const t = {
     footerTagline: "Hyperlocal Air Quality Network — Powered by Solana",
     footerLinks: { docs: "Medium", github: "GitHub", blog: "Corporate", privacy: "Privacy Policy", terms: "Terms of Service", warranty: "Warranty Policy" },
     toast: { welcome: ", welcome back!", sub: "Welcome to AirVent" },
+    demo: {
+      liveLabel: "Live Node Demo",
+      flowText: "Real sensor → Dashboard → Verification",
+      chip1: "Live Telemetry",
+      chip2: "Dashboard",
+      chip3: "Solana Verification",
+      fullTitle: "AirVent DePIN Demo",
+      fullSubtitle: "See the real node, the live dashboard, and a verifiable data flow — all in one minute.",
+      step1Title: "Indoor Air Measurement",
+      step1Desc: "AirVent Node measures PM2.5, CO₂, VOC, temperature and humidity in real time.",
+      step2Title: "Live Dashboard",
+      step2Desc: "Readings appear instantly on the dashboard; history is safely stored in Supabase.",
+      step3Title: "Solana-based Verification",
+      step3Desc: "Verifiable data flow is anchored onto the Solana network.",
+      ctaDashboard: "View Live Dashboard",
+      ctaGenesis: "Explore Genesis Node",
+      videoFallback: "Your browser does not support video playback.",
+      noVideoYet: "The demo video will be published soon.",
+    },
   },
   ja: {
     nav: { about: "紹介", node: "ノード購入", store: "AIRAM Store", demo: "ダッシュボードDemo" },
@@ -460,6 +498,25 @@ const t = {
     footerTagline: "Hyperlocal Air Quality Network — Powered by Solana",
     footerLinks: { docs: "Medium", github: "GitHub", blog: "法人ホーム", privacy: "個人情報保護方針", terms: "利用規約", warranty: "保証政策" },
     toast: { welcome: "さん、おかえりなさい！", sub: "AirVentへようこそ" },
+    demo: {
+      liveLabel: "Live Node Demo",
+      flowText: "実センサー → ダッシュボード → 検証",
+      chip1: "Live Telemetry",
+      chip2: "Dashboard",
+      chip3: "Solana Verification",
+      fullTitle: "AirVent DePIN Demo",
+      fullSubtitle: "実ノード、リアルタイムダッシュボード、検証可能なデータフローを 1 分で確認できます。",
+      step1Title: "室内空気の測定",
+      step1Desc: "AirVent Node が PM2.5・CO₂・VOC・温湿度をリアルタイムで測定します。",
+      step2Title: "ダッシュボード即時表示",
+      step2Desc: "測定値が即時に反映され、履歴は Supabase に安全に保管されます。",
+      step3Title: "Solana 基盤の検証記録",
+      step3Desc: "検証可能なデータフローを Solana ネットワークに anchoring します。",
+      ctaDashboard: "Live Dashboard を見る",
+      ctaGenesis: "Genesis Node について",
+      videoFallback: "お使いのブラウザは動画再生に対応していません。",
+      noVideoYet: "デモ動画を近日公開します。",
+    },
   },
   'zh-TW': {
     nav: { about: "關於", node: "購買節點", store: "AIRAM Store", demo: "儀表板 Demo" },
@@ -609,6 +666,25 @@ const t = {
     footerTagline: "Hyperlocal Air Quality Network — Powered by Solana",
     footerLinks: { docs: "Medium", github: "GitHub", blog: "法人首頁", privacy: "隱私權政策", terms: "使用條款", warranty: "保固政策" },
     toast: { welcome: "，歡迎回來！", sub: "歡迎來到 AirVent" },
+    demo: {
+      liveLabel: "Live Node Demo",
+      flowText: "實際感測器 → 儀表板 → 驗證",
+      chip1: "Live Telemetry",
+      chip2: "Dashboard",
+      chip3: "Solana Verification",
+      fullTitle: "AirVent DePIN Demo",
+      fullSubtitle: "在一分鐘內了解實際節點、即時儀表板、可驗證的數據流。",
+      step1Title: "室內空氣量測",
+      step1Desc: "AirVent Node 即時量測 PM2.5、CO₂、VOC、溫濕度。",
+      step2Title: "儀表板即時顯示",
+      step2Desc: "量測值立即反映，歷史紀錄安全保存於 Supabase。",
+      step3Title: "Solana 驗證紀錄",
+      step3Desc: "可驗證的數據流以 anchoring 方式記錄於 Solana 網路。",
+      ctaDashboard: "查看 Live Dashboard",
+      ctaGenesis: "認識 Genesis Node",
+      videoFallback: "您的瀏覽器不支援影片播放。",
+      noVideoYet: "Demo 影片即將公開。",
+    },
   },
 };
 
@@ -837,6 +913,111 @@ export default function LandingPage() {
             </div>
           </Container>
         </section>
+
+        {/* ───── Compact Demo Video Card (proof) ───── */}
+        <section id="demo-card" className="py-16 border-b border-slate-800/50 bg-slate-950">
+          <Container>
+            <div className="max-w-5xl mx-auto rounded-3xl border border-emerald-500/20 bg-gradient-to-br from-slate-900 via-slate-900/70 to-slate-950 overflow-hidden shadow-xl shadow-emerald-500/5">
+              <div className="grid md:grid-cols-[1.2fr_1fr] gap-0">
+                <div className="relative bg-black aspect-video md:aspect-auto md:min-h-[280px]">
+                  {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
+                  <video
+                    src="/videos/airvent-demo-ko.mp4"
+                    poster="/product_bg.png"
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    preload="metadata"
+                    className="absolute inset-0 w-full h-full object-cover bg-gradient-to-br from-slate-900 to-black"
+                  >
+                    {tx.demo.videoFallback}
+                  </video>
+                  <div className="absolute top-3 left-3 inline-flex items-center gap-1.5 rounded-full bg-rose-500/90 px-2.5 py-1 text-[10px] font-bold text-white tracking-wider">
+                    <span className="relative flex h-1.5 w-1.5">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-white"></span>
+                    </span>
+                    {tx.demo.liveLabel}
+                  </div>
+                </div>
+                <div className="p-7 md:p-9 flex flex-col justify-center">
+                  <div className="text-[10px] font-bold text-emerald-400 tracking-widest mb-2">PROOF</div>
+                  <p className="text-lg md:text-xl font-bold text-white leading-snug mb-5">
+                    {tx.demo.flowText}
+                  </p>
+                  <div className="flex flex-wrap gap-2 mb-6">
+                    <span className="px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-[10px] font-bold border border-emerald-500/20 tracking-wide">{tx.demo.chip1}</span>
+                    <span className="px-2.5 py-1 rounded-full bg-cyan-500/10 text-cyan-400 text-[10px] font-bold border border-cyan-500/20 tracking-wide">{tx.demo.chip2}</span>
+                    <span className="px-2.5 py-1 rounded-full bg-violet-500/10 text-violet-400 text-[10px] font-bold border border-violet-500/20 tracking-wide">{tx.demo.chip3}</span>
+                  </div>
+                  <a href="#full-demo" className="inline-flex items-center gap-2 text-sm font-semibold text-emerald-400 hover:text-emerald-300 transition">
+                    ▶ {tx.demo.ctaDashboard === "View Live Dashboard" ? "Watch Demo" : "Demo 영상 보기"}
+                    <span aria-hidden>→</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </Container>
+        </section>
+
+        {/* ───── Full Demo Section ───── */}
+        <section id="full-demo" className="py-24 bg-slate-900/20 border-b border-slate-800/50">
+          <Container>
+            <div className="max-w-5xl mx-auto">
+              <div className="text-center mb-12">
+                <div className="text-[10px] font-bold text-emerald-400 tracking-widest mb-3">DEMO</div>
+                <h2 className="text-2xl md:text-4xl font-bold text-white mb-4">{tx.demo.fullTitle}</h2>
+                <p className="text-base text-slate-400 max-w-2xl mx-auto leading-relaxed">{tx.demo.fullSubtitle}</p>
+              </div>
+
+              <div className="rounded-3xl border border-slate-800 bg-black overflow-hidden shadow-2xl">
+                {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
+                <video
+                  src="/videos/airvent-demo-ko.mp4"
+                  poster="/product_bg.png"
+                  controls
+                  muted
+                  playsInline
+                  preload="metadata"
+                  className="w-full aspect-video object-cover bg-gradient-to-br from-slate-900 to-black"
+                >
+                  {tx.demo.videoFallback}
+                </video>
+              </div>
+
+              <div className="grid md:grid-cols-3 gap-4 mt-10">
+                {[
+                  { n: "01", title: tx.demo.step1Title, desc: tx.demo.step1Desc, color: "emerald" },
+                  { n: "02", title: tx.demo.step2Title, desc: tx.demo.step2Desc, color: "cyan" },
+                  { n: "03", title: tx.demo.step3Title, desc: tx.demo.step3Desc, color: "violet" },
+                ].map((s) => (
+                  <div key={s.n} className="p-5 rounded-2xl bg-slate-900 border border-slate-800">
+                    <div className={`text-[10px] font-bold tracking-widest mb-2 ${
+                      s.color === "emerald" ? "text-emerald-400" : s.color === "cyan" ? "text-cyan-400" : "text-violet-400"
+                    }`}>
+                      STEP {s.n}
+                    </div>
+                    <h3 className="text-white font-bold text-base mb-2">{s.title}</h3>
+                    <p className="text-slate-400 text-sm leading-relaxed">{s.desc}</p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex flex-wrap gap-3 justify-center mt-10">
+                <Link to="/dashboard" className="inline-flex items-center gap-2 rounded-xl bg-emerald-500 text-slate-950 font-bold px-6 py-3 text-sm hover:bg-emerald-400 transition shadow-lg shadow-emerald-500/20">
+                  {tx.demo.ctaDashboard}
+                  <span>→</span>
+                </Link>
+                <Link to={`/node?lang=${lang}`} className="inline-flex items-center gap-2 rounded-xl border border-emerald-500/40 text-emerald-300 font-semibold px-6 py-3 text-sm hover:bg-emerald-500/10 transition">
+                  {tx.demo.ctaGenesis}
+                  <span className="text-xs">↗</span>
+                </Link>
+              </div>
+            </div>
+          </Container>
+        </section>
+
         <section id="problems" className="py-24 bg-slate-900/20">
           <Container>
             <div className="max-w-3xl mx-auto text-center mb-16">

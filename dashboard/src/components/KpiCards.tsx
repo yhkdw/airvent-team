@@ -31,9 +31,11 @@ export default function KpiCards({ latest, spaceId }: { latest: AirPoint, spaceI
 
   const items = useMemo(() => {
     // PM 1.0 logic: using PM2.5 threshold as a base or fixed
-    
 
-    const vocLevel = Math.round(latest.voc / 10);
+
+    // 펌웨어가 VOC를 Level(0~5) 값으로 직접 보내므로 추가 변환 없이 그대로 사용.
+    // (이전 코드는 /10 으로 나눠 0 으로 표시되는 버그가 있었음)
+    const vocLevel = Math.round(latest.voc);
     const pm1Status = getMetricStatus('pm1', latest.pm1);
     const pm25Status = getMetricStatus('pm25', latest.pm25);
     const pm10Status = getMetricStatus('pm10', latest.pm10);

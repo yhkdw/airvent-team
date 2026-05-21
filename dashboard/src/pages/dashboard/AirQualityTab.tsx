@@ -32,16 +32,21 @@ function pointTime(point: AirPoint): number {
     return 0;
 }
 
+// 브리지 서버(airvent-db) 와 브라우저 시계가 NTP 동기화 없이 운영될 수 있으므로
+// 약간의 미래 시각도 정상 수용. 5분 정도면 일반적인 클럭 드리프트를 모두 흡수.
+const CLOCK_DRIFT_GRACE_MS = 5 * 60 * 1000;
+
 function normalizeLast60Minutes(points: AirPoint[]): AirPoint[] {
     const now = Date.now();
     const min = now - 60 * 60 * 1000;
+    const futureCap = now + CLOCK_DRIFT_GRACE_MS;
 
     const unique = new Map<string, AirPoint>();
 
     for (const point of points) {
         const time = pointTime(point);
         if (!Number.isFinite(time)) continue;
-        if (time > now) continue; // 미래 데이터 제외
+        if (time > futureCap) continue; // grace 초과 미래만 제외 (서버 클럭 드리프트 허용)
         if (time < min) continue; // 최근 60분만 유지
 
         const key = point.ts ?? String(time);
@@ -65,8 +70,11 @@ export default function AirQualityTab() {
         // 무한 표시되는 케이스 차단.
         const fetchHistorical = async () => {
             const now = new Date();
-            const maxCreatedAt = now.toISOString();
-            const minCreatedAt = new Date(now.getTime() - 60 * 60 * 1000).toISOString();
+            // 서버(airvent-db) 시계가 브라우저보다 약간 앞설 수 있으므로 grace 만큼 미래도 허용.
+            // 그렇지 않으면 최신 row 가 lte 필터에서 잘려나가 historical 이 비어보이는 현상 발생.
+            const maxCreatedAt = new Date(now.getTime() + CLOCK_DRIFT_GRACE_MS).toISOString();
+            // SQL 쿼리는 약간 더 넓게 (65분) 가져온 뒤 normalizeLast60Minutes 에서 60분으로 자름.
+            const minCreatedAt = new Date(now.getTime() - 65 * 60 * 1000).toISOString();
 
             try {
                 const { data, error } = await supabase
@@ -126,7 +134,7 @@ export default function AirQualityTab() {
                     const now = Date.now();
 
                     if (!Number.isFinite(time)) return;
-                    if (time > now) return; // 현재시간보다 미래인 데이터는 화면에 반영하지 않음
+                    if (time > now + CLOCK_DRIFT_GRACE_MS) return; // grace 초과 미래만 차단
                     if (time < now - 60 * 60 * 1000) return;
 
                     setSeries((prev) => normalizeLast60Minutes([...prev, point]));
