@@ -60,34 +60,52 @@ export default function AirQualityTab() {
     useEffect(() => {
         let isMounted = true;
 
+        // [패치 1] try/finally — data 가 null 이거나 fetch 가 예외를 던져도
+        // setLoading(false) 가 반드시 호출되도록 보장. "Loading Live Data..." 가
+        // 무한 표시되는 케이스 차단.
         const fetchHistorical = async () => {
             const now = new Date();
             const maxCreatedAt = now.toISOString();
             const minCreatedAt = new Date(now.getTime() - 60 * 60 * 1000).toISOString();
 
-            const { data, error } = await supabase
-                .from("sensor_readings")
-                .select("*")
-                .eq("device_id", DEMO_DEVICE_ID)
-                .gte("created_at", minCreatedAt)
-                .lte("created_at", maxCreatedAt)
-                .order("created_at", { ascending: false })
-                .limit(60);
+            try {
+                const { data, error } = await supabase
+                    .from("sensor_readings")
+                    .select("*")
+                    .eq("device_id", DEMO_DEVICE_ID)
+                    .gte("created_at", minCreatedAt)
+                    .lte("created_at", maxCreatedAt)
+                    .order("created_at", { ascending: false })
+                    .limit(60);
 
-            if (error) {
-                console.error("Error fetching historical data:", error);
+                if (error) throw error;
+
+                if (isMounted) {
+                    const rows = data ?? [];
+                    const formatted = normalizeLast60Minutes(rows.map(rowToAirPoint));
+                    setSeries(formatted);
+                }
+            } catch (e) {
+                console.error("Error fetching historical data:", e);
+            } finally {
                 if (isMounted) setLoading(false);
-                return;
-            }
-
-            if (data && isMounted) {
-                const formatted = normalizeLast60Minutes(data.map(rowToAirPoint));
-                setSeries(formatted);
-                setLoading(false);
             }
         };
 
         fetchHistorical();
+
+        // [패치 2] 60초마다 자동 재페치 — Realtime 구독이 끊기거나 브리지가
+        // 잠시 멈췄다 복구돼도 1분 안에 화면이 자동 복원됨.
+        const refetchInterval = window.setInterval(fetchHistorical, 60_000);
+
+        // [패치 3] 탭이 다시 visible 되면 즉시 재페치 — Mac sleep/wake,
+        // 다른 탭에서 돌아오기 등의 시나리오에서 즉시 최신 데이터 확보.
+        const onVisibilityChange = () => {
+            if (document.visibilityState === "visible") {
+                fetchHistorical();
+            }
+        };
+        document.addEventListener("visibilitychange", onVisibilityChange);
 
         const channel = supabase
             .channel(`public:sensor_readings:airquality:${DEMO_DEVICE_ID}`)
@@ -118,6 +136,8 @@ export default function AirQualityTab() {
 
         return () => {
             isMounted = false;
+            window.clearInterval(refetchInterval);
+            document.removeEventListener("visibilitychange", onVisibilityChange);
             supabase.removeChannel(channel);
         };
     }, []);
