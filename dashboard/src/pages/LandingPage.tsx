@@ -922,7 +922,7 @@ export default function LandingPage() {
                 <div className="relative bg-black aspect-video md:aspect-auto md:min-h-[280px]">
                   {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
                   <video
-                    src="/videos/airvent-demo-ko.mp4"
+                    src="/videos/airvent-hero-loop.mp4"
                     poster="/product_bg.png"
                     autoPlay
                     muted
@@ -974,7 +974,7 @@ export default function LandingPage() {
               <div className="rounded-3xl border border-slate-800 bg-black overflow-hidden shadow-2xl">
                 {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
                 <video
-                  src="/videos/airvent-demo-ko.mp4"
+                  src="/videos/airvent-demo-en-v2.mp4"
                   poster="/product_bg.png"
                   controls
                   muted
