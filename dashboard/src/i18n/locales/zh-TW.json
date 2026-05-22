@@ -154,6 +154,8 @@
         "nickname_required": "請輸入暱稱。",
         "nickname_too_short": "暱稱長度必須至少為 2 個字元。",
         "password_mismatch": "密碼不一致。",
-        "password_too_short": "密碼長度必須至少為 6 個字元。"
+        "password_too_short": "密碼長度必須至少為 6 個字元。",
+        "request_timeout": "請求逾時。請確認網路狀態後再試一次。",
+        "profile_save_failed": "儲存個人資料失敗。請稍後再試。"
     }
 }

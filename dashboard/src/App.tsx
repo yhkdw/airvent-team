@@ -37,6 +37,11 @@ export default function App() {
 
         console.log(`[App] ${event} at ${currentPath}, next: ${next}, hasToken: ${hasAccessToken}`);
 
+        if (event === "SIGNED_IN" && currentPath === "/login" && !hasAccessToken) {
+          console.log("[App] LoginPage will handle the email auth redirect.");
+          return;
+        }
+
         // 닉네임 확인 — 없으면 온보딩으로
         const { data: nickname, error: profileError } = await getNickname(session.user.id);
         if (!nickname && !profileError) {

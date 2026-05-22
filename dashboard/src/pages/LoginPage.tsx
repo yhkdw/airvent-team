@@ -7,6 +7,17 @@ import { supabase } from "../lib/supabaseClient";
 type SocialProvider = "google" | "twitter";
 type Mode = "login" | "signup" | "verify";
 
+const AUTH_REQUEST_TIMEOUT_MS = 15000;
+
+function withTimeout<T>(promise: Promise<T>, message: string): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) => {
+      window.setTimeout(() => reject(new Error(message)), AUTH_REQUEST_TIMEOUT_MS);
+    }),
+  ]);
+}
+
 export default function LoginPage() {
   const { t, i18n } = useTranslation();
   const nav = useNavigate();
@@ -62,10 +73,18 @@ export default function LoginPage() {
     e.preventDefault();
     setError("");
     setLoading(true);
-    const { error: loginErr } = await loginWithEmail(email, password);
-    setLoading(false);
-    if (loginErr) setError(loginErr.message || t("login.error_unauthorized"));
-    else redirectAfterAuth();
+    try {
+      const { error: loginErr } = await withTimeout(
+        loginWithEmail(email, password),
+        t("login.request_timeout")
+      );
+      if (loginErr) setError(loginErr.message || t("login.error_unauthorized"));
+      else await redirectAfterAuth();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t("login.error_unauthorized"));
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSignUp = async (e: React.FormEvent) => {
@@ -76,20 +95,36 @@ export default function LoginPage() {
     if (password !== confirmPassword) { setError(t("login.password_mismatch")); return; }
     if (password.length < 6) { setError(t("login.password_too_short")); return; }
     setLoading(true);
-    const { data, error: signUpErr } = await signUpWithEmail(email, password, nickname.trim(), nextPath, i18n.language);
-    if (!signUpErr && data.session?.user) {
-      const { error: profileErr } = await saveNickname(data.session.user.id, nickname.trim());
-      setLoading(false);
-      if (profileErr) {
-        setError(profileErr.message || "Failed to save profile.");
+    try {
+      const { data, error: signUpErr } = await withTimeout(
+        signUpWithEmail(email, password, nickname.trim(), nextPath, i18n.language),
+        t("login.request_timeout")
+      );
+
+      if (signUpErr) {
+        setError(signUpErr.message);
         return;
       }
-      nav(withLang(nextPath), { replace: true });
-      return;
+
+      if (data.session?.user) {
+        const { error: profileErr } = await withTimeout(
+          saveNickname(data.session.user.id, nickname.trim()),
+          t("login.request_timeout")
+        );
+        if (profileErr) {
+          setError(profileErr.message || t("login.profile_save_failed"));
+          return;
+        }
+        nav(withLang(nextPath), { replace: true });
+        return;
+      }
+
+      setMode("verify");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t("login.error_unauthorized"));
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
-    if (signUpErr) setError(signUpErr.message);
-    else setMode("verify");
   };
 
   const SocialButtons = () => (

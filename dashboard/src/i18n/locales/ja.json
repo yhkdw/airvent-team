@@ -154,6 +154,8 @@
         "nickname_required": "ニックネームを入力してください。",
         "nickname_too_short": "ニックネームは2文字以上で入力してください。",
         "password_mismatch": "パスワードが一致しません。",
-        "password_too_short": "パスワードは6文字以上で入力してください。"
+        "password_too_short": "パスワードは6文字以上で入力してください。",
+        "request_timeout": "リクエストがタイムアウトしました。ネットワーク状況をご確認のうえ、再度お試しください。",
+        "profile_save_failed": "プロフィールの保存に失敗しました。しばらくしてから再度お試しください。"
     }
 }

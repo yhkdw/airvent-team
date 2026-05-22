@@ -154,6 +154,8 @@
         "nickname_required": "Please enter a nickname.",
         "nickname_too_short": "Nickname must be at least 2 characters.",
         "password_mismatch": "Passwords do not match.",
-        "password_too_short": "Password must be at least 6 characters."
+        "password_too_short": "Password must be at least 6 characters.",
+        "request_timeout": "The request timed out. Please check your network and try again.",
+        "profile_save_failed": "Failed to save your profile. Please try again shortly."
     }
 }
