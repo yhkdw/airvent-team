@@ -1,6 +1,23 @@
 # AirVent DePIN Release Notes
 
 
+## Version: v1.10.0 - 2026-06-02
+
+### 🎉 Whats New
+- **Node Network Map**: Added a real Leaflet-based map to the mobile demo Dashboard, visualizing live node locations across Seoul·Incheon. Markers are color-coded by PM2.5 grade (Good/Moderate/Unhealthy), popups show live readings plus an on-chain Solscan link, and the user's paired device is highlighted.
+- **AirVent Brand Refresh**: Applied the official brand palette (Blue `#3065A2` / Green `#00B428` / Navy `#2B2445`) and placed the AirVent wing symbol on the login screen and headers.
+- **Light Theme**: Converted the mobile demo app from the dark glassmorphism look to a clean white/light theme.
+- **English-first UI**: Translated the demo app's user-facing strings to English by default.
+
+### 🛠 Technical Changes
+- New `airvent-demo/src/components/NodeMap.jsx` — dynamically loads Leaflet via CDN, queries Supabase `devices` for coordinates, and falls back to sample nodes.
+- Wired `NodeMap` into `DashboardScreen` with `pairedDeviceId` highlighting.
+- Added transparent brand symbol asset `airvent-demo/src/assets/airvent-symbol.png` (imported as a bundled module).
+- Version bump to `v1.10.0`.
+
+---
+
+
 ## Version: v1.9.5 - 2026-03-15
 
 ### 🎉 Whats New
