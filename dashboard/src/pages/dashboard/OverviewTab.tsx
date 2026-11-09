@@ -82,24 +82,9 @@ export default function OverviewTab() {
 
     const getSpaceSpecificData = (base: AirPoint, spaceId: string): AirPoint => {
         if (!base) return {} as AirPoint;
-        const factors: Record<string, { pm25: number, co2: number, voc: number }> = {
-            'living-room': { pm25: 1.0, co2: 1.0, voc: 1.0 },
-            'kitchen': { pm25: 3.2, co2: 1.1, voc: 1.4 }, // Realistic variation (around warn/good)
-            'bedroom': { pm25: 0.9, co2: 1.1, voc: 0.9 }, 
-            'kids-room': { pm25: 1.1, co2: 1.0, voc: 1.0 },
-            'meeting-a': { pm25: 1.2, co2: 1.5, voc: 2.1 }, // Realistic variation (around good/warn)
-            'office-area': { pm25: 1.1, co2: 1.2, voc: 1.1 },
-            'lounge': { pm25: 1.2, co2: 1.1, voc: 1.4 }
-        };
-        const f = factors[spaceId] || { pm25: 1.0, co2: 1.0, voc: 1.0 };
-        return {
-            ...base,
-            pm25: Math.round(base.pm25 * f.pm25),
-            pm1: Math.round(base.pm1 * f.pm25),
-            pm10: Math.round(base.pm10 * f.pm25),
-            co2: Math.round(base.co2 * f.co2),
-            voc: Math.round(base.voc * f.voc)
-        };
+        // Every space uses the one physical node; never fabricate per-room measurements.
+        void spaceId;
+        return base;
     };
 
     const latest = useMemo(() => getSpaceSpecificData(rawLatest as AirPoint, activeSpace), [rawLatest, activeSpace]);
@@ -221,6 +206,10 @@ export default function OverviewTab() {
                 </div>
             )}
 
+            <div className="rounded-xl border border-sky-500/30 bg-sky-950/20 px-4 py-3 text-xs text-sky-200">
+                Live node: {DEMO_DEVICE_ID}. Only one physical sensor is connected; Home/Office rooms are layout demonstrations, not separate sensor readings.
+                {rawLatest?.ts && <span className="ml-2 text-sky-300">Last received: {new Date(rawLatest.ts).toLocaleString()}</span>}
+              </div>
             <div className="space-y-6">
                 <div>
                     <div className="flex items-center justify-between mb-4">
