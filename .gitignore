@@ -28,3 +28,6 @@ build/
 airvent-bridge*.json
 id*.json
 wallet*.json
+
+# AIRVENT durable MQTT ingest queue (contains sensor telemetry)
+dashboard/bridge/spool/
