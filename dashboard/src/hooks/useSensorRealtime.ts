@@ -83,6 +83,7 @@ export function useSensorRealtime(deviceId?: string): UseSensorRealtimeResult {
                 const data = await response.json();
                 if (data && data.length > 0) {
                     setLatest(mapRow(data[0]));
+                    setError(null);
                 }
                 setIsLoading(false);
             } catch (e: any) {
@@ -95,6 +96,10 @@ export function useSensorRealtime(deviceId?: string): UseSensorRealtimeResult {
         };
 
         fetchLatest();
+        // Realtime websocket can disconnect; polling repairs gaps without refreshing page.
+        const poll = window.setInterval(fetchLatest, 60_000);
+        const onVisible = () => { if (document.visibilityState === "visible") void fetchLatest(); };
+        document.addEventListener("visibilitychange", onVisible);
 
         // 2) Realtime 구독
         const channelName = deviceId
@@ -114,6 +119,7 @@ export function useSensorRealtime(deviceId?: string): UseSensorRealtimeResult {
                 (payload) => {
                     if (cancelled) return;
                     setLatest(mapRow(payload.new));
+                    setError(null);
                 }
             )
             .subscribe();
@@ -121,6 +127,8 @@ export function useSensorRealtime(deviceId?: string): UseSensorRealtimeResult {
         // 3) cleanup
         return () => {
             cancelled = true;
+            window.clearInterval(poll);
+            document.removeEventListener("visibilitychange", onVisible);
             supabase.removeChannel(channel);
         };
     }, [deviceId]);
