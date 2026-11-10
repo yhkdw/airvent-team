@@ -12,10 +12,10 @@ export function PmChart({ data }: { data: AirPoint[] }) {
     <div className="rounded-2xl border border-slate-800 bg-slate-900/50 p-4">
       <div className="flex items-end justify-between">
         <div>
-          <div className="text-xs text-slate-400">LAST 24H</div>
-          <div className="text-lg font-semibold">PM2.5 / PM10 Trend</div>
+          <div className="text-xs text-slate-400">LAST 60 MIN</div>
+          <div className="text-lg font-semibold">PM1.0 / PM2.5 / PM10 Trend</div>
         </div>
-        <div className="text-xs text-slate-500">downsampled (5min)</div>
+        <div className="text-xs text-slate-500">1-min resolution</div>
       </div>
 
       <div className="h-64 mt-3">
@@ -29,6 +29,7 @@ export function PmChart({ data }: { data: AirPoint[] }) {
               labelFormatter={(l) => fmtTime(String(l))}
             />
             <Legend />
+            <Line type="monotone" dataKey="pm1" name="PM1.0" dot={false} strokeWidth={2} />
             <Line type="monotone" dataKey="pm25" dot={false} strokeWidth={2} />
             <Line type="monotone" dataKey="pm10" dot={false} strokeWidth={2} />
           </LineChart>
@@ -43,10 +44,10 @@ export function GasChart({ data }: { data: AirPoint[] }) {
     <div className="rounded-2xl border border-slate-800 bg-slate-900/50 p-4">
       <div className="flex items-end justify-between">
         <div>
-          <div className="text-xs text-slate-400">LAST 24H</div>
+          <div className="text-xs text-slate-400">LAST 60 MIN</div>
           <div className="text-lg font-semibold">CO2 / VOC Trend</div>
         </div>
-        <div className="text-xs text-slate-500">downsampled (5min)</div>
+        <div className="text-xs text-slate-500">1-min resolution</div>
       </div>
 
       <div className="h-64 mt-3">
