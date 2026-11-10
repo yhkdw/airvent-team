@@ -29,6 +29,7 @@ export default function RawTable({ recent }: { recent: AirPoint[] }) {
           <thead className="text-slate-400">
             <tr className="border-b border-slate-800">
               <th className="text-left py-2 pr-3">Time</th>
+              <th className="text-right py-2 px-3">PM1.0</th>
               <th className="text-right py-2 px-3">PM2.5</th>
               <th className="text-right py-2 px-3">PM10</th>
               <th className="text-right py-2 px-3">CO2</th>
@@ -41,6 +42,7 @@ export default function RawTable({ recent }: { recent: AirPoint[] }) {
             {rows.map((r, index) => (
               <tr key={`${r.ts ?? (r as any).timestamp}-${index}`} className="border-b border-slate-900/80">
                 <td className="py-2 pr-3 text-slate-300">{fmtTime(r.ts ?? new Date((r as any).timestamp).toISOString())}</td>
+                <td className="py-2 px-3 text-right">{r.pm1}</td>
                 <td className="py-2 px-3 text-right">{r.pm25}</td>
                 <td className="py-2 px-3 text-right">{r.pm10}</td>
                 <td className="py-2 px-3 text-right">{r.co2}</td>
