@@ -96,6 +96,13 @@ export function useSensorRealtime(deviceId?: string): UseSensorRealtimeResult {
 
         fetchLatest();
 
+        // The realtime channel can temporarily miss INSERT events; poll as a fallback.
+        const pollTimer = window.setInterval(fetchLatest, 30_000);
+        const onVisible = () => {
+            if (document.visibilityState === "visible") void fetchLatest();
+        };
+        document.addEventListener("visibilitychange", onVisible);
+
         // 2) Realtime 구독
         const channelName = deviceId
             ? `public:sensor_readings:${deviceId}`
@@ -121,6 +128,8 @@ export function useSensorRealtime(deviceId?: string): UseSensorRealtimeResult {
         // 3) cleanup
         return () => {
             cancelled = true;
+            window.clearInterval(pollTimer);
+            document.removeEventListener("visibilitychange", onVisible);
             supabase.removeChannel(channel);
         };
     }, [deviceId]);
