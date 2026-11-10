@@ -96,8 +96,8 @@ export function useSensorRealtime(deviceId?: string): UseSensorRealtimeResult {
         };
 
         fetchLatest();
-        // Realtime websocket can disconnect; polling repairs gaps without refreshing page.
-        const poll = window.setInterval(fetchLatest, 60_000);
+        // Realtime websocket can disconnect or miss INSERT notifications; poll to refresh KPI cards without a page reload.
+        const poll = window.setInterval(fetchLatest, 30_000);
         const onVisible = () => { if (document.visibilityState === "visible") void fetchLatest(); };
         document.addEventListener("visibilitychange", onVisible);
 
