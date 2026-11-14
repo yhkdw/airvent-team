@@ -72,7 +72,7 @@ export default function OverviewTab() {
     const [activeSpace, setActiveSpace] = useState('living-room');
 
     // Supabase 실시간 측정값 (훅으로 일원화)
-    const { latest: realtimeLatest, isLoading } = useSensorRealtime(DEMO_DEVICE_ID);
+    const { latest: realtimeLatest, isLoading, connection, lastReceivedAt } = useSensorRealtime(DEMO_DEVICE_ID);
 
     // 실제 Supabase 데이터만 사용합니다. 데이터가 없으면 Mock으로 대체하지 않습니다.
     const rawLatest: AirPoint | null = useMemo(() => {
@@ -165,6 +165,11 @@ export default function OverviewTab() {
 
     return (
         <div className="space-y-6">
+            <div role="status" aria-live="polite" className="flex flex-wrap items-center gap-2 text-xs text-slate-400">
+                <span className={`h-2 w-2 rounded-full ${connection === 'live' ? 'bg-emerald-400' : 'bg-amber-400'}`} />
+                <span>{connection === 'live' ? 'MQTT 실시간 수신' : connection === 'disabled' ? 'DB 측정값 표시' : '실시간 재연결 중 · DB 데이터로 표시'}</span>
+                {lastReceivedAt && <span>· 마지막 수신: {new Date(lastReceivedAt).toLocaleTimeString()}</span>}
+            </div>
             <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between bg-slate-900/50 p-4 rounded-2xl border border-slate-800">
                 <div className="flex items-center gap-2 bg-slate-950 p-1 rounded-xl border border-slate-800">
                     <button 
