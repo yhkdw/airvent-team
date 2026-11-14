@@ -1,0 +1,33 @@
+name: Dashboard realtime SSE and one-minute aggregation checks
+
+on:
+  pull_request:
+    paths:
+      - 'dashboard/**'
+      - 'api/airvent/dashboard-stream-token.js'
+      - 'airvent-realtime/**'
+      - 'ingestion/**'
+      - '.github/workflows/dashboard-realtime-ci.yml'
+  workflow_dispatch:
+
+jobs:
+  dashboard-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: dashboard/package-lock.json
+      - name: Verify Oracle relay syntax
+        run: node --check airvent-realtime/server.cjs
+      - name: Test signed SSE tokens
+        run: node --test airvent-realtime/token.test.cjs
+      - name: Test one-minute accumulator
+        run: node --test ingestion/minute-window.test.cjs
+      - name: Compile and build dashboard
+        working-directory: dashboard
+        run: |
+          npm ci
+          npm run build
