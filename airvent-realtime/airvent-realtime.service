@@ -1,0 +1,21 @@
+[Unit]
+Description=AIRVENT MQTT to SSE realtime stream
+After=network-online.target mosquitto.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=airventrelay
+Group=airventrelay
+WorkingDirectory=/opt/airvent-realtime
+EnvironmentFile=/etc/airvent-realtime/relay.env
+ExecStart=/usr/bin/node /opt/airvent-realtime/server.cjs
+Restart=always
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target
