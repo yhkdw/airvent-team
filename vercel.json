@@ -8,6 +8,10 @@
   },
   "rewrites": [
     {
+      "source": "/api/airvent/(.*)",
+      "destination": "/api/airvent/$1"
+    },
+    {
       "source": "/demo/(.*)",
       "destination": "/demo/$1"
     },
