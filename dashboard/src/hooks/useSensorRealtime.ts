@@ -15,7 +15,6 @@
 import { useEffect, useState } from "react";
 import { supabase, supabaseAnonKey, supabaseUrl } from "../lib/supabaseClient";
 import { AirPoint } from "../types/air";
-import { useAirventStream, StreamState } from "./useAirventStream";
 
 // Supabase sensor_readings row 형식 → 대시보드 AirPoint 매핑
 function mapRow(row: any): AirPoint & { source: "supabase" } {
@@ -35,16 +34,13 @@ function mapRow(row: any): AirPoint & { source: "supabase" } {
 }
 
 interface UseSensorRealtimeResult {
-    latest: (AirPoint & { source: "supabase" | "sse" }) | null;
+    latest: (AirPoint & { source: "supabase" }) | null;
     isLoading: boolean;
     error: string | null;
-    connection: StreamState;
-    lastReceivedAt: string | null;
 }
 
 export function useSensorRealtime(deviceId?: string): UseSensorRealtimeResult {
     const [latest, setLatest] = useState<(AirPoint & { source: "supabase" }) | null>(null);
-    const stream = useAirventStream(deviceId || "5EBHA10001");
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -138,12 +134,5 @@ export function useSensorRealtime(deviceId?: string): UseSensorRealtimeResult {
         };
     }, [deviceId]);
 
-    // Current SSE packet wins when connected. Supabase is a durable fallback.
-    return {
-        latest: stream.latest ?? latest,
-        isLoading: !stream.latest && isLoading,
-        error,
-        connection: stream.connection,
-        lastReceivedAt: stream.lastReceivedAt ?? latest?.ts ?? null,
-    };
+    return { latest, isLoading, error };
 }
