@@ -1,0 +1,16 @@
+{
+  "name": "airvent-realtime-relay",
+  "version": "1.0.0",
+  "private": true,
+  "type": "commonjs",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node server.cjs",
+    "test": "node --test token.test.cjs"
+  },
+  "dependencies": {
+    "mqtt": "5.10.1"
+  }
+}
