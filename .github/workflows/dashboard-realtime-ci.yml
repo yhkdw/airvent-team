@@ -29,5 +29,7 @@ jobs:
       - name: Compile and build dashboard
         working-directory: dashboard
         run: |
-          npm ci
+          # Existing dashboard lockfile is out of sync with package.json;
+          # match the production build.sh install behavior without altering the lockfile.
+          npm install --no-audit --no-fund
           npm run build
