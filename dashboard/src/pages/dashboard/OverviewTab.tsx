@@ -27,7 +27,7 @@ export const getAirStatus = (p: AirPoint): AirStatus => {
         getMetricStatus('pm1', p.pm1),
         getMetricStatus('pm10', p.pm10),
         getMetricStatus('co2', p.co2),
-        getMetricStatus('voc', Math.round(p.voc / 10)),
+        getMetricStatus('voc', Math.round(p.voc)),
         getMetricStatus('temp', p.temp),
         getMetricStatus('hum', p.hum)
     ];
@@ -72,7 +72,7 @@ export default function OverviewTab() {
     const [activeSpace, setActiveSpace] = useState('living-room');
 
     // Supabase 실시간 측정값 (훅으로 일원화)
-    const { latest: realtimeLatest, isLoading } = useSensorRealtime(DEMO_DEVICE_ID);
+    const { latest: realtimeLatest, isLoading, connection, lastReceivedAt } = useSensorRealtime(DEMO_DEVICE_ID);
 
     // 실제 Supabase 데이터만 사용합니다. 데이터가 없으면 Mock으로 대체하지 않습니다.
     const rawLatest: AirPoint | null = useMemo(() => {
@@ -80,27 +80,9 @@ export default function OverviewTab() {
         return null;
     }, [realtimeLatest]);
 
-    const getSpaceSpecificData = (base: AirPoint, spaceId: string): AirPoint => {
-        if (!base) return {} as AirPoint;
-        const factors: Record<string, { pm25: number, co2: number, voc: number }> = {
-            'living-room': { pm25: 1.0, co2: 1.0, voc: 1.0 },
-            'kitchen': { pm25: 3.2, co2: 1.1, voc: 1.4 }, // Realistic variation (around warn/good)
-            'bedroom': { pm25: 0.9, co2: 1.1, voc: 0.9 }, 
-            'kids-room': { pm25: 1.1, co2: 1.0, voc: 1.0 },
-            'meeting-a': { pm25: 1.2, co2: 1.5, voc: 2.1 }, // Realistic variation (around good/warn)
-            'office-area': { pm25: 1.1, co2: 1.2, voc: 1.1 },
-            'lounge': { pm25: 1.2, co2: 1.1, voc: 1.4 }
-        };
-        const f = factors[spaceId] || { pm25: 1.0, co2: 1.0, voc: 1.0 };
-        return {
-            ...base,
-            pm25: Math.round(base.pm25 * f.pm25),
-            pm1: Math.round(base.pm1 * f.pm25),
-            pm10: Math.round(base.pm10 * f.pm25),
-            co2: Math.round(base.co2 * f.co2),
-            voc: Math.round(base.voc * f.voc)
-        };
-    };
+    // A single physical device cannot measure seven independent rooms.
+    // Keep raw readings unchanged instead of presenting multiplied mock values as live.
+    const getSpaceSpecificData = (base: AirPoint, _spaceId: string): AirPoint => base;
 
     const latest = useMemo(() => getSpaceSpecificData(rawLatest as AirPoint, activeSpace), [rawLatest, activeSpace]);
     const activeStatus = getAirStatus(latest);
@@ -131,7 +113,7 @@ export default function OverviewTab() {
         if (activeStatus === 'warn' || activeStatus === 'bad') {
             const isCO2Issue = getMetricStatus('co2', latest.co2) === 'bad' || getMetricStatus('co2', latest.co2) === 'warn';
             const isPM25Issue = getMetricStatus('pm25', latest.pm25) === 'bad' || getMetricStatus('pm25', latest.pm25) === 'warn';
-            const isVOCIssue = getMetricStatus('voc', Math.round(latest.voc/10)) === 'bad' || getMetricStatus('voc', Math.round(latest.voc/10)) === 'warn';
+            const isVOCIssue = getMetricStatus('voc', Math.round(latest.voc)) === 'bad' || getMetricStatus('voc', Math.round(latest.voc)) === 'warn';
 
             if (isCO2Issue) {
                 return {
@@ -165,6 +147,12 @@ export default function OverviewTab() {
 
     return (
         <div className="space-y-6">
+            <div role="status" aria-live="polite" className="flex flex-wrap items-center gap-2 text-xs text-slate-400">
+                <span className={`h-2 w-2 rounded-full ${connection === 'live' ? 'bg-emerald-400' : 'bg-amber-400'}`} />
+                <span>{connection === 'live' ? 'MQTT 실시간 수신' : connection === 'disabled' ? 'DB 측정값 표시' : '실시간 재연결 중 · DB 데이터로 표시'}</span>
+                <span>· 모든 공간의 측정값은 시연용 단일 노드 기준</span>
+                {lastReceivedAt && <span>· 마지막 수신: {new Date(lastReceivedAt).toLocaleTimeString()}</span>}
+            </div>
             <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between bg-slate-900/50 p-4 rounded-2xl border border-slate-800">
                 <div className="flex items-center gap-2 bg-slate-950 p-1 rounded-xl border border-slate-800">
                     <button 
