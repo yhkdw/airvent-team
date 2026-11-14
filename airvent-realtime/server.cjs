@@ -67,7 +67,9 @@ const server=http.createServer((req,res)=>{
  const limit=setTimeout(()=>res.end(),600000);
  let done=false;
  const cleanup=()=>{if(done)return;done=true;clearInterval(pulse);clearTimeout(limit);set.delete(res);if(!set.size)clients.delete(id);};
- req.on('close',cleanup);res.on('close',cleanup);
+ // HTTP GET IncomingMessage can close as soon as headers are fully read;
+ // keep the SSE client alive until its ServerResponse closes.
+ res.on('close',cleanup);
 });
 server.listen(port,'127.0.0.1',()=>console.log('SSE relay listening on 127.0.0.1:'+port));
 function shutdown(){server.close();conn.end(true);setTimeout(()=>process.exit(0),1000).unref();}
