@@ -35,7 +35,7 @@ function mapRow(row: any): AirPoint & { source: "supabase" } {
 }
 
 interface UseSensorRealtimeResult {
-    latest: (AirPoint & { source: "supabase" }) | null;
+    latest: (AirPoint & { source: "supabase" | "sse" }) | null;
     isLoading: boolean;
     error: string | null;
     connection: StreamState;
