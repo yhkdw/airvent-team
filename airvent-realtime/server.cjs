@@ -5,18 +5,12 @@ const mqtt=require('mqtt');
 const {verify,checkKey}=require('./token.cjs');
 const key=process.env.AIRVENT_STREAM_SIGNING_KEY;
 checkKey(key);
-// CORS allowlist is not authentication: every client still needs a signed token.
-// Keep the existing partner origin; add first-party dashboard origins.
-const origins=(process.env.AIRVENT_CORS_ORIGINS || [
- process.env.AIRVENT_CORS_ORIGIN || 'https://aero-fire.vercel.app',
- 'https://airvent.ai','https://www.airvent.ai','https://airvent-team.vercel.app'
-].join(',')).split(',').map(v=>v.trim()).filter(Boolean);
-const allowedOrigins=new Set(origins);
+const origin=process.env.AIRVENT_CORS_ORIGIN||'https://aero-fire.vercel.app';
 const port=Number(process.env.AIRVENT_REALTIME_PORT||3108);
 const ids=(process.env.AIRVENT_ALLOWED_DEVICE_IDS||'5EBHA10001').split(',').map(x=>x.trim()).filter(Boolean);
 const allow=new Set(ids), clients=new Map(), last=new Map();
 if(!ids.length||ids.some(x=>!/^[A-Za-z0-9_-]{1,64}$/.test(x))||!Number.isInteger(port)||port<1024||port>65535)throw Error('Invalid configuration');
-if(!origins.length||origins.some(v=>!/^https:\/\/[a-zA-Z0-9.-]+(?::[0-9]+)?$/.test(v)))throw Error('Invalid origins');
+if(!/^https:\/\/[a-zA-Z0-9.-]+(?::[0-9]+)?$/.test(origin))throw Error('Invalid origin');
 if(!process.env.MQTT_USERNAME||!process.env.MQTT_PASSWORD)throw Error('MQTT credentials missing');
 const conn=mqtt.connect(process.env.MQTT_HOST||'mqtt://127.0.0.1:1883',{
  username:process.env.MQTT_USERNAME,password:process.env.MQTT_PASSWORD,
@@ -56,13 +50,13 @@ const server=http.createServer((req,res)=>{
  const id=url.searchParams.get('device_id'), token=url.searchParams.get('token');
  if(!allow.has(id))return reply(res,404,{error:'device_not_available'});
  if(!token||!verify({key,deviceId:id,token}))return reply(res,401,{error:'invalid_token'});
- if(req.headers.origin&&!allowedOrigins.has(req.headers.origin))return reply(res,403,{error:'origin_not_allowed'});
+ if(req.headers.origin&&req.headers.origin!==origin)return reply(res,403,{error:'origin_not_allowed'});
  let count=0;for(const set of clients.values())count+=set.size;
  if(count>=50)return reply(res,503,{error:'capacity_reached'});
  res.writeHead(200,{
   'Content-Type':'text/event-stream; charset=utf-8','Cache-Control':'no-cache, no-store, no-transform',
   'Connection':'keep-alive','X-Accel-Buffering':'no','X-Content-Type-Options':'nosniff','Vary':'Origin',
-  ...(allowedOrigins.has(req.headers.origin)?{'Access-Control-Allow-Origin':req.headers.origin}:{})
+  ...(req.headers.origin===origin?{'Access-Control-Allow-Origin':origin}:{})
  });
  res.write('retry: 3000\n\n');
  if(!clients.has(id))clients.set(id,new Set());

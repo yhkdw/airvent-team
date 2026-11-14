@@ -5,8 +5,6 @@ import RawTable from "../../components/RawTable";
 import { AirPoint } from "../../types/air";
 import { Info } from "lucide-react";
 import { DEMO_DEVICE_ID } from "../../config/chain";
-import { useSensorRealtime } from "../../hooks/useSensorRealtime";
-import KpiCards from "../../components/KpiCards";
 
 // Setup Supabase
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "";
@@ -63,7 +61,6 @@ function normalizeLast60Minutes(points: AirPoint[]): AirPoint[] {
 export default function AirQualityTab() {
     const [series, setSeries] = useState<AirPoint[]>([]);
     const [loading, setLoading] = useState(true);
-    const { latest: liveLatest, connection, lastReceivedAt } = useSensorRealtime(DEMO_DEVICE_ID);
 
     useEffect(() => {
         let isMounted = true;
@@ -163,13 +160,6 @@ export default function AirQualityTab() {
 
     return (
         <div className="space-y-6">
-            <div className="rounded-xl border border-slate-800 bg-slate-900/50 p-4">
-                <div role="status" aria-live="polite" className="mb-3 text-xs text-slate-400">
-                    {connection === 'live' ? '● MQTT 실시간 측정' : connection === 'disabled' ? '● DB 측정값' : '● SSE 재연결 중 · DB 폴백'}
-                    {lastReceivedAt && <> · 마지막 수신: {new Date(lastReceivedAt).toLocaleTimeString()}</>}
-                </div>
-                {liveLatest && <KpiCards latest={liveLatest} />}
-            </div>
             <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex items-start gap-3">
                 <div className="p-2 bg-slate-800 rounded-lg text-slate-400">
                     <Info size={18} />
@@ -177,7 +167,7 @@ export default function AirQualityTab() {
                 <div>
                     <div className="text-sm font-semibold">Node Telemetry Tracking</div>
                     <p className="text-xs text-slate-400 mt-0.5">
-                        The cards show the freshest available reading. The charts and raw telemetry table show stored one-minute history for the selected device.
+                        This data is live from your local sensor node. Only the selected device&apos;s last 60 minutes are shown.
                     </p>
                 </div>
             </div>
